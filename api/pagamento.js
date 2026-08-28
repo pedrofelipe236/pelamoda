@@ -35,6 +35,8 @@ export default async function handler(req, res) {
 
                     redirect_url:
                         "https://pelamoda.vercel.app/pagamento-concluido.html",
+                        webhook_url:
+    "https://pelamoda.vercel.app/api/webhook-infinitepay",
 
                     customer,
 
