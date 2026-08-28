@@ -507,7 +507,28 @@
 
 
     function verificarEntregaGratis() {
+const tipoEntrega =
+    document.querySelector(
+        'input[name="tipo-entrega"]:checked'
+    )?.value;
 
+if (tipoEntrega === "motouber") {
+
+    valorFrete = 0;
+
+    checkoutFrete.textContent = "A combinar";
+
+    resultadoFrete.innerHTML = `
+        <div class="frete-normal">
+            Valor da entrega por Moto Uber será combinado
+            de acordo com o endereço.
+        </div>
+    `;
+
+    atualizarTotalCheckout();
+
+    return;
+}
         const cidade =
             normalizarTexto(cidadeInput.value);
 
@@ -807,16 +828,103 @@ async function calcularFreteSuperFrete() {
                 .replace(".", ",")}`;
 
     }
+const btnPagamento = document.getElementById("btn-pagamento");
 
+btnPagamento.addEventListener("click", () => {
+
+    const nome = document.getElementById("nome").value.trim();
+    const whatsapp = document.getElementById("whatsapp").value.trim();
+
+    const tipoEntrega =
+        document.querySelector(
+            'input[name="tipo-entrega"]:checked'
+        )?.value;
+
+    if (!nome) {
+        alert("Informe seu nome.");
+        document.getElementById("nome").focus();
+        return;
+    }
+
+    if (!whatsapp) {
+        alert("Informe seu WhatsApp.");
+        document.getElementById("whatsapp").focus();
+        return;
+    }
+
+    if (!tipoEntrega) {
+        alert("Escolha uma forma de entrega.");
+        return;
+    }
+
+    // ENTREGA NORMAL
+    if (tipoEntrega === "endereco") {
+
+        const cep = document.getElementById("cep").value.trim();
+        const numero = document.getElementById("numero").value.trim();
+
+        if (!cep) {
+            alert("Informe o CEP.");
+            document.getElementById("cep").focus();
+            return;
+        }
+
+        if (!numero) {
+            alert("Informe o número do endereço.");
+            document.getElementById("numero").focus();
+            return;
+        }
+
+        // Se não for entrega grátis,
+        // precisa escolher um frete da SuperFrete.
+        if (
+            checkoutFrete.textContent !== "GRÁTIS" &&
+            !document.querySelector(
+                'input[name="frete-superfrete"]:checked'
+            )
+        ) {
+            alert("Escolha uma opção de frete.");
+            return;
+        }
+    }
+
+    // RETIRADA
+    if (tipoEntrega === "retirada") {
+
+        const retirada =
+            document.querySelector(
+                'input[name="local-retirada"]:checked'
+            );
+
+        if (!retirada) {
+            alert("Escolha o local de retirada.");
+            return;
+        }
+    }
+
+    // MOTO UBER
+    if (tipoEntrega === "motouber") {
+
+        const cep = document.getElementById("cep").value.trim();
+        const numero = document.getElementById("numero").value.trim();
+
+        if (!cep || !numero) {
+            alert("Informe o endereço completo para o Moto Uber.");
+            return;
+        }
+    }
+
+    // CHEGOU AQUI = TUDO CERTO
+    console.log("Checkout validado com sucesso!");
+
+});
 
     // ========================================
     // INICIALIZAÇÃO
     // ========================================
 
     carregarResumoCheckout();
-
-</script>
-atualizarTotalCheckout();
+    atualizarTotalCheckout();
 
 </script>
 </body>
