@@ -830,7 +830,7 @@ async function calcularFreteSuperFrete() {
     }
 const btnPagamento = document.getElementById("btn-pagamento");
 
-btnPagamento.addEventListener("click", () => {
+btnPagamento.addEventListener("click", async () => {
 
     const nome = document.getElementById("nome").value.trim();
     const whatsapp = document.getElementById("telefone").value.trim();
@@ -915,7 +915,74 @@ btnPagamento.addEventListener("click", () => {
     }
 
     // CHEGOU AQUI = TUDO CERTO
-    console.log("Checkout validado com sucesso!");
+    const itemsPagamento = carrinhoCheckout.map(item => ({
+    quantity: item.quantidade,
+    price: Math.round(item.preco * 100),
+    description: `${item.nome} - ${item.cor} - ${item.tamanho}`
+}));
+
+if (valorFrete > 0) {
+    itemsPagamento.push({
+        quantity: 1,
+        price: Math.round(valorFrete * 100),
+        description: "Frete"
+    });
+}
+
+const orderNsu = `PELAMODA-${Date.now()}`;
+
+const dadosPagamento = {
+    order_nsu: orderNsu,
+
+    customer: {
+        name: nome,
+        email: document.getElementById("email").value.trim(),
+        phone_number: whatsapp
+    },
+
+    items: itemsPagamento
+};
+
+try {
+
+    btnPagamento.disabled = true;
+    btnPagamento.textContent = "AGUARDE...";
+
+    const resposta = await fetch("/api/pagamento", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dadosPagamento)
+    });
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+        throw new Error(
+            dados.erro ||
+            dados.message ||
+            "Erro ao criar pagamento"
+        );
+    }
+
+    if (!dados.url) {
+        throw new Error("Link de pagamento não recebido");
+    }
+
+    window.location.href = dados.url;
+
+} catch (erro) {
+
+    console.error("Erro no pagamento:", erro);
+
+    alert(
+        "Não foi possível iniciar o pagamento. Tente novamente."
+    );
+
+    btnPagamento.disabled = false;
+    btnPagamento.textContent = "IR PARA O PAGAMENTO";
+}
 
 });
 
