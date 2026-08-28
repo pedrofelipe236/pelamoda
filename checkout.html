@@ -551,32 +551,169 @@
                 </div>
             `;
 
-        } else {
+ } else {
 
-            valorFrete = 0;
+    valorFrete = 0;
 
-            checkoutFrete.textContent =
-                "A calcular";
+    checkoutFrete.textContent = "A calcular";
 
-            resultadoFrete.innerHTML = `
-                <div class="frete-normal">
+    calcularFreteSuperFrete();
 
-                    Entrega grátis indisponível
-                    para este endereço.
-
-                    <br>
-
-                    Vamos calcular pela SuperFrete.
-
-                </div>
-            `;
-
-        }
+}
 
         atualizarTotalCheckout();
 
     }
+async function calcularFreteSuperFrete() {
 
+    const cepDestino =
+        cepInput.value.replace(/\D/g, "");
+
+    if (cepDestino.length !== 8) {
+        return;
+    }
+
+    resultadoFrete.innerHTML = `
+        <div class="frete-normal">
+            Calculando opções de entrega...
+        </div>
+    `;
+
+    try {
+
+        const resposta = await fetch("/api/frete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                cepDestino: cepDestino
+            })
+        });
+
+        const fretes = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                fretes.message ||
+                fretes.erro ||
+                "Erro ao calcular frete"
+            );
+        }
+
+        const fretesValidos =
+            fretes.filter(frete =>
+                !frete.has_error &&
+                frete.price
+            );
+
+        if (fretesValidos.length === 0) {
+
+            resultadoFrete.innerHTML = `
+                <div class="frete-normal">
+                    Nenhuma opção de entrega encontrada
+                    para este CEP.
+                </div>
+            `;
+
+            return;
+        }
+
+        resultadoFrete.innerHTML = `
+            <div class="opcoes-frete">
+
+                <strong>
+                    Escolha a forma de entrega:
+                </strong>
+
+                ${fretesValidos.map(frete => {
+
+                    const preco =
+                        Number(
+                            String(frete.price)
+                                .replace(",", ".")
+                        );
+
+                    const prazo =
+                        frete.delivery_time;
+
+                    return `
+                        <label class="frete-opcao">
+
+                            <input
+                                type="radio"
+                                name="frete-superfrete"
+                                value="${preco}"
+                                data-nome="${frete.name}"
+                            >
+
+                            <span>
+                                <strong>
+                                    ${frete.name}
+                                </strong>
+
+                                <small>
+                                    R$ ${preco
+                                        .toFixed(2)
+                                        .replace(".", ",")}
+                                    • ${prazo}
+                                    ${prazo == 1 ? "dia útil" : "dias úteis"}
+                                </small>
+                            </span>
+
+                        </label>
+                    `;
+
+                }).join("")}
+
+            </div>
+        `;
+
+
+        const opcoesFrete =
+            document.querySelectorAll(
+                'input[name="frete-superfrete"]'
+            );
+
+
+        opcoesFrete.forEach(opcao => {
+
+            opcao.addEventListener("change", () => {
+
+                valorFrete =
+                    Number(opcao.value);
+
+                checkoutFrete.textContent =
+                    `R$ ${valorFrete
+                        .toFixed(2)
+                        .replace(".", ",")}`;
+
+                atualizarTotalCheckout();
+
+            });
+
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao calcular frete:",
+            erro
+        );
+
+        checkoutFrete.textContent =
+            "Indisponível";
+
+        resultadoFrete.innerHTML = `
+            <div class="frete-normal">
+                Não foi possível calcular
+                o frete neste momento.
+            </div>
+        `;
+
+    }
+
+}
 
     // ========================================
     // RESUMO DO CARRINHO
