@@ -50,7 +50,7 @@
                             type="tel"
                             id="telefone"
                             autocomplete="tel"
-                            placeholder="(81) 99999-9999"
+                            placeholder="(81) 98967-2042"
                         >
                     </div>
 
@@ -833,7 +833,7 @@ const btnPagamento = document.getElementById("btn-pagamento");
 btnPagamento.addEventListener("click", () => {
 
     const nome = document.getElementById("nome").value.trim();
-    const whatsapp = document.getElementById("whatsapp").value.trim();
+    const whatsapp = document.getElementById("telefone").value.trim();
 
     const tipoEntrega =
         document.querySelector(
@@ -848,7 +848,7 @@ btnPagamento.addEventListener("click", () => {
 
     if (!whatsapp) {
         alert("Informe seu WhatsApp.");
-        document.getElementById("whatsapp").focus();
+        document.getElementById("telefone").focus();
         return;
     }
 
