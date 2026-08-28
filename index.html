@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PêlaModa — Vista o Nordeste no peito. Camisas com identidade, histórias e orgulho nordestino.">
+  
+  <title>PêlaModa — Vestir o Nordeste no peito</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+
+  <header>
+    <div class="container nav">
+      <a class="logo" href="#inicio" aria-label="PêlaModa - início">
+        <strong>PêlaModa</strong>
+        <span>VESTIR O NORDESTE NO PEITO</span>
+      </a>
+
+      <nav>
+        <a class="active" href="#inicio">Início</a>
+        <a href="#produtos">Produtos</a>
+        <a href="#sobre">Sobre</a>
+        <a href="#como-comprar">Como comprar</a>
+        <a href="#contato">Contato</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button
+    class="cart-header-btn"
+    onclick="abrirCarrinho()"
+    aria-label="Abrir carrinho"
+>
+    🛍
+    <span id="cartCount">0</span>
+</button>
+        <a class="icon-btn" href="https://wa.me/5581989672042" aria-label="WhatsApp">◔</a>
+        <a class="icon-btn" href="https://instagram.com/pelamoda_" aria-label="Instagram">◎</a>
+        <button class="icon-btn menu-btn" aria-label="Abrir menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="inicio">
+
+<section class="hero">
+    <img 
+        src="imagens/banner-principal.jpg" 
+        alt="PêlaModa - Venha vestir o Nordeste no peito"
+        class="hero-banner"
+    >
+</section>
+<section class="promos">
+    <div class="container">
+        <div class="promo-carousel">
+
+            <div class="promo-track">
+
+                <a href="#" class="promo-slide active">
+                    <img src="imagens/promo-tshirts.jpg"
+                         alt="Combo 3 T-shirts por R$150">
+                </a>
+
+                <a href="#" class="promo-slide">
+                    <img src="imagens/promo-croppeds.jpg"
+                         alt="Combo 3 Croppeds por R$135">
+                </a>
+
+            </div>
+
+            <button class="promo-arrow promo-prev" aria-label="Banner anterior">
+                ‹
+            </button>
+
+            <button class="promo-arrow promo-next" aria-label="Próximo banner">
+                ›
+            </button>
+
+            <div class="promo-dots">
+                <button class="promo-dot active" aria-label="Banner 1"></button>
+                <button class="promo-dot" aria-label="Banner 2"></button>
+            </div>
+
+        </div>
+    </div>
+</section>
+    <section class="benefits" id="como-comprar">
+
+      <div class="container benefit-grid">
+        <div class="benefit">
+                     <div class="benefit-icon">
+        <img
+            src="imagens/icone-pernambuco.png"
+            alt=""
+        >
+    </div>
+
+    <h3>FEITO EM PERNAMBUCO</h3>
+
+    <p>
+        Produzido com orgulho em Pernambuco.
+    </p>
+
+</div>
+
+
+<div class="benefit">
+
+    <div class="benefit-icon">
+
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+            <circle
+                cx="32"
+                cy="32"
+                r="23"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="4"
+            />
+
+            <path
+                d="M21 32 L29 40 L44 23"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+        </svg>
+
+    </div>
+
+    <h3>QUALIDADE</h3>
+
+    <p>
+        Malha confortável e estampa em serigrafia.
+    </p>
+
+</div>
+
+
+<div class="benefit">
+
+    <div class="benefit-icon">
+
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+
+            <path
+                d="M22 45 L29 18 L45 9 L51 15 L42 31 L22 45 Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="4"
+                stroke-linejoin="round"
+            />
+
+            <circle
+                cx="35"
+                cy="27"
+                r="3"
+                fill="currentColor"
+            />
+
+            <path
+                d="M21 46 H48"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="4"
+                stroke-linecap="round"
+            />
+
+        </svg>
+
+    </div>
+
+    <h3>DESIGN AUTORAL</h3>
+
+    <p>
+        Estampas inspiradas na nossa cultura.
+    </p>
+
+</div>
+
+
+<div class="benefit">
+
+    <div class="benefit-icon">
+
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+
+            <rect
+                x="16"
+                y="29"
+                width="32"
+                height="25"
+                rx="4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="4"
+            />
+
+            <path
+                d="M23 29 V21
+                   C23 14 27 10 32 10
+                   C37 10 41 14 41 21
+                   V29"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="4"
+                stroke-linecap="round"
+            />
+
+            <circle
+                cx="32"
+                cy="40"
+                r="3"
+                fill="currentColor"
+            />
+
+        </svg>
+
+    </div>
+
+    <h3>COMPRA SEGURA</h3>
+
+    <p>
+        Atendimento direto pelo WhatsApp.
+    </p>
+
+</div>
+    </section>
+
+    <section class="products" id="produtos">
+      <div class="container">
+        <div class="section-heading">
+
+        <span class="eyebrow">NOSSOS PRODUTOS</span>
+
+        <h2>CAMISAS QUE CONTAM NOSSA HISTÓRIA</h2>
+
+        <p>Escolha uma estampa e leve um pedacinho do Nordeste com você.</p>
+        </div>
+
+        
+<div class="products-grid" id="listaProdutos">
+</div>
+     
+    </div>
+
+</section>      
+
+        <div class="center">
+          <a href="#produtos" class="btn btn-primary">Ver todos os produtos</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="story" id="sobre">
+      <div class="container story-grid">
+        <div class="story-photo">
+          <div class="label">PêlaModa<br><small>VESTIR O NORDESTE NO PEITO</small></div>
+        </div>
+
+        <div class="story-copy">
+          <div class="eyebrow">Sobre a PêlaModa</div>
+          <h2>UMA MARCA<br>COM RAIZ</h2>
+          <p>
+            A PêlaModa nasceu do amor pelo Nordeste e da vontade de levar
+            nossa identidade para o mundo. Cada estampa carrega histórias,
+            memórias e sentimentos que só quem é do Nordeste entende.
+          </p>
+          <a href="#" class="btn btn-outline">Conheça nossa história →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-strip" id="contato">
+      <div class="container contact-grid">
+        <div class="contact-item">
+          <div class="big">◔</div>
+          <div><strong>Atendimento</strong><span>Fale com a gente pelo WhatsApp</span></div>
+        </div>
+        <div class="contact-item">
+          <div class="big">▣</div>
+          <div><strong>Envio para todo Brasil</strong><span>Receba no conforto da sua casa</span></div>
+        </div>
+        <div class="contact-item">
+          <div class="big">◇</div>
+          <div><strong>Pagamento seguro</strong><span>Pix, cartão e boleto</span></div>
+        </div>
+        <div class="contact-item">
+          <div class="big">◎</div>
+          <div><strong>Nos siga</strong><span>@pelamoda.pe no Instagram</span></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    © 2026 PêlaModa — Vestir o Nordeste no peito.
+  </footer>
+<div class="cart-overlay" id="cartOverlay" onclick="fecharCarrinho()"></div>
+
+<aside class="cart-drawer" id="cartDrawer">
+
+    <div class="cart-header">
+        <h2>Seu carrinho</h2>
+
+        <button onclick="fecharCarrinho()">
+            ×
+        </button>
+    </div>
+
+    <div class="cart-items" id="cartItems"></div>
+
+    <div class="cart-empty" id="cartEmpty">
+        Seu carrinho está vazio.
+    </div>
+
+    <div class="cart-footer">
+
+        <div class="cart-subtotal">
+            <span>Subtotal</span>
+            <strong id="cartSubtotal">R$ 0,00</strong>
+        </div>
+
+        <button
+            class="cart-checkout"
+            onclick="window.location.href='checkout.html'"
+        >
+            Finalizar pedido
+        </button>
+
+        <button
+            class="cart-continue"
+            onclick="fecharCarrinho()"
+        >
+            Continuar comprando
+        </button>
+
+    </div>
+
+</aside>
+<script src="JS/produtos.js"></script>
+<script src="JS/script.js"></script>
+</body>
+</html>

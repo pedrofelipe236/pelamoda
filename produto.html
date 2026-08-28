@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Camisa PE | PêlaModa</title>
+
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+
+<header>
+    <div class="container nav">
+
+        <a class="logo" href="index.html">
+            <strong>PêlaModa</strong>
+            <span>VESTIR O NORDESTE NO PEITO</span>
+        </a>
+
+        <nav>
+            <a href="index.html">Início</a>
+            <a href="index.html#produtos">Produtos</a>
+            <a href="index.html#sobre">Sobre</a>
+            <a href="index.html#contato">Contato</a>
+        </nav>
+<button class="cart-header-btn" onclick="abrirCarrinho()" aria-label="Abrir carrinho">
+    🛍
+    <span id="cartCount">0</span>
+</button>
+    </div>
+</header>
+
+
+<main>
+
+<section class="product-page">
+<div
+    id="produtoAtual"
+    data-nome="PE"
+    data-preco="65"
+></div>
+    <div class="container product-page-grid">
+
+        <!-- GALERIA -->
+
+        <div class="product-gallery">
+
+            <div class="product-main-image">
+                <img
+                    id="imagemPrincipal"
+                    src="imagens/produto-pe.jpg"
+                    alt="Camisa PE"
+                >
+            </div>
+
+            <div class="product-thumbnails">
+
+                <button
+                    class="thumbnail active"
+                    onclick="trocarImagem('imagens/produto-pe.jpg', this)"
+                >
+                    <img
+                        src="imagens/produto-pe.jpg"
+                        alt="Camisa PE"
+                    >
+                </button>
+
+                <button
+                    class="thumbnail"
+                    onclick="trocarImagem('imagens/produto-pe-azul.jpg', this)"
+                >
+                    <img
+                        src="imagens/produto-pe-azul.jpg"
+                        alt="Camisa PE azul"
+                    >
+                </button>
+
+                <button
+                    class="thumbnail"
+                    onclick="trocarImagem('imagens/produto-pe-verde.jpg', this)"
+                >
+                    <img
+                        src="imagens/produto-pe-verde.jpg"
+                        alt="Camisa PE verde"
+                    >
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- INFORMAÇÕES -->
+
+        <div class="product-details">
+
+            <span class="product-category">
+                PÊLAMODA
+            </span>
+
+            <h1>PE</h1>
+
+            <div class="product-price">
+                R$ 65,00
+            </div>
+
+            
+            <!-- CORES -->
+
+         <div class="product-option">
+
+    <strong>Cor</strong>
+
+    <div
+        class="option-buttons"
+        id="opcoesCores"
+    >
+    </div>
+
+</div>
+
+
+            <!-- TAMANHOS -->
+
+            <div class="product-option">
+
+    <strong>Tamanho</strong>
+
+    <div
+        class="option-buttons"
+        id="opcoesTamanhos"
+    >
+    </div>
+
+</div>
+
+            <!-- QUANTIDADE -->
+
+            <div class="product-option">
+
+                <strong>Quantidade</strong>
+
+                <div class="quantity">
+
+                    <button onclick="alterarQuantidade(-1)">
+                        −
+                    </button>
+
+                    <span id="quantidade">
+                        1
+                    </span>
+
+                    <button onclick="alterarQuantidade(1)">
+                        +
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- BOTÕES -->
+
+            <button
+                class="product-cart-button"
+                onclick="adicionarCarrinho()"
+            >
+                Adicionar ao carrinho
+            </button>
+
+            <button
+                class="product-whatsapp-button"
+                onclick="comprarProdutoWhatsApp()"
+            >
+                Comprar pelo WhatsApp
+            </button>
+            <p class="product-description">
+                Nossa terra estampada no peito.
+                Uma camisa inspirada em Pernambuco,
+                feita para quem carrega orgulho de onde veio.
+            </p>
+
+            <p class="product-help">
+                Precisa de ajuda com tamanho ou cor?
+                Fale com a gente pelo WhatsApp.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+<!-- CARRINHO LATERAL -->
+
+<div class="cart-overlay" id="cartOverlay" onclick="fecharCarrinho()"></div>
+
+<aside class="cart-drawer" id="cartDrawer">
+
+    <div class="cart-header">
+        <h2>Seu carrinho</h2>
+
+        <button onclick="fecharCarrinho()" aria-label="Fechar carrinho">
+            ×
+        </button>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+        <!-- Produtos entram aqui pelo JavaScript -->
+    </div>
+
+    <div class="cart-empty" id="cartEmpty">
+        Seu carrinho está vazio.
+    </div>
+
+    <div class="cart-footer">
+
+        <div class="cart-subtotal">
+            <span>Subtotal</span>
+            <strong id="cartSubtotal">R$ 0,00</strong>
+        </div>
+
+        <button class="cart-checkout" onclick="window.location.href='checkout.html'">
+            Finalizar pedido
+        </button>
+
+        <button class="cart-continue" onclick="fecharCarrinho()">
+            Continuar comprando
+        </button>
+
+    </div>
+
+</aside>
+<script src="JS/produtos.js"></script>
+<script src="JS/script.js"></script>
+
+</body>
+</html>

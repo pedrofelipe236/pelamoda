@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Finalizar Compra | PêlaModa</title>
+
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+
+    <main class="checkout-page">
+
+        <div class="checkout-container">
+
+            <div class="checkout-header">
+                <a href="index.html" class="checkout-logo">
+                    <strong>PêlaModa</strong>
+                    <span>VESTIR O NORDESTE NO PEITO</span>
+                </a>
+
+                <h1>FINALIZAR COMPRA</h1>
+            </div>
+
+
+            <!-- DADOS DO CLIENTE -->
+
+            <section class="checkout-box">
+
+                <h2>1. SEUS DADOS</h2>
+
+                <div class="checkout-fields">
+
+                    <div class="checkout-field full">
+                        <label for="nome">Nome completo</label>
+                        <input
+                            type="text"
+                            id="nome"
+                            autocomplete="name"
+                            placeholder="Digite seu nome"
+                        >
+                    </div>
+
+                    <div class="checkout-field">
+                        <label for="telefone">WhatsApp</label>
+                        <input
+                            type="tel"
+                            id="telefone"
+                            autocomplete="tel"
+                            placeholder="(81) 99999-9999"
+                        >
+                    </div>
+
+                    <div class="checkout-field">
+                        <label for="email">E-mail</label>
+                        <input
+                            type="email"
+                            id="email"
+                            autocomplete="email"
+                            placeholder="seuemail@email.com"
+                        >
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ENTREGA -->
+
+            <section class="checkout-box">
+
+                <h2>2. COMO VOCÊ QUER RECEBER?</h2>
+
+                <div class="delivery-options">
+
+
+                    <!-- RECEBER EM CASA -->
+
+                    <label class="delivery-card">
+
+                        <input
+                            type="radio"
+                            name="tipo-entrega"
+                            value="endereco"
+                        >
+
+                        <div>
+                            <strong>Receber no meu endereço</strong>
+                            <span>
+                                Verificaremos entrega grátis ou opções da SuperFrete.
+                            </span>
+                        </div>
+
+                    </label>
+
+
+                    <!-- RETIRADA -->
+
+                    <label class="delivery-card">
+
+                        <input
+                            type="radio"
+                            name="tipo-entrega"
+                            value="retirada"
+                        >
+
+                        <div>
+                            <strong>Retirada grátis</strong>
+                            <span>
+                                Retire seu pedido em um dos nossos pontos.
+                            </span>
+                        </div>
+
+                    </label>
+
+
+                    <!-- MOTO UBER -->
+
+                    <label class="delivery-card">
+
+                        <input
+                            type="radio"
+                            name="tipo-entrega"
+                            value="motouber"
+                        >
+
+                        <div>
+                            <strong>Entrega por Moto Uber</strong>
+                            <span>
+                                O valor da corrida é calculado no momento da entrega.
+                            </span>
+                        </div>
+
+                    </label>
+
+                </div>
+
+
+                <!-- ENDEREÇO -->
+
+                <div id="area-endereco" class="checkout-delivery-area">
+
+                    <h3>ENDEREÇO DE ENTREGA</h3>
+
+                    <div class="checkout-fields">
+
+                        <div class="checkout-field">
+                            <label for="cep">CEP</label>
+                            <input
+                                type="text"
+                                id="cep"
+                                autocomplete="postal-code"
+                                placeholder="00000-000"
+                            >
+                        </div>
+
+                        <div class="checkout-field">
+                            <label for="cidade">Cidade</label>
+                            <input
+                                type="text"
+                                id="cidade"
+                                autocomplete="address-level2"
+                            >
+                            <div class="checkout-field">
+                            </div>
+    <label for="estado">Estado</label>
+    <input
+        type="text"
+        id="estado"
+        autocomplete="address-level1"
+        readonly
+    >
+</div>
+                        
+                        <div class="checkout-field full">
+                            <label for="rua">Rua</label>
+                            <input
+                                type="text"
+                                id="rua"
+                                autocomplete="address-line1"
+                            >
+                        </div>
+
+                        <div class="checkout-field">
+                            <label for="numero">Número</label>
+                            <input
+                                type="text"
+                                id="numero"
+                            >
+                        </div>
+
+                        <div class="checkout-field">
+                            <label for="complemento">Complemento</label>
+                            <input
+                                type="text"
+                                id="complemento"
+                                placeholder="Opcional"
+                            >
+                        </div>
+
+                        <div class="checkout-field full">
+                            <label for="bairro">Bairro</label>
+                            <input
+                                type="text"
+                                id="bairro"
+                                autocomplete="address-level3"
+                            >
+                        </div>
+
+                    </div>
+
+                    <div id="resultado-frete"></div>
+
+                </div>
+
+                <!-- RETIRADA -->
+
+                <div id="area-retirada" class="checkout-delivery-area">
+
+                    <h3>ESCOLHA ONDE RETIRAR</h3>
+
+                    <label class="pickup-card">
+                        <input
+                            type="radio"
+                            name="local-retirada"
+                            value="recife"
+                        >
+
+                        <span>
+                            <strong>Recife - Santo Amaro</strong>
+                            Rua Dom Vital, 106
+                        </span>
+                    </label>
+
+
+                    <label class="pickup-card">
+                        <input
+                            type="radio"
+                            name="local-retirada"
+                            value="paulista"
+                        >
+
+                        <span>
+                            <strong>Paulista - Janga</strong>
+                            Rua João Alfredo, 934
+                        </span>
+                    </label>
+
+                </div>
+
+            </section>
+
+
+            <!-- RESUMO -->
+
+            <section class="checkout-box">
+
+                <h2>3. RESUMO DO PEDIDO</h2>
+
+                <div id="checkout-items">
+
+                    <!-- O JS vai carregar o carrinho aqui -->
+
+                </div>
+
+
+                <div class="checkout-totals">
+
+                    <div>
+                        <span>Subtotal</span>
+                        <strong id="checkout-subtotal">
+                            R$ 0,00
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Entrega</span>
+                        <strong id="checkout-frete">
+                            A calcular
+                        </strong>
+                    </div>
+
+                    <div class="checkout-total">
+                        <span>TOTAL</span>
+                        <strong id="checkout-total">
+                            R$ 0,00
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="btn-pagamento"
+                    class="checkout-pay"
+                >
+                    IR PARA O PAGAMENTO
+                </button>
+
+            </section>
+
+        </div>
+
+    </main>
+<script>
+
+    // ========================================
+    // VARIÁVEIS PRINCIPAIS
+    // ========================================
+
+    const carrinhoCheckout =
+        JSON.parse(localStorage.getItem("pelamodaCarrinho")) || [];
+
+    const checkoutItems =
+        document.getElementById("checkout-items");
+
+    const checkoutSubtotal =
+        document.getElementById("checkout-subtotal");
+
+    const checkoutTotal =
+        document.getElementById("checkout-total");
+
+    const checkoutFrete =
+        document.getElementById("checkout-frete");
+
+    const resultadoFrete =
+        document.getElementById("resultado-frete");
+
+    let valorFrete = 0;
+
+
+    // ========================================
+    // ENTREGA / RETIRADA / MOTO UBER
+    // ========================================
+
+    const tiposEntrega = document.querySelectorAll(
+        'input[name="tipo-entrega"]'
+    );
+
+    const areaEndereco =
+        document.getElementById("area-endereco");
+
+    const areaRetirada =
+        document.getElementById("area-retirada");
+
+    tiposEntrega.forEach(opcao => {
+
+        opcao.addEventListener("change", () => {
+
+            const tipo = opcao.value;
+
+            if (tipo === "retirada") {
+
+                areaEndereco.style.display = "none";
+                areaRetirada.style.display = "block";
+
+                valorFrete = 0;
+                checkoutFrete.textContent = "GRÁTIS";
+
+                atualizarTotalCheckout();
+            }
+
+            if (tipo === "endereco") {
+
+                areaEndereco.style.display = "block";
+                areaRetirada.style.display = "none";
+
+                checkoutFrete.textContent = "A calcular";
+            }
+
+            if (tipo === "motouber") {
+
+                areaEndereco.style.display = "block";
+                areaRetirada.style.display = "none";
+
+                checkoutFrete.textContent = "A combinar";
+                valorFrete = 0;
+
+                atualizarTotalCheckout();
+            }
+
+        });
+
+    });
+
+
+    // ========================================
+    // CEP
+    // ========================================
+
+    const cepInput =
+        document.getElementById("cep");
+
+    const ruaInput =
+        document.getElementById("rua");
+
+    const bairroInput =
+        document.getElementById("bairro");
+
+    const cidadeInput =
+        document.getElementById("cidade");
+
+    const estadoInput =
+        document.getElementById("estado");
+
+    cepInput.addEventListener("blur", async () => {
+
+        const cep =
+            cepInput.value.replace(/\D/g, "");
+
+        if (cep.length !== 8) {
+            return;
+        }
+
+        let dados;
+
+        try {
+
+            const resposta = await fetch(
+                `https://viacep.com.br/ws/${cep}/json/`
+            );
+
+            dados = await resposta.json();
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao consultar CEP:",
+                erro
+            );
+
+            alert(
+                "Não foi possível consultar o CEP."
+            );
+
+            return;
+        }
+
+
+        if (dados.erro) {
+
+            alert("CEP não encontrado.");
+            return;
+        }
+
+
+        ruaInput.value =
+            dados.logradouro || "";
+
+        bairroInput.value =
+            dados.bairro || "";
+
+        cidadeInput.value =
+            dados.localidade || "";
+
+        estadoInput.value =
+            dados.uf || "";
+
+
+        verificarEntregaGratis();
+
+    });
+
+
+    // ========================================
+    // ENTREGA GRÁTIS
+    // ========================================
+
+    const bairrosGratis = {
+
+        "paulista": [
+            "janga",
+            "pau amarelo"
+        ],
+
+        "olinda": [
+            "rio doce",
+            "casa caiada",
+            "jardim atlantico",
+            "bairro novo"
+        ],
+
+        "recife": [
+            "espinheiro",
+            "gracas",
+            "boa vista",
+            "santo amaro"
+        ]
+
+    };
+
+
+    function normalizarTexto(texto) {
+
+        return texto
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+
+    }
+
+
+    function verificarEntregaGratis() {
+
+        const cidade =
+            normalizarTexto(cidadeInput.value);
+
+        const bairro =
+            normalizarTexto(bairroInput.value);
+
+        if (!cidade || !bairro) {
+
+            resultadoFrete.innerHTML = "";
+            return;
+        }
+
+
+        const bairrosDaCidade =
+            bairrosGratis[cidade];
+
+
+        if (
+            bairrosDaCidade &&
+            bairrosDaCidade.includes(bairro)
+        ) {
+
+            valorFrete = 0;
+
+            checkoutFrete.textContent =
+                "GRÁTIS";
+
+            resultadoFrete.innerHTML = `
+                <div class="frete-gratis">
+
+                    ✓ ENTREGA GRÁTIS DISPONÍVEL
+
+                    <strong>
+                        R$ 0,00
+                    </strong>
+
+                    <span>
+                        Prazo de entrega: até 2 dias úteis
+                    </span>
+
+                </div>
+            `;
+
+        } else {
+
+            valorFrete = 0;
+
+            checkoutFrete.textContent =
+                "A calcular";
+
+            resultadoFrete.innerHTML = `
+                <div class="frete-normal">
+
+                    Entrega grátis indisponível
+                    para este endereço.
+
+                    <br>
+
+                    Vamos calcular pela SuperFrete.
+
+                </div>
+            `;
+
+        }
+
+        atualizarTotalCheckout();
+
+    }
+
+
+    // ========================================
+    // RESUMO DO CARRINHO
+    // ========================================
+
+    function carregarResumoCheckout() {
+
+        checkoutItems.innerHTML = "";
+
+        let subtotal = 0;
+
+
+        carrinhoCheckout.forEach(item => {
+
+            const totalItem =
+                item.preco * item.quantidade;
+
+            subtotal += totalItem;
+
+
+            checkoutItems.innerHTML += `
+                <div class="checkout-item">
+
+                    <img
+                        src="${item.imagem}"
+                        alt="${item.nome}"
+                    >
+
+                    <div class="checkout-item-info">
+
+                        <strong>
+                            ${item.nome}
+                        </strong>
+
+                        <span>
+                            ${item.cor} • ${item.tamanho}
+                        </span>
+
+                        <span>
+                            Quantidade: ${item.quantidade}
+                        </span>
+
+                    </div>
+
+                    <strong>
+                        R$ ${totalItem
+                            .toFixed(2)
+                            .replace(".", ",")}
+                    </strong>
+
+                </div>
+            `;
+
+        });
+
+
+        checkoutSubtotal.textContent =
+            `R$ ${subtotal
+                .toFixed(2)
+                .replace(".", ",")}`;
+
+
+        atualizarTotalCheckout();
+
+    }
+
+
+    // ========================================
+    // TOTAL
+    // ========================================
+
+    function atualizarTotalCheckout() {
+
+        let subtotal = 0;
+
+        carrinhoCheckout.forEach(item => {
+
+            subtotal +=
+                item.preco * item.quantidade;
+
+        });
+
+
+        const total =
+            subtotal + valorFrete;
+
+
+        checkoutTotal.textContent =
+            `R$ ${total
+                .toFixed(2)
+                .replace(".", ",")}`;
+
+    }
+
+
+    // ========================================
+    // INICIALIZAÇÃO
+    // ========================================
+
+    carregarResumoCheckout();
+
+</script>
+atualizarTotalCheckout();
+
+</script>
+</body>
+</html>
