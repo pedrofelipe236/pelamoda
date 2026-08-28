@@ -98,7 +98,7 @@ const produtos = {
 
     marminino: {
         nome: "Marminino",
-        preco: 1,
+        preco: 65,
 estoque: {
     Azul: {
         PP: 0,
