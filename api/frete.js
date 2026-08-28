@@ -27,20 +27,26 @@ export default async function handler(req, res) {
                     "content-type": "application/json"
                 },
                 body: JSON.stringify({
-                    from: {
-                        postal_code: "53437320"
-                    },
-                    to: {
-                        postal_code: cepDestino.replace(/\D/g, "")
-                    },
-                    services: "1,2,17",
-                    options: {
-                        own_hand: false,
-                        receipt: false,
-                        insurance_value: 0,
-                        use_insurance_value: false
-                    }
-                })
+    from: {
+        postal_code: "53437320"
+    },
+    to: {
+        postal_code: cepDestino.replace(/\D/g, "")
+    },
+    services: "1,2,17",
+    options: {
+        own_hand: false,
+        receipt: false,
+        insurance_value: 0,
+        use_insurance_value: false
+    },
+    package: {
+        height: 15,
+        width: 17,
+        length: 20,
+        weight: 0.2
+    }
+})
             }
         );
 
