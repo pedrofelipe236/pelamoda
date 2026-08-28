@@ -1820,3 +1820,67 @@ body {
         height: 44px;
     }
 }
+.opcoes-frete {
+    margin-top: 12px;
+}
+
+.opcoes-frete > strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.frete-opcao {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid #d8d1c8;
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: #fff;
+    transition: 0.2s;
+}
+
+.frete-opcao:hover {
+    border-color: #111;
+}
+
+.frete-opcao input {
+    margin: 0;
+}
+
+.frete-opcao span {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.frete-opcao span strong {
+    font-size: 13px;
+}
+
+.frete-opcao small {
+    font-size: 11px;
+    color: #665f58;
+}
+
+.frete-opcao:has(input:checked) {
+    border-color: #111;
+    background: #f5f0e8;
+}
+@media (max-width: 600px) {
+
+    .frete-opcao {
+        padding: 11px;
+    }
+
+    .frete-opcao span strong {
+        font-size: 12px;
+    }
+
+    .frete-opcao small {
+        font-size: 10px;
+    }
+
+}
