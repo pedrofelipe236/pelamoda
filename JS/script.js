@@ -1,7 +1,23 @@
     // ======================================================
     // PÊLAMODA - SCRIPT PRINCIPAL
     // ======================================================
+let estoqueAPI = [];
 
+async function carregarEstoqueAPI() {
+    try {
+        const resposta = await fetch("/api/estoque");
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao carregar estoque");
+        }
+
+        estoqueAPI = await resposta.json();
+
+    } catch (erro) {
+        console.error("Erro ao carregar estoque:", erro);
+        estoqueAPI = [];
+    }
+}
     const WHATSAPP_PELAMODA = "5581989672042";
 
     let corSelecionada = "";
@@ -57,16 +73,26 @@
 
     function obterEstoque(produto, cor, tamanho) {
 
-        // Se o produto ainda não tiver controle de estoque,
-        // consideramos sem limite por enquanto.
-        if (!produto?.estoque) {
-            return Infinity;
-        }
+    const produtoId = obterIdProdutoAtual();
 
-        // Se existe estoque configurado para o produto,
-        // uma combinação inexistente é considerada esgotada.
-        return produto.estoque?.[cor]?.[tamanho] ?? 0;
+    const itemEstoque = estoqueAPI.find(item =>
+        item.produto_id === produtoId &&
+        item.cor === cor &&
+        item.tamanho === tamanho
+    );
+
+    if (itemEstoque) {
+        return Number(itemEstoque.quantidade);
     }
+
+    // Se a API ainda não carregou, usa temporariamente
+    // o estoque do produtos.js
+    if (!produto?.estoque) {
+        return Infinity;
+    }
+
+    return produto.estoque?.[cor]?.[tamanho] ?? 0;
+}
 
 
     // ======================================================
@@ -286,7 +312,7 @@
 
         quantidadeProduto = 1;
 
-        const quantidade =
+        const quantidade 
             document.getElementById("quantidade");
 
         if (quantidade) {
@@ -1069,8 +1095,11 @@
 
     document.addEventListener(
         "DOMContentLoaded",
-        () => {
+        async () => {
             inicializarCarrossel();
+
+            await carregarEstoqueAPI();
+
             carregarProdutoDinamico();
             carregarProdutosHome();
             renderizarCarrinho();
