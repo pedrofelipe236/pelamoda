@@ -73,7 +73,25 @@ async function carregarEstoqueAPI() {
 
     function obterEstoque(produto, cor, tamanho) {
 
-    const produtoId = obterIdProdutoAtual();
+    let produtoId = null;
+
+    if (
+        produto &&
+        typeof produtos !== "undefined"
+    ) {
+        const produtoEncontrado =
+            Object.entries(produtos).find(
+                ([id, dados]) => dados === produto
+            );
+
+        if (produtoEncontrado) {
+            produtoId = produtoEncontrado[0];
+        }
+    }
+
+    if (!produtoId) {
+        produtoId = obterIdProdutoAtual();
+    }
 
     const itemEstoque = estoqueAPI.find(item =>
         item.produto_id === produtoId &&
@@ -85,8 +103,6 @@ async function carregarEstoqueAPI() {
         return Number(itemEstoque.quantidade);
     }
 
-    // Se a API ainda não carregou, usa temporariamente
-    // o estoque do produtos.js
     if (!produto?.estoque) {
         return Infinity;
     }
