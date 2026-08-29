@@ -312,9 +312,8 @@ async function carregarEstoqueAPI() {
 
         quantidadeProduto = 1;
 
-        const quantidade 
-            document.getElementById("quantidade");
-
+        const quantidade =
+    document.getElementById("quantidade");
         if (quantidade) {
             quantidade.textContent = "1";
         }
