@@ -1015,15 +1015,21 @@ console.log(
     "Pedido criado:",
     pedidoCriado.numero_pedido
 );
+const emailCliente =
+    document.getElementById("email").value.trim();
+
+const customerPagamento = {
+    name: nome,
+    phone_number: whatsapp
+};
+
+if (emailCliente) {
+    customerPagamento.email = emailCliente;
+}
+
 const dadosPagamento = {
     order_nsu: orderNsu,
-
-    customer: {
-        name: nome,
-        email: document.getElementById("email").value.trim(),
-        phone_number: whatsapp
-    },
-
+    customer: customerPagamento,
     items: itemsPagamento
 };
 
