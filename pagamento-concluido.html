@@ -1,21 +1,242 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento concluído - Pêla Moda</title>
+
+    <title>Pedido confirmado - Pêla Moda</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5ecdc;
+            color: #11110f;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .success-card {
+            width: 100%;
+            max-width: 520px;
+            background: #fff;
+            border-radius: 18px;
+            padding: 42px 28px;
+            text-align: center;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, .08);
+        }
+
+        .success-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 22px;
+            border-radius: 50%;
+            background: #11110f;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            font-weight: bold;
+        }
+
+        .brand {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-size: 30px;
+            line-height: 1.1;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 28px;
+        }
+
+        .order-box {
+            background: #f5ecdc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 26px;
+        }
+
+        .order-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .order-number {
+            font-size: 26px;
+            font-weight: 900;
+        }
+
+        .status {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 28px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            background: #11110f;
+            color: #fff;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            transition: .2s;
+        }
+
+        .btn:hover {
+            background: #2b2926;
+        }
+
+        .footer-text {
+            margin-top: 22px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 16px;
+            }
+
+            .success-card {
+                padding: 34px 20px;
+                border-radius: 14px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .order-number {
+                font-size: 23px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-    <h1>Pagamento recebido! 🎉</h1>
+    <main class="success-card">
 
-    <p>
-        Seu pedido foi confirmado com sucesso.
-    </p>
+        <div class="success-icon">
+            ✓
+        </div>
 
-    <a href="/">
-        Voltar para a loja
-    </a>
+        <div class="brand">
+            PÊLA MODA
+        </div>
 
+        <h1>
+            Pagamento confirmado!
+        </h1>
+
+        <p class="subtitle">
+            Seu pagamento foi recebido e seu pedido já está com a gente.
+        </p>
+
+        <div class="order-box">
+
+            <div class="order-label">
+                Número do pedido
+            </div>
+
+            <div class="order-number" id="numeroPedido">
+                Carregando...
+            </div>
+
+        </div>
+
+        <p class="status">
+            Agora vamos preparar seu pedido com todo cuidado.
+            Em breve você receberá as próximas informações.
+        </p>
+
+        <a href="/" class="btn">
+            Voltar para a loja
+        </a>
+
+        <div class="footer-text">
+            Vestir o Nordeste no peito.
+        </div>
+
+    </main>
+
+    <script>
+    async function carregarPedido() {
+
+        const params = new URLSearchParams(
+            window.location.search
+        );
+
+        const orderNsu = params.get("order_nsu");
+
+        const numeroPedido =
+            document.getElementById("numeroPedido");
+
+        if (!orderNsu) {
+            numeroPedido.textContent = "Pedido confirmado";
+            return;
+        }
+
+        try {
+
+            const resposta = await fetch(
+                `/api/buscar-pedido?order_nsu=${encodeURIComponent(orderNsu)}`
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.erro || "Pedido não encontrado"
+                );
+            }
+
+            numeroPedido.textContent =
+                dados.numero_pedido;
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao buscar pedido:",
+                erro
+            );
+
+            numeroPedido.textContent =
+                "Pedido confirmado";
+        }
+    }
+
+    carregarPedido();
+</script>
 </body>
 </html>
