@@ -937,13 +937,14 @@ const dadosPedido = {
     telefone: whatsapp,
     email: document.getElementById("email").value.trim(),
 
-    itens: carrinhoCheckout.map(item => ({
-        nome: item.nome,
-        cor: item.cor,
-        tamanho: item.tamanho,
-        quantidade: item.quantidade,
-        preco: Math.round(item.preco * 100)
-    })),
+  itens: carrinhoCheckout.map(item => ({
+    produto_id: item.produtoId,
+    nome: item.nome,
+    cor: item.cor,
+    tamanho: item.tamanho,
+    quantidade: item.quantidade,
+    preco: Math.round(item.preco * 100)
+})),
 
     tipo_entrega:
         document.querySelector(
