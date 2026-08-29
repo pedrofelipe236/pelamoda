@@ -232,7 +232,7 @@ mulearretada: {
 },
 nordeste: {
     nome: "Nordeste",
-    preco: 65,
+    preco: 1,
 
     estoque: {
         Preta: {
