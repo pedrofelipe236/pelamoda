@@ -1053,7 +1053,7 @@
                         class="buy"
                         onclick="window.location.href='produto.html?id=${id}'"
                     >
-                        VER PRODUTO
+                        COMPRAR
                     </button>
                 `;
 
