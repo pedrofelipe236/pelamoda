@@ -930,7 +930,91 @@ if (valorFrete > 0) {
 }
 
 const orderNsu = `PELAMODA-${Date.now()}`;
+const dadosPedido = {
+    order_nsu: orderNsu,
 
+    nome_cliente: nome,
+    telefone: whatsapp,
+    email: document.getElementById("email").value.trim(),
+
+    itens: carrinhoCheckout.map(item => ({
+        nome: item.nome,
+        cor: item.cor,
+        tamanho: item.tamanho,
+        quantidade: item.quantidade,
+        preco: Math.round(item.preco * 100)
+    })),
+
+    tipo_entrega:
+        document.querySelector(
+            'input[name="tipo-entrega"]:checked'
+        )?.value || "",
+
+    cep:
+        document.getElementById("cep")?.value.trim() || "",
+
+    endereco:
+        document.getElementById("endereco")?.value.trim() || "",
+
+    numero:
+        document.getElementById("numero")?.value.trim() || "",
+
+    complemento:
+        document.getElementById("complemento")?.value.trim() || "",
+
+    bairro:
+        document.getElementById("bairro")?.value.trim() || "",
+
+    cidade:
+        document.getElementById("cidade")?.value.trim() || "",
+
+    estado:
+        document.getElementById("estado")?.value.trim() || "",
+
+    valor_produtos:
+        Math.round(
+            carrinhoCheckout.reduce(
+                (total, item) =>
+                    total + item.preco * item.quantidade,
+                0
+            ) * 100
+        ),
+
+    valor_frete:
+        Math.round(valorFrete * 100),
+
+    valor_total:
+        Math.round(
+            (
+                carrinhoCheckout.reduce(
+                    (total, item) =>
+                        total + item.preco * item.quantidade,
+                    0
+                ) + valorFrete
+            ) * 100
+        )
+};
+const respostaPedido = await fetch("/api/criar-pedido", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(dadosPedido)
+});
+
+const pedidoCriado = await respostaPedido.json();
+
+if (!respostaPedido.ok) {
+    throw new Error(
+        pedidoCriado.erro ||
+        "Erro ao registrar pedido"
+    );
+}
+
+console.log(
+    "Pedido criado:",
+    pedidoCriado.numero_pedido
+);
 const dadosPagamento = {
     order_nsu: orderNsu,
 
