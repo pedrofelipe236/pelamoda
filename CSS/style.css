@@ -5,19 +5,18 @@
     font-style: normal;
 } 
    :root {
-      --preto: #11110f;
-      --creme: #f5ecdc;
-      --creme-2: #fffaf0;
-      --terracota: #b9571d;
-      --terracota-escuro: #8e3e13;
-      --marrom: #51321f;
-      --texto: #191714;
-      --branco: #fff;
-      --borda: rgba(17,17,15,.15);
-      --max: 1180px;
-    }
-    html {
-    scroll-behavior: smooth;
+    --preto: #11110f;
+
+    --creme: #F3E7D3;
+    --creme-2: #F3E7D3;
+
+    --terracota: #b9571d;
+    --terracota-escuro: #8e3e13;
+    --marrom: #51321f;
+    --texto: #191714;
+    --branco: #fff;
+    --borda: rgba(17,17,15,.15);
+    --max: 1180px;
 }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -380,7 +379,7 @@
     /* PRODUCTS */
     .products {
     padding: 90px 0 100px;
-    background: #E8D2B3;
+    background: var(--creme);
 }
 
     .section-heading {
