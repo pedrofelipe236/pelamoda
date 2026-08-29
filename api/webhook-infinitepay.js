@@ -44,7 +44,8 @@ export default async function handler(req, res) {
             }
         );
 
-        const verificacao = await respostaVerificacao.json();
+        const verificacao =
+            await respostaVerificacao.json();
 
         console.log(
             "Verificação InfinitePay:",
@@ -62,71 +63,80 @@ export default async function handler(req, res) {
             });
         }
 
-        /* ATUALIZA O PEDIDO */
+        /* CONFIRMA PEDIDO E BAIXA O ESTOQUE */
 
         const respostaSupabase = await fetch(
-            `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}`,
+            `${process.env.SUPABASE_URL}/rest/v1/rpc/confirmar_pagamento`,
             {
-                method: "PATCH",
+                method: "POST",
 
                 headers: {
                     "Content-Type": "application/json",
-                    "apikey": process.env.SUPABASE_SECRET_KEY,
-                    "Prefer": "return=representation"
+                    "apikey": process.env.SUPABASE_SECRET_KEY
                 },
 
                 body: JSON.stringify({
-                    status: "pago",
+                    p_order_nsu:
+                        order_nsu,
 
-                    transaction_nsu:
+                    p_transaction_nsu:
                         transaction_nsu,
 
-                    forma_pagamento:
+                    p_forma_pagamento:
                         verificacao.capture_method || null,
 
-                    parcelas:
+                    p_parcelas:
                         verificacao.installments || null,
 
-                    receipt_url:
-                        receipt_url || null,
-
-                    pago_em:
-                        new Date().toISOString()
+                    p_receipt_url:
+                        receipt_url || null
                 })
             }
         );
 
-        const pedidoAtualizado =
+        const resultadoPedido =
             await respostaSupabase.json();
 
         if (!respostaSupabase.ok) {
 
             console.error(
-                "Erro Supabase:",
-                pedidoAtualizado
+                "Erro ao confirmar pedido:",
+                resultadoPedido
             );
 
             return res.status(500).json({
                 success: false,
-                message: "Erro ao atualizar pedido"
-            });
-        }
-
-        if (!pedidoAtualizado.length) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Pedido não encontrado"
+                message: "Erro ao confirmar pedido"
             });
         }
 
         console.log(
-            "PAGAMENTO CONFIRMADO:",
-            pedidoAtualizado[0].numero_pedido
+            "Resultado do pedido:",
+            resultadoPedido
+        );
+
+        if (!resultadoPedido.success) {
+
+            console.error(
+                "Problema no estoque:",
+                resultadoPedido
+            );
+
+            return res.status(409).json({
+                success: false,
+                message:
+                    resultadoPedido.erro ||
+                    "Problema ao processar estoque"
+            });
+        }
+
+        console.log(
+            "PAGAMENTO + ESTOQUE CONFIRMADOS:",
+            resultadoPedido.numero_pedido
         );
 
         console.log(
-            "Itens:",
+            "Itens recebidos:",
             items
         );
 
