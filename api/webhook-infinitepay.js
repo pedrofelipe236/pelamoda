@@ -33,6 +33,69 @@ export default async function handler(req, res) {
         console.log("Itens:", items);
         console.log("==================================");
 
+        if (!order_nsu) {
+            return res.status(400).json({
+                success: false,
+                message: "Pedido não informado"
+            });
+        }
+
+        const respostaSupabase = await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}`,
+            {
+                method: "PATCH",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": process.env.SUPABASE_SECRET_KEY,
+                    "Prefer": "return=representation"
+                },
+
+                body: JSON.stringify({
+                    status: "pago",
+                    transaction_nsu: transaction_nsu || null,
+                    forma_pagamento: capture_method || null,
+                    parcelas: installments || null,
+                    receipt_url: receipt_url || null,
+                    pago_em: new Date().toISOString()
+                })
+            }
+        );
+
+        const pedidoAtualizado =
+            await respostaSupabase.json();
+
+        if (!respostaSupabase.ok) {
+
+            console.error(
+                "Erro ao atualizar pedido no Supabase:",
+                pedidoAtualizado
+            );
+
+            return res.status(500).json({
+                success: false,
+                message: "Erro ao atualizar pedido"
+            });
+        }
+
+        if (!pedidoAtualizado.length) {
+
+            console.error(
+                "Pedido não encontrado:",
+                order_nsu
+            );
+
+            return res.status(404).json({
+                success: false,
+                message: "Pedido não encontrado"
+            });
+        }
+
+        console.log(
+            "Pedido atualizado:",
+            pedidoAtualizado[0].numero_pedido
+        );
+
         return res.status(200).json({
             success: true,
             message: null
