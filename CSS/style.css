@@ -10,7 +10,7 @@
     --creme: #F3E7D3;
     --creme-2: #F3E7D3;
 
-    --terracota: #b9571d;
+    background: var(--creme);
     --terracota-escuro: #8e3e13;
     --marrom: #51321f;
     --texto: #191714;
@@ -26,7 +26,7 @@
     body {
       font-family: "DM Sans", sans-serif;
       color: var(--texto);
-      background:  ##E8D2B3;
+      background:  #E8D2B3;
       line-height: 1.5;
     }
 
@@ -154,7 +154,7 @@
     inset: 0;
     opacity: .13;
     background-image:
-        radial-gradient(#b5351e 1px, transparent 1px);
+        radial-gradient(#F3E7D3 1px, transparent 1px);
     background-size: 8px 8px;
     pointer-events: none;
     z-index: 1;
@@ -1381,7 +1381,7 @@
 
     border-radius: 999px;
 
-    background: #b9571d;
+    background: #F3E7D3;
     color: white;
 
     font-size: 11px;
