@@ -659,7 +659,7 @@
 
 .promos {
     padding: 45px 0;
-    background: #fffaf0;
+    background: var(--creme-2);
 }
 
 .promo-carousel {
