@@ -14,31 +14,55 @@ export default async function handler(req, res) {
         const {
             order_nsu,
             transaction_nsu,
-            amount,
-            paid_amount,
-            installments,
-            capture_method,
+            invoice_slug,
             receipt_url,
             items
         } = pagamento;
 
-        console.log("==================================");
-        console.log("NOVA VENDA PÊLA MODA");
-        console.log("Pedido:", order_nsu);
-        console.log("Transação:", transaction_nsu);
-        console.log("Valor:", paid_amount || amount);
-        console.log("Parcelas:", installments);
-        console.log("Forma:", capture_method);
-        console.log("Comprovante:", receipt_url);
-        console.log("Itens:", items);
-        console.log("==================================");
-
-        if (!order_nsu) {
+        if (!order_nsu || !transaction_nsu || !invoice_slug) {
             return res.status(400).json({
                 success: false,
-                message: "Pedido não informado"
+                message: "Dados do pagamento incompletos"
             });
         }
+
+        /* CONFIRMA O PAGAMENTO DIRETAMENTE NA INFINITEPAY */
+
+        const respostaVerificacao = await fetch(
+            "https://api.checkout.infinitepay.io/payment_check",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    handle: "pedrofelipe236",
+                    order_nsu,
+                    transaction_nsu,
+                    slug: invoice_slug
+                })
+            }
+        );
+
+        const verificacao = await respostaVerificacao.json();
+
+        console.log(
+            "Verificação InfinitePay:",
+            verificacao
+        );
+
+        if (
+            !respostaVerificacao.ok ||
+            !verificacao.success ||
+            !verificacao.paid
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Pagamento não confirmado"
+            });
+        }
+
+        /* ATUALIZA O PEDIDO */
 
         const respostaSupabase = await fetch(
             `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}`,
@@ -53,11 +77,21 @@ export default async function handler(req, res) {
 
                 body: JSON.stringify({
                     status: "pago",
-                    transaction_nsu: transaction_nsu || null,
-                    forma_pagamento: capture_method || null,
-                    parcelas: installments || null,
-                    receipt_url: receipt_url || null,
-                    pago_em: new Date().toISOString()
+
+                    transaction_nsu:
+                        transaction_nsu,
+
+                    forma_pagamento:
+                        verificacao.capture_method || null,
+
+                    parcelas:
+                        verificacao.installments || null,
+
+                    receipt_url:
+                        receipt_url || null,
+
+                    pago_em:
+                        new Date().toISOString()
                 })
             }
         );
@@ -68,7 +102,7 @@ export default async function handler(req, res) {
         if (!respostaSupabase.ok) {
 
             console.error(
-                "Erro ao atualizar pedido no Supabase:",
+                "Erro Supabase:",
                 pedidoAtualizado
             );
 
@@ -80,11 +114,6 @@ export default async function handler(req, res) {
 
         if (!pedidoAtualizado.length) {
 
-            console.error(
-                "Pedido não encontrado:",
-                order_nsu
-            );
-
             return res.status(404).json({
                 success: false,
                 message: "Pedido não encontrado"
@@ -92,8 +121,13 @@ export default async function handler(req, res) {
         }
 
         console.log(
-            "Pedido atualizado:",
+            "PAGAMENTO CONFIRMADO:",
             pedidoAtualizado[0].numero_pedido
+        );
+
+        console.log(
+            "Itens:",
+            items
         );
 
         return res.status(200).json({
@@ -103,7 +137,10 @@ export default async function handler(req, res) {
 
     } catch (erro) {
 
-        console.error("Erro no webhook:", erro);
+        console.error(
+            "Erro no webhook:",
+            erro
+        );
 
         return res.status(500).json({
             success: false,
