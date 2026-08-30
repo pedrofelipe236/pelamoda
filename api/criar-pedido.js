@@ -7,6 +7,7 @@ export default async function handler(req, res) {
     }
 
     try {
+
         const {
             order_nsu,
             nome_cliente,
@@ -26,11 +27,111 @@ export default async function handler(req, res) {
             valor_total
         } = req.body;
 
-        if (!order_nsu || !itens || !valor_total) {
+
+        // ======================================================
+        // VALIDA DADOS BÁSICOS
+        // ======================================================
+
+        if (
+            !order_nsu ||
+            !Array.isArray(itens) ||
+            itens.length === 0 ||
+            !valor_total
+        ) {
             return res.status(400).json({
                 erro: "Dados do pedido incompletos"
             });
         }
+
+
+        // ======================================================
+        // CONSULTA ESTOQUE REAL NO SUPABASE
+        // ======================================================
+
+        const respostaEstoque = await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/estoque?select=produto_id,cor,tamanho,quantidade`,
+            {
+                headers: {
+                    "apikey": process.env.SUPABASE_SECRET_KEY
+                }
+            }
+        );
+
+        const estoqueAtual = await respostaEstoque.json();
+
+        if (!respostaEstoque.ok) {
+
+            console.error(
+                "Erro ao consultar estoque:",
+                estoqueAtual
+            );
+
+            return res.status(500).json({
+                erro: "Não foi possível verificar o estoque"
+            });
+        }
+
+
+        // ======================================================
+        // CONFERE CADA ITEM DO CARRINHO
+        // ======================================================
+
+        for (const item of itens) {
+
+            const quantidadeDesejada =
+                Number(item.quantidade);
+
+            if (
+                !item.produto_id ||
+                !item.cor ||
+                !item.tamanho ||
+                !Number.isInteger(quantidadeDesejada) ||
+                quantidadeDesejada <= 0
+            ) {
+                return res.status(400).json({
+                    erro: "Existe um item inválido no pedido"
+                });
+            }
+
+
+            const itemEstoque = estoqueAtual.find(
+                estoque =>
+                    estoque.produto_id === item.produto_id &&
+                    estoque.cor === item.cor &&
+                    estoque.tamanho === item.tamanho
+            );
+
+
+            if (!itemEstoque) {
+
+                return res.status(409).json({
+                    erro:
+                        `${item.nome || "Produto"} - ` +
+                        `${item.cor} - ${item.tamanho} ` +
+                        `não está disponível.`
+                });
+            }
+
+
+            if (
+                Number(itemEstoque.quantidade) <
+                quantidadeDesejada
+            ) {
+
+                return res.status(409).json({
+                    erro:
+                        `Estoque insuficiente para ` +
+                        `${item.nome || "o produto"} - ` +
+                        `${item.cor} - ${item.tamanho}. ` +
+                        `Disponível: ${itemEstoque.quantidade}.`
+                });
+            }
+        }
+
+
+        // ======================================================
+        // CRIA O PEDIDO
+        // ======================================================
 
         const resposta = await fetch(
             `${process.env.SUPABASE_URL}/rest/v1/pedidos`,
@@ -40,8 +141,6 @@ export default async function handler(req, res) {
                 headers: {
                     "Content-Type": "application/json",
                     "apikey": process.env.SUPABASE_SECRET_KEY,
-
-                    // Faz o Supabase devolver o pedido criado
                     "Prefer": "return=representation"
                 },
 
@@ -67,17 +166,25 @@ export default async function handler(req, res) {
             }
         );
 
+
         const dados = await resposta.json();
 
+
         if (!resposta.ok) {
-            console.error("Erro Supabase:", dados);
+
+            console.error(
+                "Erro Supabase:",
+                dados
+            );
 
             return res.status(resposta.status).json({
                 erro: "Erro ao criar pedido"
             });
         }
 
+
         const pedido = dados[0];
+
 
         return res.status(201).json({
             sucesso: true,
@@ -86,9 +193,13 @@ export default async function handler(req, res) {
             order_nsu: pedido.order_nsu
         });
 
+
     } catch (erro) {
 
-        console.error("Erro ao criar pedido:", erro);
+        console.error(
+            "Erro ao criar pedido:",
+            erro
+        );
 
         return res.status(500).json({
             erro: "Erro interno ao criar pedido"
