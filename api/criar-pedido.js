@@ -7,7 +7,15 @@ export default async function handler(req, res) {
     }
 
     try {
-
+const precosProdutos = {
+        pe: 6500,
+        oxente: 6500,
+        marminino: 6500,
+        meupaispernambuco: 6500,
+        arretado: 6500,
+        mulearretada: 6500,
+        nordeste: 6500
+    };
         const {
             order_nsu,
             nome_cliente,
@@ -127,7 +135,34 @@ export default async function handler(req, res) {
                 });
             }
         }
+// ======================================================
+// CALCULA VALORES REAIS NO BACKEND
+// ======================================================
 
+let valorProdutosCalculado = 0;
+
+const itensSeguros = itens.map(item => {
+
+    const precoReal =
+        precosProdutos[item.produto_id];
+
+    if (!precoReal) {
+        throw new Error(
+            `Preço não encontrado para ${item.produto_id}`
+        );
+    }
+
+    const quantidade =
+        Number(item.quantidade);
+
+    valorProdutosCalculado +=
+        precoReal * quantidade;
+
+    return {
+        ...item,
+        preco: precoReal
+    };
+});
 
         // ======================================================
         // CRIA O PEDIDO
@@ -149,7 +184,7 @@ export default async function handler(req, res) {
                     nome_cliente,
                     telefone,
                     email,
-                    itens,
+                    itens: itensSeguros,
                     tipo_entrega,
                     cep,
                     endereco,
@@ -158,9 +193,11 @@ export default async function handler(req, res) {
                     bairro,
                     cidade,
                     estado,
-                    valor_produtos,
-                    valor_frete: valor_frete || 0,
-                    valor_total,
+                    valor_produtos: valorProdutosCalculado,
+valor_frete: valor_frete || 0,
+valor_total:
+    valorProdutosCalculado +
+    Number(valor_frete || 0),
                     status: "aguardando_pagamento"
                 })
             }
