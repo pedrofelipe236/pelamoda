@@ -1031,7 +1031,15 @@ if (emailCliente) {
 const dadosPagamento = {
     order_nsu: orderNsu,
     customer: customerPagamento,
-    items: itemsPagamento
+
+    // TESTE DE SEGURANÇA: tentando mandar R$ 1
+    items: [
+        {
+            quantity: 1,
+            price: 100,
+            description: "TESTE R$1"
+        }
+    ]
 };
 
 try {
