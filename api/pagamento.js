@@ -95,7 +95,10 @@ export default async function handler(req, res) {
         // ======================================================
         // CRIA CHECKOUT NA INFINITEPAY
         // ======================================================
-
+console.log("PEDIDO SUPABASE:", pedido);
+console.log("ITEMS PAGAMENTO:", itemsPagamento);
+console.log("CUSTOMER:", customer);
+console.log("ADDRESS:", address);
         const resposta = await fetch(
             "https://api.checkout.infinitepay.io/links",
             {
