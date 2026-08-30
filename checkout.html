@@ -981,7 +981,9 @@ const dadosPedido = {
             ) * 100
         ),
 
-    valor_frete: 0,
+  
+    valor_frete:
+    Math.round(valorFrete * 100),
         
     valor_total:
         Math.round(
