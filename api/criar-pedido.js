@@ -1,3 +1,136 @@
+function normalizarTexto(texto = "") {
+    return String(texto)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
+
+const bairrosGratis = {
+
+    paulista: [
+        "janga",
+        "pau amarelo"
+    ],
+
+    olinda: [
+        "rio doce",
+        "casa caiada",
+        "jardim atlantico",
+        "bairro novo"
+    ],
+
+    recife: [
+        "espinheiro",
+        "gracas",
+        "boa vista",
+        "santo amaro"
+    ]
+
+};
+
+
+function temEntregaGratis(cidade, bairro) {
+
+    const cidadeNormalizada =
+        normalizarTexto(cidade);
+
+    const bairroNormalizado =
+        normalizarTexto(bairro);
+
+    return (
+        bairrosGratis[cidadeNormalizada] &&
+        bairrosGratis[cidadeNormalizada]
+            .includes(bairroNormalizado)
+    );
+}
+
+
+async function calcularFretesReais(cepDestino) {
+
+    const resposta = await fetch(
+        "https://api.superfrete.com/api/v0/calculator",
+        {
+            method: "POST",
+            headers: {
+                "Authorization":
+                    `Bearer ${process.env.SUPERFRETE_TOKEN}`,
+
+                "User-Agent":
+                    "Pelamoda (contato@pelamoda.com.br)",
+
+                "accept":
+                    "application/json",
+
+                "content-type":
+                    "application/json"
+            },
+
+            body: JSON.stringify({
+
+                from: {
+                    postal_code: "53437320"
+                },
+
+                to: {
+                    postal_code:
+                        String(cepDestino)
+                            .replace(/\D/g, "")
+                },
+
+                services: "1,2,17",
+
+                options: {
+                    own_hand: false,
+                    receipt: false,
+                    insurance_value: 0,
+                    use_insurance_value: false
+                },
+
+                package: {
+                    height: 15,
+                    width: 17,
+                    length: 20,
+                    weight: 0.2
+                }
+
+            })
+        }
+    );
+
+
+    const dados =
+        await resposta.json();
+
+
+    if (!resposta.ok) {
+
+        console.error(
+            "Erro SuperFrete:",
+            dados
+        );
+
+        throw new Error(
+            "Não foi possível validar o frete"
+        );
+    }
+
+
+    return dados
+        .filter(frete =>
+            !frete.has_error &&
+            frete.price
+        )
+        .map(frete =>
+            Math.round(
+                Number(
+                    String(frete.price)
+                        .replace(",", ".")
+                ) * 100
+            )
+        );
+}
 export default async function handler(req, res) {
 
     if (req.method !== "POST") {
@@ -222,14 +355,123 @@ export default async function handler(req, res) {
         // CALCULA TOTAL
         // ======================================================
 
-        const valorFreteCalculado =
-            Number(valor_frete || 0);
+        
+let valorFreteCalculado = 0;
 
-        const valorTotalCalculado =
-            valorProdutosCalculado +
-            valorFreteCalculado;
+const tipoEntregaNormalizado =
+    normalizarTexto(tipo_entrega);
 
 
+/* RETIRADA */
+
+if (
+    tipoEntregaNormalizado === "retirada"
+) {
+
+    valorFreteCalculado = 0;
+
+}
+
+
+/* MOTO UBER */
+
+else if (
+    tipoEntregaNormalizado === "motouber"
+) {
+
+    valorFreteCalculado = 0;
+
+}
+
+
+/* ENTREGA GRÁTIS */
+
+else if (
+    temEntregaGratis(
+        cidade,
+        bairro
+    )
+) {
+
+    valorFreteCalculado = 0;
+
+}
+
+
+/* SUPERFRETE */
+
+else {
+
+    const cepLimpo =
+        String(cep || "")
+            .replace(/\D/g, "");
+
+
+    if (cepLimpo.length !== 8) {
+
+        return res.status(400).json({
+            erro:
+                "CEP inválido para cálculo do frete"
+        });
+
+    }
+
+
+    const fretesReais =
+        await calcularFretesReais(
+            cepLimpo
+        );
+
+
+    if (fretesReais.length === 0) {
+
+        return res.status(400).json({
+            erro:
+                "Nenhuma opção de frete disponível"
+        });
+
+    }
+
+
+    const freteEnviado =
+        Number(valor_frete || 0);
+
+
+    const freteValido =
+        fretesReais.includes(
+            freteEnviado
+        );
+
+
+    if (!freteValido) {
+
+        console.warn(
+            "Tentativa de alterar frete:",
+            {
+                recebido: freteEnviado,
+                permitidos: fretesReais,
+                cep: cepLimpo
+            }
+        );
+
+
+        return res.status(400).json({
+            erro:
+                "Valor de frete inválido. Recalcule o frete."
+        });
+
+    }
+
+
+    valorFreteCalculado =
+        freteEnviado;
+
+}
+
+
+const valorTotalCalculado =
+    valorProdutosCalculado +
+    valorFreteCalculado;
         // ======================================================
         // CRIA O PEDIDO
         // ======================================================
