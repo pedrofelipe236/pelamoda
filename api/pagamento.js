@@ -26,8 +26,7 @@ export default async function handler(req, res) {
         // ======================================================
 
         const respostaPedido = await fetch(
-            `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}&select=order_nsu,itens,valor_frete,status`,
-            {
+`${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}&select=order_nsu,itens,valor_produtos,valor_desconto,valor_frete,valor_total,cupom,status`,            {
                 headers: {
                     "apikey": process.env.SUPABASE_SECRET_KEY
                 }
@@ -66,13 +65,36 @@ export default async function handler(req, res) {
         // MONTA OS ITENS COM OS PREÇOS SALVOS NO BACKEND
         // ======================================================
 
-        const itemsPagamento =
-            pedido.itens.map(item => ({
-                quantity: Number(item.quantidade),
-                price: Number(item.preco),
-                description:
-                    `${item.nome} - ${item.cor} - ${item.tamanho}`
-            }));
+        let itemsPagamento;
+
+const valorDesconto =
+    Number(pedido.valor_desconto || 0);
+
+if (valorDesconto > 0) {
+
+    const valorProdutosComDesconto =
+        Number(pedido.valor_produtos) -
+        valorDesconto;
+
+    itemsPagamento = [
+        {
+            quantity: 1,
+            price: valorProdutosComDesconto,
+            description:
+                `Produtos - Cupom ${pedido.cupom}`
+        }
+    ];
+
+} else {
+
+    itemsPagamento =
+        pedido.itens.map(item => ({
+            quantity: Number(item.quantidade),
+            price: Number(item.preco),
+            description:
+                `${item.nome} - ${item.cor} - ${item.tamanho}`
+        }));
+}
 
 
         // ======================================================

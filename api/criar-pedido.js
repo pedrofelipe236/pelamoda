@@ -156,7 +156,8 @@ export default async function handler(req, res) {
             cidade,
             estado,
             valor_frete,
-            valor_total
+            valor_total,
+            cupom
         } = req.body;
 
 
@@ -468,9 +469,90 @@ else {
 
 }
 
+let valorDescontoCalculado = 0;
+let cupomAplicado = null;
 
+if (cupom && cupom.trim()) {
+
+    const codigoCupom =
+        cupom.trim().toUpperCase();
+
+    const respostaCupom = await fetch(
+        `${process.env.SUPABASE_URL}/rest/v1/cupons?codigo=eq.${encodeURIComponent(codigoCupom)}&ativo=eq.true&select=*`,
+        {
+            headers: {
+                apikey: process.env.SUPABASE_SECRET_KEY
+            }
+        }
+    );
+
+    const cupons =
+        await respostaCupom.json();
+
+    if (
+        !respostaCupom.ok ||
+        !Array.isArray(cupons) ||
+        cupons.length === 0
+    ) {
+        return res.status(400).json({
+            erro: "Cupom inválido ou inativo"
+        });
+    }
+
+    const cupomEncontrado =
+        cupons[0];
+
+    if (
+        cupomEncontrado.valido_ate &&
+        new Date(cupomEncontrado.valido_ate) <
+        new Date()
+    ) {
+        return res.status(400).json({
+            erro: "Este cupom expirou"
+        });
+    }
+
+    if (
+        valorProdutosCalculado <
+        Number(cupomEncontrado.valor_minimo || 0)
+    ) {
+        return res.status(400).json({
+            erro: "Valor mínimo do cupom não atingido"
+        });
+    }
+
+    if (
+        cupomEncontrado.tipo ===
+        "percentual"
+    ) {
+        valorDescontoCalculado =
+            Math.round(
+                valorProdutosCalculado *
+                Number(cupomEncontrado.valor) /
+                100
+            );
+    }
+
+    if (
+        cupomEncontrado.tipo ===
+        "fixo"
+    ) {
+        valorDescontoCalculado =
+            Number(cupomEncontrado.valor);
+    }
+
+    valorDescontoCalculado =
+        Math.min(
+            valorDescontoCalculado,
+            valorProdutosCalculado
+        );
+
+    cupomAplicado =
+        codigoCupom;
+}
 const valorTotalCalculado =
-    valorProdutosCalculado +
+    valorProdutosCalculado -
+    valorDescontoCalculado +
     valorFreteCalculado;
         // ======================================================
         // CRIA O PEDIDO
@@ -503,6 +585,9 @@ const valorTotalCalculado =
                     estado,
                     valor_produtos:
                         valorProdutosCalculado,
+                        cupom: cupomAplicado,
+valor_desconto:
+    valorDescontoCalculado,
                     valor_frete:
                         valorFreteCalculado,
                     valor_total:

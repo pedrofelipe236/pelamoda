@@ -268,43 +268,66 @@
                 </div>
 
 
-                <div class="checkout-totals">
+                <div class="checkout-cupom">
+    <label for="cupom">Cupom de desconto</label>
 
-                    <div>
-                        <span>Subtotal</span>
-                        <strong id="checkout-subtotal">
-                            R$ 0,00
-                        </strong>
-                    </div>
+    <div class="checkout-cupom-box">
+        <input
+            type="text"
+            id="cupom"
+            placeholder="Digite seu cupom"
+            autocomplete="off"
+        >
 
-                    <div>
-                        <span>Entrega</span>
-                        <strong id="checkout-frete">
-                            A calcular
-                        </strong>
-                    </div>
+        <button
+            type="button"
+            id="btn-aplicar-cupom"
+        >
+            APLICAR
+        </button>
+    </div>
 
-                    <div class="checkout-total">
-                        <span>TOTAL</span>
-                        <strong id="checkout-total">
-                            R$ 0,00
-                        </strong>
-                    </div>
-
-                </div>
+    <span
+        id="cupom-mensagem"
+        class="cupom-mensagem"
+    ></span>
+</div>
 
 
-                <button
-                    type="button"
-                    id="btn-pagamento"
-                    class="checkout-pay"
-                >
-                    IR PARA O PAGAMENTO
-                </button>
+<div class="checkout-totals">
 
-            </section>
+    <div>
+        <span>Subtotal</span>
+        <strong id="checkout-subtotal">
+            R$ 0,00
+        </strong>
+    </div>
 
-        </div>
+    <div
+        id="linha-desconto"
+        style="display: none;"
+    >
+        <span>Desconto</span>
+        <strong id="checkout-desconto">
+            - R$ 0,00
+        </strong>
+    </div>
+
+    <div>
+        <span>Entrega</span>
+        <strong id="checkout-frete">
+            A calcular
+        </strong>
+    </div>
+
+    <div class="checkout-total">
+        <span>TOTAL</span>
+        <strong id="checkout-total">
+            R$ 0,00
+        </strong>
+    </div>
+
+</div>
 
     </main>
 <script>
@@ -818,8 +841,8 @@ async function calcularFreteSuperFrete() {
         });
 
 
-        const total =
-            subtotal + valorFrete;
+       const total =
+    subtotal - valorDesconto + valorFrete;
 
 
         checkoutTotal.textContent =
@@ -828,6 +851,114 @@ async function calcularFreteSuperFrete() {
                 .replace(".", ",")}`;
 
     }
+    // CÓDIGO DO CUPOM AQUI
+    let cupomAplicado = "";
+let valorDesconto = 0;
+
+const inputCupom =
+    document.getElementById("cupom");
+
+const botaoAplicarCupom =
+    document.getElementById("btn-aplicar-cupom");
+
+const mensagemCupom =
+    document.getElementById("cupom-mensagem");
+
+const linhaDesconto =
+    document.getElementById("linha-desconto");
+
+const checkoutDesconto =
+    document.getElementById("checkout-desconto");
+
+    botaoAplicarCupom?.addEventListener(
+    "click",
+    async () => {
+
+        const codigo =
+            inputCupom.value
+                .trim()
+                .toUpperCase();
+
+        if (!codigo) {
+            mensagemCupom.textContent =
+                "Digite um cupom.";
+            return;
+        }
+
+        try {
+
+            const resposta =
+                await fetch(
+                    "/api/validar-cupom",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            cupom: codigo,
+                            valor_produtos:
+                                Math.round(
+                                    subtotal * 100
+                                )
+                        })
+                    }
+                );
+
+            const dados =
+                await resposta.json();
+
+            if (!resposta.ok) {
+
+                cupomAplicado = "";
+                valorDesconto = 0;
+
+                linhaDesconto.style.display =
+                    "none";
+
+                mensagemCupom.textContent =
+                    dados.erro ||
+                    "Cupom inválido.";
+
+                atualizarTotalCheckout();
+
+                return;
+            }
+
+            cupomAplicado =
+                dados.codigo;
+
+            valorDesconto =
+                Number(
+                    dados.valor_desconto || 0
+                ) / 100;
+
+            checkoutDesconto.textContent =
+                `- R$ ${valorDesconto
+                    .toFixed(2)
+                    .replace(".", ",")}`;
+
+            linhaDesconto.style.display =
+                "flex";
+
+            mensagemCupom.textContent =
+                `Cupom ${cupomAplicado} aplicado ✓`;
+
+            atualizarTotalCheckout();
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao aplicar cupom:",
+                erro
+            );
+
+            mensagemCupom.textContent =
+                "Não foi possível validar o cupom.";
+        }
+    }
+);
 const btnPagamento = document.getElementById("btn-pagamento");
 
 btnPagamento.addEventListener("click", async () => {
@@ -980,7 +1111,7 @@ const dadosPedido = {
                 0
             ) * 100
         ),
-
+cupom: cupomAplicado,
   
     valor_frete:
     Math.round(valorFrete * 100),

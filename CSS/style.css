@@ -1976,3 +1976,51 @@ body {
 html {
     scroll-behavior: smooth;
 }
+.checkout-cupom {
+    margin-bottom: 22px;
+}
+
+.checkout-cupom label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.checkout-cupom-box {
+    display: flex;
+    gap: 8px;
+}
+
+.checkout-cupom-box input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    background: #fff;
+    font: inherit;
+    text-transform: uppercase;
+}
+
+.checkout-cupom-box button {
+    border: 0;
+    border-radius: 6px;
+    padding: 0 18px;
+    background: var(--preto);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.cupom-mensagem {
+    display: block;
+    margin-top: 7px;
+    font-size: 11px;
+}
+
+#checkout-desconto {
+    font-weight: 800;
+}
