@@ -47,17 +47,48 @@ async function carregarEstoqueAPI() {
         return parametros.get("id");
     }
 
-    function obterProdutoPorId(id) {
-        if (
-            typeof produtos === "undefined" ||
-            !id ||
-            !produtos[id]
-        ) {
+   async function obterProdutoPorId(id) {
+
+    if (!id) {
+        return null;
+    }
+
+    try {
+
+        const resposta =
+            await fetch("/api/produtos");
+
+        const catalogo =
+            await resposta.json();
+
+        if (!resposta.ok) {
             return null;
         }
 
-        return produtos[id];
+        const produto =
+            catalogo.find(
+                item => item.id === id
+            );
+
+        if (!produto) {
+            return null;
+        }
+
+        return {
+            ...produto,
+            preco: Number(produto.preco) / 100
+        };
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar produto:",
+            erro
+        );
+
+        return null;
     }
+}
 
     function obterProdutoPorNome(nome) {
         if (typeof produtos === "undefined") {
@@ -447,7 +478,7 @@ async function carregarEstoqueAPI() {
     // PRODUTO DINÂMICO
     // ======================================================
 
-    function carregarProdutoDinamico() {
+    async function carregarProdutoDinamico() {
 
         const paginaProduto =
             document.getElementById("produtoAtual");
@@ -458,7 +489,7 @@ async function carregarEstoqueAPI() {
             obterIdProdutoAtual();
 
         const produto =
-            obterProdutoPorId(idProduto);
+    await obterProdutoPorId(idProduto);
 
         if (!produto) {
 
@@ -1198,7 +1229,7 @@ if (titulo === "CROPPEDS") {
 
             await carregarEstoqueAPI();
 
-            carregarProdutoDinamico();
+            await carregarProdutoDinamico();
             carregarProdutosHome();
             renderizarCarrinho();
         }
