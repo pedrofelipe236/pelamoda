@@ -282,6 +282,115 @@ nordeste: {
             imagem: "imagens/produto-nordeste-cinza.jpg"
         }
     ]
+},
+mulearretadaCropped: {
+    nome: "Mulé Arretada Cropped",
+    preco: 50,
+    categoria: "cropped",
+
+    estoque: {
+        Preta: {
+            PP: 2,
+            P: 0,
+            M: 0,
+            G: 0,
+            GG: 0
+        },
+
+        "Rosa Clara": {
+            PP: 2,
+            P: 0,
+            M: 0,
+            G: 0,
+            GG: 0
+        },
+
+        Rosa: {
+            PP: 0,
+            P: 0,
+            M: 2,
+            G: 1,
+            GG: 0
+        }
+    },
+
+    descricao: "Nosso cropped Mulé Arretada, feito para quem carrega a força e o jeito arretado do Nordeste.",
+
+    imagens: [
+        "imagens/arretada-cropped-preta.jpg",
+        "imagens/arretada-cropped-rosa.jpg",
+        "imagens/arretada-cropped-rosa-clara.jpg",
+        "imagens/mule-arretada.jpg"
+    ],
+
+    cores: [
+        {
+            nome: "Preta",
+            imagem: "imagens/arretada-cropped-preta.jpg"
+        },
+        {
+            nome: "Rosa",
+            imagem: "imagens/arretada-cropped-rosa.jpg"
+        },
+        {
+            nome: "Rosa Clara",
+            imagem: "imagens/arretada-cropped-rosa-clara.jpg"
+        }
+    ]
+},
+
+oxenteCropped: {
+    nome: "Oxente Cropped",
+    preco: 50,
+    categoria: "cropped",
+
+    estoque: {
+        Marrom: {
+            PP: 0,
+            P: 0,
+            M: 1,
+            G: 1,
+            GG: 0
+        },
+
+        Rosa: {
+            PP: 0,
+            P: 0,
+            M: 0,
+            G: 1,
+            GG: 0
+        },
+
+        Laranja: {
+            PP: 0,
+            P: 0,
+            M: 0,
+            G: 1,
+            GG: 0
+        }
+    },
+
+    descricao: "Oxente em versão cropped. Uma peça com identidade nordestina para vestir nosso jeito de falar e de ser.",
+
+    imagens: [
+        "imagens/oxente-cropped-marrom.jpg",
+        "imagens/oxente-cropped-rosa.jpg",
+        "imagens/Oxente-cropped-laranja.jpg"
+    ],
+
+    cores: [
+        {
+            nome: "Marrom",
+            imagem: "imagens/oxente-cropped-marrom.jpg"
+        },
+        {
+            nome: "Rosa",
+            imagem: "imagens/oxente-cropped-rosa.jpg"
+        },
+        {
+            nome: "Laranja",
+            imagem: "imagens/Oxente-cropped-laranja.jpg"
+        }
+    ]
 }
 };
-

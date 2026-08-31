@@ -1035,27 +1035,78 @@ async function carregarEstoqueAPI() {
     // HOME / CATÁLOGO
     // ======================================================
 
-    function carregarProdutosHome() {
+   function carregarProdutosHome() {
 
-        const lista =
-            document.getElementById(
-                "listaProdutos"
+    const lista =
+        document.getElementById(
+            "listaProdutos"
+        );
+
+    if (!lista) return;
+
+    if (typeof produtos === "undefined") {
+
+        console.error(
+            "produtos.js não foi carregado."
+        );
+
+        return;
+    }
+
+    lista.innerHTML = "";
+lista.classList.remove("products-grid");
+lista.classList.add("categorias-produtos");
+
+    const tshirts =
+    Object.entries(produtos)
+        .filter(
+            ([id, produto]) =>
+                produto.categoria !== "cropped"
+        );
+
+
+    const croppeds =
+        Object.entries(produtos)
+            .filter(
+                ([id, produto]) =>
+                    produto.categoria === "cropped"
             );
 
-        if (!lista) return;
 
-        if (typeof produtos === "undefined") {
+    function criarSecao(
+        titulo,
+        listaProdutos
+    ) {
 
-            console.error(
-                "produtos.js não foi carregado."
-            );
-
+        if (listaProdutos.length === 0) {
             return;
         }
 
-        lista.innerHTML = "";
 
-        Object.entries(produtos).forEach(
+        const secao =
+            document.createElement("div");
+
+        secao.className =
+            "categoria-produtos";
+
+
+        secao.innerHTML = `
+            <h2 class="titulo-categoria">
+                ${titulo}
+            </h2>
+
+            <div class="products-grid categoria-grid">
+            </div>
+        `;
+
+
+        const grid =
+            secao.querySelector(
+                ".categoria-grid"
+            );
+
+
+        listaProdutos.forEach(
             ([id, produto]) => {
 
                 const card =
@@ -1073,15 +1124,23 @@ async function carregarEstoqueAPI() {
                         <div class="product-image">
                             <img
                                 src="${produto.imagens[0]}"
-                                alt="Camisa ${produto.nome}"
+                                alt="${produto.nome}"
                             >
                         </div>
 
                         <div class="product-info">
 
-                            <h3>${produto.nome}</h3>
+                            <h3>
+                                ${produto.nome}
+                            </h3>
 
-                            <p>Unissex • PP ao GG</p>
+                            <p>
+                                ${
+                                    produto.categoria === "cropped"
+                                        ? "Cropped feminino"
+                                        : "Unissex • PP ao GG"
+                                }
+                            </p>
 
                             <div class="price">
                                 ${formatarPreco(produto.preco)}
@@ -1098,11 +1157,29 @@ async function carregarEstoqueAPI() {
                     </button>
                 `;
 
-                lista.appendChild(card);
+                grid.appendChild(card);
+
             }
         );
+
+
+        lista.appendChild(secao);
+
     }
 
+
+    criarSecao(
+        "T-SHIRTS",
+        tshirts
+    );
+
+
+    criarSecao(
+        "CROPPEDS",
+        croppeds
+    );
+
+}
 
     // ======================================================
     // INICIALIZAÇÃO

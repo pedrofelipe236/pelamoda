@@ -1893,3 +1893,18 @@ body {
     }
 
 }
+
+.categorias-produtos {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    width: 100%;
+}
+
+.categoria-produtos {
+    width: 100%;
+}
+
+.titulo-categoria {
+    margin-bottom: 16px;
+}
