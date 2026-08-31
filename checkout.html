@@ -315,6 +315,7 @@
 
     <div>
         <span>Entrega</span>
+        
         <strong id="checkout-frete">
             A calcular
         </strong>
@@ -328,7 +329,14 @@
     </div>
 
 </div>
-
+<button
+    type="button"
+    id="btn-pagamento"
+    class="checkout-pay"
+>
+    IR PARA O PAGAMENTO
+</button>
+            </section>
     </main>
 <script>
 
@@ -899,9 +907,13 @@ const checkoutDesconto =
                         body: JSON.stringify({
                             cupom: codigo,
                             valor_produtos:
-                                Math.round(
-                                    subtotal * 100
-                                )
+    Math.round(
+        carrinhoCheckout.reduce(
+            (total, item) =>
+                total + item.preco * item.quantidade,
+            0
+        ) * 100
+    )
                         })
                     }
                 );
