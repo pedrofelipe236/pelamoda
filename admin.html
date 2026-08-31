@@ -152,13 +152,126 @@
     display: block;
     background: #ffdede;
 }
+.novo-produto {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 40px;
+}
+
+.novo-produto h1 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.form-produto {
+    display: grid;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.form-produto label {
+    display: grid;
+    gap: 6px;
+    font-weight: bold;
+}
+
+.form-produto input,
+.form-produto select,
+.form-produto textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font: inherit;
+}
+
+.form-produto textarea {
+    resize: vertical;
+}
+
+.cadastrar-produto {
+    padding: 14px;
+    border: 0;
+    border-radius: 7px;
+    background: #111;
+    color: #fff;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.cadastrar-produto:disabled {
+    opacity: .5;
+    cursor: wait;
+}
     </style>
 </head>
 
 <body>
 
     <main class="admin">
+<section class="novo-produto">
 
+    <h1>Novo produto</h1>
+    <p>Cadastre um novo produto na PêlaModa.</p>
+
+    <div class="form-produto">
+
+        <label>
+            Nome
+            <input
+                type="text"
+                id="novoProdutoNome"
+                placeholder="Ex: Cuscuz Arretado"
+            >
+        </label>
+
+        <label>
+            Preço
+            <input
+                type="number"
+                id="novoProdutoPreco"
+                placeholder="65,00"
+                min="0"
+                step="0.01"
+            >
+        </label>
+
+        <label>
+            Categoria
+            <select id="novoProdutoCategoria">
+                <option value="tshirt">T-shirt</option>
+                <option value="cropped">Cropped</option>
+            </select>
+        </label>
+
+        <label>
+            Descrição
+            <textarea
+                id="novoProdutoDescricao"
+                rows="4"
+                placeholder="Descrição do produto..."
+            ></textarea>
+        </label>
+
+        <button
+            type="button"
+            class="cadastrar-produto"
+            id="btnCadastrarProduto"
+            onclick="cadastrarProduto()"
+        >
+            Cadastrar produto
+        </button>
+
+        <div
+            id="mensagemProduto"
+            class="mensagem-admin"
+        ></div>
+
+    </div>
+
+</section>
         <div class="admin-header">
             <h1>Estoque PêlaModa</h1>
             <p>Produtos, cores, tamanhos e quantidades.</p>
@@ -540,6 +653,164 @@ async function salvarEstoque() {
 
         botao.textContent =
             "Salvar estoque";
+
+    }
+
+}
+async function cadastrarProduto() {
+
+    const nome =
+        document.getElementById("novoProdutoNome").value.trim();
+
+    const preco =
+        document.getElementById("novoProdutoPreco").value;
+
+    const categoria =
+        document.getElementById("novoProdutoCategoria").value;
+
+    const descricao =
+        document.getElementById("novoProdutoDescricao").value.trim();
+
+    const mensagem =
+        document.getElementById("mensagemProduto");
+
+    const botao =
+        document.getElementById("btnCadastrarProduto");
+
+
+    if (!nome || !preco) {
+
+        mensagem.textContent =
+            "Preencha o nome e o preço.";
+
+        mensagem.className =
+            "mensagem-admin erro";
+
+        return;
+    }
+
+
+    let senha =
+        sessionStorage.getItem("adminPassword");
+
+
+    if (!senha) {
+
+        senha = prompt(
+            "Digite a senha do administrador:"
+        );
+
+        if (!senha) {
+            return;
+        }
+
+    }
+
+
+    botao.disabled = true;
+    botao.textContent = "Cadastrando...";
+
+    mensagem.className =
+        "mensagem-admin";
+
+
+    try {
+
+        const resposta =
+            await fetch("/api/criar-produto", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-admin-password": senha
+                },
+
+                body: JSON.stringify({
+                    nome,
+                    preco,
+                    categoria,
+                    descricao
+                })
+
+            });
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (resposta.status === 401) {
+
+            sessionStorage.removeItem(
+                "adminPassword"
+            );
+
+            throw new Error(
+                "Senha incorreta."
+            );
+
+        }
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.erro ||
+                "Erro ao cadastrar produto."
+            );
+
+        }
+
+
+        sessionStorage.setItem(
+            "adminPassword",
+            senha
+        );
+
+
+        mensagem.textContent =
+            `Produto "${dados.produto.nome}" cadastrado com sucesso.`;
+
+        mensagem.className =
+            "mensagem-admin sucesso";
+
+
+        document.getElementById(
+            "novoProdutoNome"
+        ).value = "";
+
+        document.getElementById(
+            "novoProdutoPreco"
+        ).value = "";
+
+        document.getElementById(
+            "novoProdutoDescricao"
+        ).value = "";
+
+
+        await carregarEstoque();
+
+    }
+
+    catch (erro) {
+
+        console.error(erro);
+
+        mensagem.textContent =
+            erro.message;
+
+        mensagem.className =
+            "mensagem-admin erro";
+
+    }
+
+    finally {
+
+        botao.disabled = false;
+
+        botao.textContent =
+            "Cadastrar produto";
 
     }
 
