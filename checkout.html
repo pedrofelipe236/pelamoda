@@ -881,7 +881,29 @@ const checkoutDesconto =
     botaoAplicarCupom?.addEventListener(
     "click",
     async () => {
+if (cupomAplicado) {
 
+    cupomAplicado = "";
+    valorDesconto = 0;
+
+    inputCupom.value = "";
+    inputCupom.disabled = false;
+
+    linhaDesconto.style.display = "none";
+
+    checkoutDesconto.textContent =
+        "- R$ 0,00";
+
+    mensagemCupom.textContent =
+        "Cupom removido.";
+
+    botaoAplicarCupom.textContent =
+        "APLICAR";
+
+    atualizarTotalCheckout();
+
+    return;
+}
         const codigo =
             inputCupom.value
                 .trim()
@@ -945,7 +967,10 @@ const checkoutDesconto =
                 Number(
                     dados.valor_desconto || 0
                 ) / 100;
+inputCupom.disabled = true;
 
+botaoAplicarCupom.textContent =
+    "REMOVER";
             checkoutDesconto.textContent =
                 `- R$ ${valorDesconto
                     .toFixed(2)
