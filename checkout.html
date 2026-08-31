@@ -896,6 +896,7 @@ if (cupomAplicado) {
 
     mensagemCupom.textContent =
         "Cupom removido.";
+        mensagemCupom.style.color = "#666";
 
     botaoAplicarCupom.textContent =
         "APLICAR";
@@ -912,6 +913,7 @@ if (cupomAplicado) {
         if (!codigo) {
             mensagemCupom.textContent =
                 "Digite um cupom.";
+                mensagemCupom.style.color = "#b42318";
             return;
         }
 
@@ -954,7 +956,7 @@ if (cupomAplicado) {
                 mensagemCupom.textContent =
                     dados.erro ||
                     "Cupom inválido.";
-
+mensagemCupom.style.color = "#b42318";
                 atualizarTotalCheckout();
 
                 return;
@@ -981,6 +983,8 @@ botaoAplicarCupom.textContent =
 
             mensagemCupom.textContent =
                 `Cupom ${cupomAplicado} aplicado ✓`;
+                mensagemCupom.style.color = "#198754";
+                
 
             atualizarTotalCheckout();
 
@@ -993,6 +997,7 @@ botaoAplicarCupom.textContent =
 
             mensagemCupom.textContent =
                 "Não foi possível validar o cupom.";
+                mensagemCupom.style.color = "#b42318";
         }
     }
 );
