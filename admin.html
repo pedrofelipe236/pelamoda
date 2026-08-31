@@ -205,6 +205,68 @@
     opacity: .5;
     cursor: wait;
 }
+.cores-novo-produto {
+    margin-top: 10px;
+}
+
+.nova-cor {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 12px;
+    background: #fafafa;
+}
+
+.nova-cor-topo {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.nova-cor-topo input {
+    flex: 1;
+}
+
+.remover-cor {
+    border: 0;
+    background: #eee;
+    border-radius: 5px;
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.tamanhos-nova-cor {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.tamanho-novo-produto {
+    display: grid;
+    gap: 5px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.tamanho-novo-produto input {
+    text-align: center;
+}
+
+.adicionar-cor {
+    margin-top: 12px;
+    border: 1px solid #111;
+    background: transparent;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .tamanhos-nova-cor {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
     </style>
 </head>
 
@@ -262,6 +324,21 @@
             onclick="cadastrarProduto()"
         >
             Cadastrar produto
+            <div class="cores-novo-produto">
+
+    <strong>Cores e estoque</strong>
+
+    <div id="novasCores"></div>
+
+    <button
+        type="button"
+        class="adicionar-cor"
+        onclick="adicionarCorProduto()"
+    >
+        + Adicionar cor
+    </button>
+
+</div>
         </button>
 
         <div
@@ -815,8 +892,64 @@ async function cadastrarProduto() {
     }
 
 }
+function adicionarCorProduto() {
+
+    const container =
+        document.getElementById("novasCores");
+
+    const cor =
+        document.createElement("div");
+
+    cor.className = "nova-cor";
+
+    cor.innerHTML = `
+        <div class="nova-cor-topo">
+
+            <input
+                type="text"
+                class="nome-nova-cor"
+                placeholder="Nome da cor. Ex: Preta"
+            >
+
+            <button
+                type="button"
+                class="remover-cor"
+                onclick="this.closest('.nova-cor').remove()"
+            >
+                Remover
+            </button>
+
+        </div>
+
+        <div class="tamanhos-nova-cor">
+
+            ${["PP", "P", "M", "G", "GG"].map(tamanho => `
+
+                <label class="tamanho-novo-produto">
+
+                    <strong>${tamanho}</strong>
+
+                    <input
+                        type="number"
+                        class="estoque-novo-produto"
+                        data-tamanho="${tamanho}"
+                        value="0"
+                        min="0"
+                        step="1"
+                    >
+
+                </label>
+
+            `).join("")}
+
+        </div>
+    `;
+
+    container.appendChild(cor);
+}
         document.addEventListener(
             "DOMContentLoaded",
+            adicionarCorProduto();
             carregarEstoque
         );
 
