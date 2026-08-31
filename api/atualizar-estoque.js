@@ -5,7 +5,16 @@ export default async function handler(req, res) {
             erro: "Método não permitido"
         });
     }
+const senhaAdmin = req.headers["x-admin-password"];
 
+if (
+    !senhaAdmin ||
+    senhaAdmin !== process.env.ADMIN_PASSWORD
+) {
+    return res.status(401).json({
+        erro: "Não autorizado"
+    });
+}
     try {
 
         const {
