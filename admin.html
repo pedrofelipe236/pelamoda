@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin | PêlaModa</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3e7d3;
+            color: #111;
+        }
+
+        .admin {
+            width: min(1100px, calc(100% - 30px));
+            margin: 40px auto;
+        }
+
+        .admin-header {
+            margin-bottom: 30px;
+        }
+
+        .admin-header h1 {
+            margin-bottom: 5px;
+        }
+
+        .produto-admin {
+            background: #fff;
+            border-radius: 10px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .produto-admin h2 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .produto-preco {
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .cor-admin {
+            margin-top: 20px;
+        }
+
+        .cor-admin h3 {
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .estoque-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .estoque-item {
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+
+        .estoque-item strong {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .estoque-item span {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .sem-estoque {
+            opacity: .45;
+        }
+
+        .erro {
+            background: #ffdede;
+            padding: 15px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="admin">
+
+        <div class="admin-header">
+            <h1>Estoque PêlaModa</h1>
+            <p>Produtos, cores, tamanhos e quantidades.</p>
+        </div>
+
+        <div id="listaEstoque">
+            Carregando estoque...
+        </div>
+
+    </main>
+
+
+    <script>
+
+        async function carregarEstoque() {
+
+            const lista = document.getElementById("listaEstoque");
+
+            try {
+
+                const resposta = await fetch("/api/produtos");
+
+                const produtos = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error("Erro ao carregar produtos");
+                }
+
+                lista.innerHTML = "";
+
+
+                produtos.forEach(produto => {
+
+                    const produtoDiv =
+                        document.createElement("div");
+
+                    produtoDiv.className =
+                        "produto-admin";
+
+
+                    const preco =
+                        Number(produto.preco) / 100;
+
+
+                    produtoDiv.innerHTML = `
+                        <h2>${produto.nome}</h2>
+
+                        <div class="produto-preco">
+                            R$ ${preco.toFixed(2).replace(".", ",")}
+                        </div>
+
+                        <div class="cores-container"></div>
+                    `;
+
+
+                    const coresContainer =
+                        produtoDiv.querySelector(
+                            ".cores-container"
+                        );
+
+
+                    const estoque =
+                        produto.estoque || {};
+
+
+                    Object.entries(estoque)
+                        .forEach(([cor, tamanhos]) => {
+
+                            const corDiv =
+                                document.createElement("div");
+
+                            corDiv.className =
+                                "cor-admin";
+
+
+                            corDiv.innerHTML = `
+                                <h3>${cor}</h3>
+
+                                <div class="estoque-grid"></div>
+                            `;
+
+
+                            const estoqueGrid =
+                                corDiv.querySelector(
+                                    ".estoque-grid"
+                                );
+
+
+                            Object.entries(tamanhos)
+                                .forEach(
+                                    ([tamanho, quantidade]) => {
+
+                                        const item =
+                                            document.createElement("div");
+
+                                        item.className =
+                                            "estoque-item";
+
+
+                                        if (
+                                            Number(quantidade) === 0
+                                        ) {
+                                            item.classList.add(
+                                                "sem-estoque"
+                                            );
+                                        }
+
+
+                                        item.innerHTML = `
+                                            <strong>
+                                                ${tamanho}
+                                            </strong>
+
+                                            <span>
+                                                ${quantidade}
+                                            </span>
+                                        `;
+
+
+                                        estoqueGrid.appendChild(
+                                            item
+                                        );
+
+                                    }
+                                );
+
+
+                            coresContainer.appendChild(
+                                corDiv
+                            );
+
+                        });
+
+
+                    lista.appendChild(produtoDiv);
+
+                });
+
+
+                if (produtos.length === 0) {
+
+                    lista.innerHTML =
+                        "Nenhum produto cadastrado.";
+
+                }
+
+            }
+
+            catch (erro) {
+
+                console.error(erro);
+
+                lista.innerHTML = `
+                    <div class="erro">
+                        Não foi possível carregar o estoque.
+                    </div>
+                `;
+
+            }
+
+        }
+
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            carregarEstoque
+        );
+
+    </script>
+
+</body>
+
+</html>
