@@ -555,6 +555,16 @@ async function carregarEstoqueAPI() {
             imagemPrincipal.alt =
                 `Camisa ${produto.nome}`;
         }
+        const areaProduto =
+    document.querySelector(
+        ".product-page-grid"
+    );
+
+if (areaProduto) {
+    areaProduto.classList.remove(
+        "carregando-produto"
+    );
+}
 
         // Miniaturas
         const miniaturas =
