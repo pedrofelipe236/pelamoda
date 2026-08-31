@@ -1088,7 +1088,13 @@ lista.classList.add("categorias-produtos");
 
         secao.className =
             "categoria-produtos";
+if (titulo === "T-SHIRTS") {
+    secao.id = "tshirts";
+}
 
+if (titulo === "CROPPEDS") {
+    secao.id = "croppeds";
+}
 
         secao.innerHTML = `
             <h2 class="titulo-categoria">
@@ -1197,3 +1203,24 @@ lista.classList.add("categorias-produtos");
             renderizarCarrinho();
         }
     );
+const botaoMenu = document.querySelector(".menu-btn");
+const menuDropdown = document.querySelector(".menu-dropdown");
+
+if (botaoMenu && menuDropdown) {
+
+    botaoMenu.addEventListener("click", () => {
+        menuDropdown.classList.toggle("ativo");
+    });
+
+    menuDropdown.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", () => {
+            menuDropdown.classList.remove("ativo");
+        });
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!event.target.closest(".menu-mobile")) {
+            menuDropdown.classList.remove("ativo");
+        }
+    });
+}

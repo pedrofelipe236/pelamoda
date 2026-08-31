@@ -33,10 +33,10 @@
     a { color: inherit; text-decoration: none; }
     button { font: inherit; cursor: pointer; }
 
-    .container {
-      width: min(var(--max), calc(100% - 40px));
-      margin-inline: auto;
-    }
+  .container {
+    width: calc(100% - 40px);
+    margin-inline: auto;
+}
 
     /* HEADER */
     header {
@@ -125,27 +125,30 @@
       color: white;
       font-size: 18px;
     }
-
+.icon-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    display: block;
+}
     .menu-btn { display: none; }
 
     /* HERO */
- .hero {
-    width: 100%;
-    height: auto;
+    .hero {
+    position: relative;
+    width: min(calc(100% - 40px), 1400px);
+    margin-inline: auto;
     overflow: hidden;
-    background: #f2ede5;
 }
 
 .hero-banner {
-    display: block;
     width: 100%;
+    max-width: 1400px;
     height: auto;
-}
-    .hero {
+    display: block;
+    margin-inline: auto;
     position: relative;
-    width: 100%;
-    overflow: hidden;
-    background: #f2ede5;
+    z-index: 0;
 }
 
 .hero::before {
@@ -402,11 +405,14 @@
       max-width: 600px;
     }
 
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-    }
+   .products-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+}
 
   .product {
     background: #fff;
@@ -492,14 +498,25 @@
       grid-template-columns: 1fr 1fr;
     }
 
-    .story-photo {
-      min-height: 390px;
-      background:
-        linear-gradient(135deg, rgba(0,0,0,.15), rgba(0,0,0,.5)),
-        repeating-linear-gradient(25deg, #2a2925 0 4px, #151513 5px 9px);
-      display: grid;
-      place-items: center;
-    }
+.story-photo {
+    min-height: 430px;
+    background: var(--preto);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 35px;
+}
+
+.story-photo img {
+    width: 90%;
+    max-width: 540px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    border: 1px solid #c9a66b;
+    border-radius: 8px;
+    transform: rotate(-2deg);
+}
 
     .label {
       border: 1px solid #d4b78d;
@@ -554,7 +571,12 @@
       align-items: center;
       gap: 13px;
     }
-
+.contact-item .big svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    display: block;
+}
     .contact-item .big { font-size: 26px; }
     .contact-item strong { display: block; font-size: 13px; text-transform: uppercase; }
     .contact-item span { display: block; font-size: 11px; opacity: .9; }
@@ -661,7 +683,10 @@
     padding: 45px 0;
     background: var(--creme-2);
 }
-
+.promos .container {
+    width: min(100% - 40px, 1400px);
+    margin-inline: auto;
+}
 .promo-carousel {
     position: relative;
     width: 100%;
@@ -877,10 +902,7 @@
     }
 
 }
-.product {
-    max-width: 280px;
-    width: 100%;
-}
+
 /* ==================================
    PÁGINA DE PRODUTO
 ================================== */
@@ -1349,7 +1371,12 @@
     color: #11110f;
 }
 /* BOTÃO DO CARRINHO NO HEADER */
-
+.cart-icon {
+    width: 19px;
+    height: 19px;
+    fill: currentColor;
+    display: block;
+}
 .cart-header-btn {
     position: relative;
 
@@ -1438,12 +1465,13 @@
 /* TESTE BANNER MOBILE */
 .hero img {
     width: 100% !important;
-    max-width: none !important;
+    max-width: 1400px !important;
     height: auto !important;
     object-fit: contain !important;
     object-position: center !important;
     transform: none !important;
     position: static !important;
+    margin-inline: auto;
 }
 html,
 body {
@@ -1907,4 +1935,44 @@ body {
 
 .titulo-categoria {
     margin-bottom: 16px;
+}
+.menu-mobile {
+    position: relative;
+}
+
+.menu-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+
+    width: 150px;
+    padding: 6px;
+
+    background: #11110f;
+    border-radius: 8px;
+
+    display: none;
+    flex-direction: column;
+
+    z-index: 9999;
+}
+
+.menu-dropdown.ativo {
+    display: flex;
+}
+
+.menu-dropdown a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 11px 12px;
+    border-radius: 5px;
+}
+
+.menu-dropdown a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+html {
+    scroll-behavior: smooth;
 }
