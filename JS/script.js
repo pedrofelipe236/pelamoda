@@ -1066,7 +1066,7 @@ async function carregarEstoqueAPI() {
     // HOME / CATÁLOGO
     // ======================================================
 
-   function carregarProdutosHome() {
+   async function carregarProdutosHome() {
 
     const lista =
         document.getElementById(
@@ -1075,147 +1075,193 @@ async function carregarEstoqueAPI() {
 
     if (!lista) return;
 
-    if (typeof produtos === "undefined") {
+    try {
 
-        console.error(
-            "produtos.js não foi carregado."
-        );
+        const resposta =
+            await fetch("/api/produtos");
 
-        return;
-    }
+        const catalogo =
+            await resposta.json();
 
-    lista.innerHTML = "";
-lista.classList.remove("products-grid");
-lista.classList.add("categorias-produtos");
+        if (!resposta.ok) {
 
-    const tshirts =
-    Object.entries(produtos)
-        .filter(
-            ([id, produto]) =>
-                produto.categoria !== "cropped"
-        );
-
-
-    const croppeds =
-        Object.entries(produtos)
-            .filter(
-                ([id, produto]) =>
-                    produto.categoria === "cropped"
+            console.error(
+                "Erro ao carregar catálogo:",
+                catalogo
             );
 
-
-    function criarSecao(
-        titulo,
-        listaProdutos
-    ) {
-
-        if (listaProdutos.length === 0) {
             return;
         }
 
+        lista.innerHTML = "";
 
-        const secao =
-            document.createElement("div");
-
-        secao.className =
-            "categoria-produtos";
-if (titulo === "T-SHIRTS") {
-    secao.id = "tshirts";
-}
-
-if (titulo === "CROPPEDS") {
-    secao.id = "croppeds";
-}
-
-        secao.innerHTML = `
-            <h2 class="titulo-categoria">
-                ${titulo}
-            </h2>
-
-            <div class="products-grid categoria-grid">
-            </div>
-        `;
-
-
-        const grid =
-            secao.querySelector(
-                ".categoria-grid"
-            );
-
-
-        listaProdutos.forEach(
-            ([id, produto]) => {
-
-                const card =
-                    document.createElement(
-                        "article"
-                    );
-
-                card.className = "product";
-
-                card.innerHTML = `
-                    <a
-                        href="produto.html?id=${id}"
-                        class="product-link"
-                    >
-                        <div class="product-image">
-                            <img
-                                src="${produto.imagens[0]}"
-                                alt="${produto.nome}"
-                            >
-                        </div>
-
-                        <div class="product-info">
-
-                            <h3>
-                                ${produto.nome}
-                            </h3>
-
-                            <p>
-                                ${
-                                    produto.categoria === "cropped"
-                                        ? "Cropped feminino"
-                                        : "Unissex • PP ao GG"
-                                }
-                            </p>
-
-                            <div class="price">
-                                ${formatarPreco(produto.preco)}
-                            </div>
-
-                        </div>
-                    </a>
-
-                    <button
-                        class="buy"
-                        onclick="window.location.href='produto.html?id=${id}'"
-                    >
-                        COMPRAR
-                    </button>
-                `;
-
-                grid.appendChild(card);
-
-            }
+        lista.classList.remove(
+            "products-grid"
         );
 
+        lista.classList.add(
+            "categorias-produtos"
+        );
 
-        lista.appendChild(secao);
+        const tshirts =
+            catalogo
+                .filter(
+                    produto =>
+                        produto.categoria !== "cropped"
+                )
+                .map(
+                    produto => [
+                        produto.id,
+                        {
+                            ...produto,
+                            preco:
+                                Number(produto.preco) / 100
+                        }
+                    ]
+                );
 
+        const croppeds =
+            catalogo
+                .filter(
+                    produto =>
+                        produto.categoria === "cropped"
+                )
+                .map(
+                    produto => [
+                        produto.id,
+                        {
+                            ...produto,
+                            preco:
+                                Number(produto.preco) / 100
+                        }
+                    ]
+                );
+
+        function criarSecao(
+            titulo,
+            listaProdutos
+        ) {
+
+            if (
+                listaProdutos.length === 0
+            ) {
+                return;
+            }
+
+            const secao =
+                document.createElement(
+                    "div"
+                );
+
+            secao.className =
+                "categoria-produtos";
+
+            if (
+                titulo === "T-SHIRTS"
+            ) {
+                secao.id = "tshirts";
+            }
+
+            if (
+                titulo === "CROPPEDS"
+            ) {
+                secao.id = "croppeds";
+            }
+
+            secao.innerHTML = `
+                <h2 class="titulo-categoria">
+                    ${titulo}
+                </h2>
+
+                <div class="products-grid categoria-grid">
+                </div>
+            `;
+
+            const grid =
+                secao.querySelector(
+                    ".categoria-grid"
+                );
+
+            listaProdutos.forEach(
+                ([id, produto]) => {
+
+                    const card =
+                        document.createElement(
+                            "article"
+                        );
+
+                    card.className =
+                        "product";
+
+                    card.innerHTML = `
+                        <a
+                            href="produto.html?id=${id}"
+                            class="product-link"
+                        >
+                            <div class="product-image">
+                                <img
+                                    src="${produto.imagens?.[0] || ""}"
+                                    alt="${produto.nome}"
+                                >
+                            </div>
+
+                            <div class="product-info">
+
+                                <h3>
+                                    ${produto.nome}
+                                </h3>
+
+                                <p>
+                                    ${
+                                        produto.categoria === "cropped"
+                                            ? "Cropped feminino"
+                                            : "Unissex • PP ao GG"
+                                    }
+                                </p>
+
+                                <div class="price">
+                                    ${formatarPreco(produto.preco)}
+                                </div>
+
+                            </div>
+                        </a>
+
+                        <button
+                            class="buy"
+                            onclick="window.location.href='produto.html?id=${id}'"
+                        >
+                            COMPRAR
+                        </button>
+                    `;
+
+                    grid.appendChild(
+                        card
+                    );
+                }
+            );
+
+            lista.appendChild(
+                secao
+            );
+        }
+
+        criarSecao(
+            "T-SHIRTS",
+            tshirts
+        );
+
+        criarSecao(
+            "CROPPEDS",
+            croppeds
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar produtos da home:",
+            erro
+        );
     }
-
-
-    criarSecao(
-        "T-SHIRTS",
-        tshirts
-    );
-
-
-    criarSecao(
-        "CROPPEDS",
-        croppeds
-    );
-
 }
 
     // ======================================================
@@ -1230,7 +1276,7 @@ if (titulo === "CROPPEDS") {
             await carregarEstoqueAPI();
 
             await carregarProdutoDinamico();
-            carregarProdutosHome();
+            await carregarProdutosHome();
             renderizarCarrinho();
         }
     );
