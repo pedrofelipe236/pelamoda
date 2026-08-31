@@ -317,14 +317,9 @@
             ></textarea>
         </label>
 
-        <button
-            type="button"
-            class="cadastrar-produto"
-            id="btnCadastrarProduto"
-            onclick="cadastrarProduto()"
-        >
-            Cadastrar produto
-            <div class="cores-novo-produto">
+ <!-- CORES E ESTOQUE -->
+
+<div class="cores-novo-produto">
 
     <strong>Cores e estoque</strong>
 
@@ -339,14 +334,26 @@
     </button>
 
 </div>
-        </button>
 
-        <div
-            id="mensagemProduto"
-            class="mensagem-admin"
-        ></div>
 
-    </div>
+<!-- BOTÃO CADASTRAR -->
+
+<button
+    type="button"
+    class="cadastrar-produto"
+    id="btnCadastrarProduto"
+    onclick="cadastrarProduto()"
+>
+    Cadastrar produto
+</button>
+
+
+<div
+    id="mensagemProduto"
+    class="mensagem-admin"
+></div>
+
+</div>
 
 </section>
         <div class="admin-header">
@@ -949,7 +956,7 @@ function adicionarCorProduto() {
 }
         document.addEventListener(
             "DOMContentLoaded",
-            adicionarCorProduto();
+            adicionarCorProduto(),
             carregarEstoque
         );
 
