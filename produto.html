@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Camisa PE | PêlaModa</title>
+    <title>Produto | PêlaModa</title>
 
     <link rel="stylesheet" href="CSS/style.css">
 </head>
@@ -26,7 +26,10 @@
             <a href="index.html#contato">Contato</a>
         </nav>
 <button class="cart-header-btn" onclick="abrirCarrinho()" aria-label="Abrir carrinho">
-    🛍
+    <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M7 8V6a5 5 0 0 1 10 0v2h3l-1 14H5L4 8h3Zm2 0h6V6a3 3 0 0 0-6 0v2Zm-2.85 2 .72 10h10.26l.72-10H17v2h-2v-2H9v2H7v-2h-.85Z"/>
+    </svg>
+
     <span id="cartCount">0</span>
 </button>
     </div>
@@ -37,10 +40,10 @@
 
 <section class="product-page">
 <div
-    id="produtoAtual"
-    
-    data-nome="PE"
-    data-preco="65"
+       id="produtoAtual"
+    data-nome=""
+    data-preco=""
+
 ></div>
      <div class="container product-page-grid">
 
@@ -49,48 +52,15 @@
         <div class="product-gallery">
 
             <div class="product-main-image">
-                <img
-                    id="imagemPrincipal"
-                    src="imagens/produto-pe.jpg"
-                    alt="Camisa PE"
-                >
+               <img
+    id="imagemPrincipal"
+    alt="Produto PêlaModa"
+>
             </div>
 
             <div class="product-thumbnails">
 
-                <button
-                    class="thumbnail active"
-                    onclick="trocarImagem('imagens/produto-pe.jpg', this)"
-                >
-                    <img
-                        src="imagens/produto-pe.jpg"
-                        alt="Camisa PE"
-                    >
-                </button>
-
-                <button
-                    class="thumbnail"
-                    onclick="trocarImagem('imagens/produto-pe-azul.jpg', this)"
-                >
-                    <img
-                        src="imagens/produto-pe-azul.jpg"
-                        alt="Camisa PE azul"
-                    >
-                </button>
-
-                <button
-                    class="thumbnail"
-                    onclick="trocarImagem('imagens/produto-pe-verde.jpg', this)"
-                >
-                    <img
-                        src="imagens/produto-pe-verde.jpg"
-                        alt="Camisa PE verde"
-                    >
-                </button>
-
-            </div>
-
-        </div>
+                     </div>
 
 
         <!-- INFORMAÇÕES -->
@@ -101,10 +71,10 @@
                 PÊLAMODA
             </span>
 
-            <h1>PE</h1>
+            <h1></h1>
 
             <div class="product-price">
-                R$ 65,00
+
             </div>
 
             
@@ -178,10 +148,7 @@
                 Comprar pelo WhatsApp
             </button>
             <p class="product-description">
-                Nossa terra estampada no peito.
-                Uma camisa inspirada em Pernambuco,
-                feita para quem carrega orgulho de onde veio.
-            </p>
+                           </p>
 
             <p class="product-help">
                 Precisa de ajuda com tamanho ou cor?
