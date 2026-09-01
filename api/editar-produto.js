@@ -64,7 +64,79 @@ export default async function handler(req, res) {
         const precoCentavos =
             Math.round(precoNumero * 100);
 
+// -------------------------
+// ATIVAR / DESATIVAR PRODUTO
+// -------------------------
 
+if (req.body.acao === "alterar-status") {
+
+    const {
+        id,
+        ativo
+    } = req.body;
+
+    if (!id) {
+        return res.status(400).json({
+            erro: "Produto não informado."
+        });
+    }
+
+    if (typeof ativo !== "boolean") {
+        return res.status(400).json({
+            erro: "Status inválido."
+        });
+    }
+
+    const respostaStatus =
+        await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/produtos?id=eq.${encodeURIComponent(id)}`,
+            {
+                method: "PATCH",
+
+                headers: {
+                    "Content-Type": "application/json",
+
+                    "apikey":
+                        process.env.SUPABASE_SECRET_KEY,
+
+                    "Authorization":
+                        `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+
+                    "Prefer":
+                        "return=representation"
+                },
+
+                body: JSON.stringify({
+                    ativo
+                })
+            }
+        );
+
+
+    const dadosStatus =
+        await respostaStatus.json();
+
+
+    if (!respostaStatus.ok) {
+
+        console.error(
+            "Erro ao alterar status:",
+            dadosStatus
+        );
+
+        return res.status(500).json({
+            erro:
+                "Erro ao alterar status do produto."
+        });
+    }
+
+
+    return res.status(200).json({
+        sucesso: true,
+        produto: dadosStatus[0]
+    });
+}
+            
         // -------------------------
         // CORES + ESTOQUE
         // -------------------------
