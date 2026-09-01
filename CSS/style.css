@@ -2065,7 +2065,9 @@ html {
         width: 26px;
         height: 26px;
     }
-    
+    .product-details h1 {
+    text-transform: uppercase;
+}
 }
 
 

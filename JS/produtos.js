@@ -148,7 +148,7 @@ estoque: {
 ]
     },
 meupaispernambuco: {
-    nome: "MEU PAÍS PERNAMBUCO",
+    nome: "Meu País Pernambuco",    
     preco: 65,
 
     estoque: {
