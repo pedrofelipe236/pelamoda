@@ -455,7 +455,100 @@ textarea {
 
 
     <script>
+let produtoEditando = null;
+async function editarProduto(produtoId) {
 
+    try {
+
+        const resposta =
+            await fetch("/api/produtos");
+
+        const produtos =
+            await resposta.json();
+
+        const produto =
+            produtos.find(p => p.id === produtoId);
+
+        if (!produto) {
+            throw new Error("Produto não encontrado.");
+        }
+
+        produtoEditando = produto.id;
+
+        // Cabeçalho
+        document.getElementById("novoProdutoNome").value =
+            produto.nome;
+
+        document.getElementById("novoProdutoPreco").value =
+            (produto.preco / 100).toFixed(2);
+
+        document.getElementById("novoProdutoCategoria").value =
+            produto.categoria;
+
+        document.getElementById("novoProdutoDescricao").value =
+            produto.descricao || "";
+
+        // Limpa cores existentes
+        const container =
+            document.getElementById("novasCores");
+
+        container.innerHTML = "";
+
+        // Cria uma cor para cada existente
+        produto.cores.forEach(cor => {
+
+            adicionarCorProduto();
+
+            const bloco =
+                container.lastElementChild;
+
+            bloco.querySelector(".nome-nova-cor").value =
+                cor.nome;
+
+            bloco.dataset.imagemAtual =
+                cor.imagem || "";
+
+            if (produto.estoque?.[cor.nome]) {
+
+                Object.entries(produto.estoque[cor.nome])
+                    .forEach(([tam, qtd]) => {
+
+                        const input =
+                            bloco.querySelector(
+                                `[data-tamanho="${tam}"]`
+                            );
+
+                        if (input) {
+                            input.value = qtd;
+                        }
+
+                    });
+
+            }
+
+        });
+
+        // Muda botão
+        const btn =
+            document.getElementById("btnCadastrarProduto");
+
+        btn.textContent =
+            "Salvar alterações";
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    }
+
+    catch (erro) {
+
+        alert(erro.message);
+
+    }
+
+}
         async function carregarEstoque() {
 
             const lista = document.getElementById("listaEstoque");
