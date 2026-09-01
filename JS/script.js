@@ -516,10 +516,10 @@ async function carregarEstoqueAPI() {
                 ".product-details h1"
             );
 
-        if (titulo) {
-            titulo.textContent =
-                produto.nome;
-        }
+       if (titulo) {
+    titulo.textContent =
+        produto.nome.toUpperCase();
+}
 
         const preco =
             document.querySelector(
