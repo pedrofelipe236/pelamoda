@@ -28,7 +28,8 @@ export default async function handler(req, res) {
             preco,
             categoria,
             descricao,
-            cores
+            cores,
+            imagensExtras = []
         } = req.body;
 
 
@@ -185,10 +186,15 @@ for (
         // -------------------------
         // CRIA PRODUTO
         // -------------------------
-const imagensProduto =
-    coresProduto
+const imagensProduto = [
+    ...coresProduto
         .map(cor => cor.imagem)
-        .filter(Boolean);
+        .filter(Boolean),
+
+    ...imagensExtras
+        .map(imagem => String(imagem || "").trim())
+        .filter(Boolean)
+];
 
         const respostaProduto =
             await fetch(

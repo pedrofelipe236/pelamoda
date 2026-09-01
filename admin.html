@@ -984,7 +984,101 @@ cores.push({
     imagem: urlImagem,
     estoque: tamanhos
 });
+// -------------------------
+// FOTOS EXTRAS DA GALERIA
+// -------------------------
+
+const arquivosExtras =
+    document.getElementById("fotosExtrasProduto")?.files;
+
+const imagensExtras = [];
+
+
+if (arquivosExtras?.length) {
+
+    let numeroFoto = 1;
+
+    for (const arquivo of arquivosExtras) {
+
+        mensagem.textContent =
+            `Enviando foto extra ${numeroFoto} de ${arquivosExtras.length}...`;
+
+
+        const fotoBase64 =
+            await new Promise((resolve, reject) => {
+
+                const leitor =
+                    new FileReader();
+
+                leitor.onload = () =>
+                    resolve(leitor.result);
+
+                leitor.onerror = () =>
+                    reject(
+                        new Error(
+                            "Erro ao ler uma das fotos extras."
+                        )
+                    );
+
+                leitor.readAsDataURL(arquivo);
+
+            });
+
+
+        const respostaUpload =
+            await fetch("/api/upload-produto", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-admin-password": senha
+                },
+
+                body: JSON.stringify({
+
+                    produtoId:
+                        produtoIdUpload,
+
+                    cor:
+                        `galeria-${numeroFoto}`,
+
+                    arquivo:
+                        fotoBase64,
+
+                    tipo:
+                        arquivo.type
+
+                })
+
+            });
+
+
+        const dadosUpload =
+            await respostaUpload.json();
+
+
+        if (!respostaUpload.ok) {
+
+            throw new Error(
+                dadosUpload.erro ||
+                `Erro ao enviar a foto extra ${numeroFoto}.`
+            );
+
+        }
+
+
+        imagensExtras.push(
+            dadosUpload.url
+        );
+
+        numeroFoto++;
+
+    }
+
 }
+}
+
 
             const resposta =
     await fetch("/api/criar-produto", {
@@ -1001,7 +1095,8 @@ cores.push({
     preco,
     categoria,
     descricao,
-    cores
+    cores,
+    imagensExtras
 })
 
             });
