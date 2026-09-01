@@ -65,10 +65,12 @@ async function carregarEstoqueAPI() {
             return null;
         }
 
-        const produto =
-            catalogo.find(
-                item => item.id === id
-            );
+       const produto =
+    catalogo.find(
+        item =>
+            item.id === id &&
+            item.ativo === true
+    );
 
         if (!produto) {
             return null;

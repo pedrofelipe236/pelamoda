@@ -187,13 +187,14 @@ for (
         // CRIA PRODUTO
         // -------------------------
 const imagensProduto = [
-    ...coresProduto
-        .map(cor => cor.imagem)
-        .filter(Boolean),
-
     ...imagensExtras
         .map(imagem => String(imagem || "").trim())
+        .filter(Boolean),
+
+    ...coresProduto
+        .map(cor => cor.imagem)
         .filter(Boolean)
+
 ];
 
         const respostaProduto =

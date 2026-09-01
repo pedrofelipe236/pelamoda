@@ -224,10 +224,6 @@ export default async function handler(req, res) {
         // =====================================
 
         const imagensProduto = [
-            ...coresProduto
-                .map(cor => cor.imagem)
-                .filter(Boolean),
-
             ...imagensExtras
                 .map(
                     imagem =>
@@ -235,7 +231,12 @@ export default async function handler(req, res) {
                             imagem || ""
                         ).trim()
                 )
-                .filter(Boolean)
+                .filter(Boolean),
+            ...coresProduto
+                .map(cor => cor.imagem)
+                .filter(Boolean),
+
+            
         ];
 
 
