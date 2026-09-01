@@ -867,8 +867,17 @@ const blocosCores =
     document.querySelectorAll(".nova-cor");
 
 const cores = [];
+
+const produtoIdUpload = nome
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 const produtoIdTemporario =
     "produto-" + Date.now();
+    
 for (const bloco of blocosCores) {
 
     const nomeCor =
