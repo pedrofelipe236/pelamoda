@@ -987,12 +987,8 @@
 }
 
 .product-details h1 {
-    font-family: "Bebas Neue", sans-serif;
-
-    font-size: 65px;
-    line-height: 1;
-
-    margin-bottom: 10px;
+    font-family: 'Xilosa', sans-serif !important;
+    font-weight: normal;
 }
 
 .product-price {
@@ -2069,10 +2065,7 @@ html {
         width: 26px;
         height: 26px;
     }
-    .product-details h1 {
-    font-family: 'Xilosa', sans-serif;
-    font-weight: normal;
-}
+    
 }
 
 
