@@ -2069,6 +2069,10 @@ html {
         width: 26px;
         height: 26px;
     }
+    .product-details h1 {
+    font-family: 'Xilosa', sans-serif;
+    font-weight: normal;
+}
 }
 
 
