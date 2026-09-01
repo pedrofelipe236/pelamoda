@@ -23,6 +23,88 @@ export default async function handler(req, res) {
 
     try {
 
+        // =====================================
+        // ATIVAR / DESATIVAR PRODUTO
+        // =====================================
+
+        if (req.body.acao === "alterar-status") {
+
+            const {
+                id,
+                ativo
+            } = req.body;
+
+
+            if (!id) {
+                return res.status(400).json({
+                    erro: "Produto não informado."
+                });
+            }
+
+
+            if (typeof ativo !== "boolean") {
+                return res.status(400).json({
+                    erro: "Status inválido."
+                });
+            }
+
+
+            const respostaStatus =
+                await fetch(
+                    `${process.env.SUPABASE_URL}/rest/v1/produtos?id=eq.${encodeURIComponent(id)}`,
+                    {
+                        method: "PATCH",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            apikey:
+                                process.env.SUPABASE_SECRET_KEY,
+
+                            Authorization:
+                                `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+
+                            Prefer:
+                                "return=representation"
+                        },
+
+                        body: JSON.stringify({
+                            ativo
+                        })
+                    }
+                );
+
+
+            const dadosStatus =
+                await respostaStatus.json();
+
+
+            if (!respostaStatus.ok) {
+
+                console.error(
+                    "Erro ao alterar status:",
+                    dadosStatus
+                );
+
+                return res.status(500).json({
+                    erro:
+                        "Erro ao alterar status do produto."
+                });
+            }
+
+
+            return res.status(200).json({
+                sucesso: true,
+                produto: dadosStatus[0]
+            });
+        }
+
+
+        // =====================================
+        // EDIÇÃO NORMAL DO PRODUTO
+        // =====================================
+
         const {
             id,
             nome,
@@ -30,7 +112,7 @@ export default async function handler(req, res) {
             categoria,
             descricao,
             cores,
-            imagensExtras = []  
+            imagensExtras = []
         } = req.body;
 
 
@@ -43,13 +125,15 @@ export default async function handler(req, res) {
 
         if (!Array.isArray(cores) || cores.length === 0) {
             return res.status(400).json({
-                erro: "O produto precisa ter pelo menos uma cor."
+                erro:
+                    "O produto precisa ter pelo menos uma cor."
             });
         }
 
 
         const precoNumero =
             Number(preco);
+
 
         if (
             !Number.isFinite(precoNumero) ||
@@ -64,82 +148,10 @@ export default async function handler(req, res) {
         const precoCentavos =
             Math.round(precoNumero * 100);
 
-// -------------------------
-// ATIVAR / DESATIVAR PRODUTO
-// -------------------------
 
-if (req.body.acao === "alterar-status") {
-
-    const {
-        id,
-        ativo
-    } = req.body;
-
-    if (!id) {
-        return res.status(400).json({
-            erro: "Produto não informado."
-        });
-    }
-
-    if (typeof ativo !== "boolean") {
-        return res.status(400).json({
-            erro: "Status inválido."
-        });
-    }
-
-    const respostaStatus =
-        await fetch(
-            `${process.env.SUPABASE_URL}/rest/v1/produtos?id=eq.${encodeURIComponent(id)}`,
-            {
-                method: "PATCH",
-
-                headers: {
-                    "Content-Type": "application/json",
-
-                    "apikey":
-                        process.env.SUPABASE_SECRET_KEY,
-
-                    "Authorization":
-                        `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
-
-                    "Prefer":
-                        "return=representation"
-                },
-
-                body: JSON.stringify({
-                    ativo
-                })
-            }
-        );
-
-
-    const dadosStatus =
-        await respostaStatus.json();
-
-
-    if (!respostaStatus.ok) {
-
-        console.error(
-            "Erro ao alterar status:",
-            dadosStatus
-        );
-
-        return res.status(500).json({
-            erro:
-                "Erro ao alterar status do produto."
-        });
-    }
-
-
-    return res.status(200).json({
-        sucesso: true,
-        produto: dadosStatus[0]
-    });
-}
-            
-        // -------------------------
+        // =====================================
         // CORES + ESTOQUE
-        // -------------------------
+        // =====================================
 
         const coresProduto = [];
         const registrosEstoque = [];
@@ -150,9 +162,11 @@ if (req.body.acao === "alterar-status") {
             const nomeCor =
                 String(cor.nome || "").trim();
 
+
             if (!nomeCor) {
                 return res.status(400).json({
-                    erro: "Existe uma cor sem nome."
+                    erro:
+                        "Existe uma cor sem nome."
                 });
             }
 
@@ -177,7 +191,9 @@ if (req.body.acao === "alterar-status") {
             ) {
 
                 const quantidade =
-                    Number(tamanhos[tamanho] ?? 0);
+                    Number(
+                        tamanhos[tamanho] ?? 0
+                    );
 
 
                 if (
@@ -193,34 +209,39 @@ if (req.body.acao === "alterar-status") {
 
                 registrosEstoque.push({
                     produto_id: id,
-                    nome_produto: nome.trim(),
+                    nome_produto:
+                        nome.trim(),
                     cor: nomeCor,
                     tamanho,
                     quantidade
                 });
-
             }
-
         }
 
 
-        // Preserva todas as imagens utilizadas pelas cores.
-        // Fotos extras serão tratadas em seguida.
+        // =====================================
+        // IMAGENS
+        // =====================================
 
-      const imagensProduto = [
-    ...coresProduto
-        .map(cor => cor.imagem)
-        .filter(Boolean),
+        const imagensProduto = [
+            ...coresProduto
+                .map(cor => cor.imagem)
+                .filter(Boolean),
 
-    ...imagensExtras
-        .map(imagem => String(imagem || "").trim())
-        .filter(Boolean)
-];
+            ...imagensExtras
+                .map(
+                    imagem =>
+                        String(
+                            imagem || ""
+                        ).trim()
+                )
+                .filter(Boolean)
+        ];
 
 
-        // -------------------------
+        // =====================================
         // ATUALIZA PRODUTO
-        // -------------------------
+        // =====================================
 
         const respostaProduto =
             await fetch(
@@ -243,13 +264,22 @@ if (req.body.acao === "alterar-status") {
                     },
 
                     body: JSON.stringify({
-                        nome: nome.trim(),
-                        preco: precoCentavos,
+                        nome:
+                            nome.trim(),
+
+                        preco:
+                            precoCentavos,
+
                         categoria,
+
                         descricao:
                             descricao?.trim() || "",
-                        cores: coresProduto,
-                        imagens: imagensProduto
+
+                        cores:
+                            coresProduto,
+
+                        imagens:
+                            imagensProduto
                     })
                 }
             );
@@ -267,14 +297,15 @@ if (req.body.acao === "alterar-status") {
             );
 
             return res.status(500).json({
-                erro: "Não foi possível atualizar o produto."
+                erro:
+                    "Não foi possível atualizar o produto."
             });
         }
 
 
-        // -------------------------
+        // =====================================
         // RECRIA ESTOQUE
-        // -------------------------
+        // =====================================
 
         const respostaExcluir =
             await fetch(
@@ -321,7 +352,9 @@ if (req.body.acao === "alterar-status") {
                     },
 
                     body:
-                        JSON.stringify(registrosEstoque)
+                        JSON.stringify(
+                            registrosEstoque
+                        )
                 }
             );
 
@@ -331,16 +364,17 @@ if (req.body.acao === "alterar-status") {
             const detalhe =
                 await respostaEstoque.text();
 
+
             console.error(
                 "Erro estoque:",
                 detalhe
             );
 
+
             return res.status(500).json({
                 erro:
                     "Produto atualizado, mas houve erro ao atualizar o estoque."
             });
-
         }
 
 
@@ -349,19 +383,17 @@ if (req.body.acao === "alterar-status") {
             produto: dadosProduto[0]
         });
 
-    }
 
-    catch (erro) {
+    } catch (erro) {
 
         console.error(
             "Erro editar produto:",
             erro
         );
 
+
         return res.status(500).json({
             erro: "Erro interno."
         });
-
     }
-
 }
