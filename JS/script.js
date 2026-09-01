@@ -1108,11 +1108,11 @@ const produtosAtivos =
         );
 
         const tshirts =
-            catalogo
-                .filter(
-                    produto =>
-                        produto.categoria !== "cropped"
-                )
+    produtosAtivos
+        .filter(
+            produto =>
+                produto.categoria !== "cropped"
+        )
                 .map(
                     produto => [
                         produto.id,
@@ -1125,11 +1125,11 @@ const produtosAtivos =
                 );
 
         const croppeds =
-            catalogo
-                .filter(
-                    produto =>
-                        produto.categoria === "cropped"
-                )
+    catalogo
+        .filter(
+            produto =>
+                produto.categoria === "cropped"
+        )
                 .map(
                     produto => [
                         produto.id,
