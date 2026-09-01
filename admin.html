@@ -300,7 +300,19 @@ textarea {
     border-radius: 6px;
     background: #fff;
 }
+.editar-produto {
+    margin-top: 12px;
+    border: 1px solid #111;
+    background: #fff;
+    padding: 9px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
 
+.editar-produto:hover {
+    background: #111;
+    color: #fff;
+}
 @media (max-width: 700px) {
     .nova-cor-topo {
         flex-direction: column;
@@ -475,15 +487,27 @@ textarea {
 
 
                     produtoDiv.innerHTML = `
-                        <h2>${produto.nome}</h2>
+    <h2>${produto.nome}</h2>
 
-                        <div class="produto-preco">
-                            R$ ${preco.toFixed(2).replace(".", ",")}
-                        </div>
+    <div class="produto-preco">
+        R$ ${preco.toFixed(2).replace(".", ",")}
+    </div>
 
-                        <div class="cores-container"></div>
-                    `;
+    <button
+        type="button"
+        class="editar-produto"
+        data-produto-id="${produto.id}"
+    >
+        Editar produto
+    </button>
 
+    <div class="cores-container"></div>
+`;
+produtoDiv
+    .querySelector(".editar-produto")
+    .addEventListener("click", () => {
+        editarProduto(produto.id);
+    });
 
                     const coresContainer =
                         produtoDiv.querySelector(
