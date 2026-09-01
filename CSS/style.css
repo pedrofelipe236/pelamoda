@@ -2068,6 +2068,19 @@ html {
     .product-details h1 {
     text-transform: uppercase;
 }
+.logo-pelamoda {
+    width: 75px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
 }
 
 
