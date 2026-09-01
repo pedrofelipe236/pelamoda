@@ -1303,20 +1303,13 @@ async function cadastrarProduto() {
                 "fotosExtrasProduto"
             )?.files;
 
-        const imagensDasCoresAtuais =
-    new Set(
-        (dadosProdutoEditando?.cores || [])
-            .map(cor => cor.imagem)
-            .filter(Boolean)
-    );
-
-const imagensExtras =
+        const imagensExtras =
     produtoEditando
-        ? (dadosProdutoEditando?.imagens || [])
-            .filter(
-                imagem =>
-                    !imagensDasCoresAtuais.has(imagem)
+        ? Array.from(
+            document.querySelectorAll(
+                "#previewFotosExtras .foto-extra-atual"
             )
+        ).map(item => item.dataset.imagem)
         : [];
 
 
