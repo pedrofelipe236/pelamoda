@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     try {
 
         const resposta = await fetch(
-            `${process.env.SUPABASE_URL}/rest/v1/produtos?ativo=eq.true&select=id,nome,preco,categoria,descricao,imagens,cores,ativo`,
+            `${process.env.SUPABASE_URL}/rest/v1/produtos?select=id,nome,preco,categoria,descricao,imagens,cores,ativo`,
             {
                 headers: {
                     apikey:
