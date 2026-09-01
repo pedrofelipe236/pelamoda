@@ -6,8 +6,10 @@ export default async function handler(req, res) {
         });
     }
 
+
     // PROTEÇÃO DO ADMIN
-    const senhaAdmin = req.headers["x-admin-password"];
+    const senhaAdmin =
+        req.headers["x-admin-password"];
 
     if (
         !senhaAdmin ||
@@ -18,36 +20,48 @@ export default async function handler(req, res) {
         });
     }
 
+
     try {
 
         const {
-    nome,
-    preco,
-    categoria,
-    descricao,
-    cores
-} = req.body;
+            nome,
+            preco,
+            categoria,
+            descricao,
+            cores
+        } = req.body;
 
 
+        // -------------------------
         // VALIDAÇÕES
-        if (
-    !Array.isArray(cores) ||
-    cores.length === 0
-) {
-    return res.status(400).json({
-        erro: "Cadastre pelo menos uma cor."
-    });
-}
+        // -------------------------
+
         if (!nome || !preco || !categoria) {
 
             return res.status(400).json({
-                erro: "Preencha nome, preço e categoria."
+                erro:
+                    "Preencha nome, preço e categoria."
             });
 
         }
 
 
-        const precoNumero = Number(preco);
+        if (
+            !Array.isArray(cores) ||
+            cores.length === 0
+        ) {
+
+            return res.status(400).json({
+                erro:
+                    "Cadastre pelo menos uma cor."
+            });
+
+        }
+
+
+        const precoNumero =
+            Number(preco);
+
 
         if (
             !Number.isFinite(precoNumero) ||
@@ -73,7 +87,10 @@ export default async function handler(req, res) {
         }
 
 
-        // CRIA ID AUTOMATICAMENTE
+        // -------------------------
+        // ID DO PRODUTO
+        // -------------------------
+
         const id = nome
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
@@ -86,101 +103,272 @@ export default async function handler(req, res) {
         if (!id) {
 
             return res.status(400).json({
-                erro: "Não foi possível gerar o ID do produto."
+                erro:
+                    "Não foi possível gerar o ID do produto."
             });
 
         }
 
 
-        // CONVERTE R$ 65,00 PARA 6500
         const precoCentavos =
             Math.round(precoNumero * 100);
 
 
-        const resposta = await fetch(
-            `${process.env.SUPABASE_URL}/rest/v1/produtos`,
-            {
-                method: "POST",
+        // -------------------------
+        // MONTA CORES + ESTOQUE
+        // -------------------------
 
-                headers: {
+        const coresProduto = [];
 
-                    apikey:
-                        process.env.SUPABASE_SECRET_KEY,
+        const registrosEstoque = [];
 
-                    Authorization:
-                        `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
 
-                    "Content-Type":
-                        "application/json",
+        for (const cor of cores) {
 
-                    Prefer:
-                        "return=representation"
-                },
+            const nomeCor =
+                String(cor.nome || "").trim();
 
-                body: JSON.stringify({
 
-                    id: id,
+            if (!nomeCor) {
 
-                    nome:
-                        nome.trim(),
-
-                    preco:
-                        precoCentavos,
-
-                    categoria,
-
-                    descricao:
-                        descricao?.trim() || "",
-
-                    imagens: [],
-
-                    cores: [],
-
-                    ativo: true
-
-                })
+                return res.status(400).json({
+                    erro:
+                        "Existe uma cor sem nome."
+                });
 
             }
-        );
 
 
-        const dados =
-            await resposta.json();
+            // Por enquanto sem foto.
+            // Depois colocaremos a URL aqui.
+            coresProduto.push({
+                nome: nomeCor,
+                imagem: ""
+            });
 
 
-        // ID JÁ EXISTE
-        if (resposta.status === 409) {
+            const tamanhos =
+                cor.estoque || {};
+
+
+            for (
+                const tamanho of
+                ["PP", "P", "M", "G", "GG"]
+            ) {
+
+                const quantidade =
+                    Number(
+                        tamanhos[tamanho] ?? 0
+                    );
+
+
+                if (
+                    !Number.isInteger(quantidade) ||
+                    quantidade < 0
+                ) {
+
+                    return res.status(400).json({
+                        erro:
+                            `Quantidade inválida em ${nomeCor} / ${tamanho}.`
+                    });
+
+                }
+
+
+                registrosEstoque.push({
+
+                    produto_id: id,
+
+                    cor: nomeCor,
+
+                    tamanho,
+
+                    quantidade
+
+                });
+
+            }
+
+        }
+
+
+        // -------------------------
+        // CRIA PRODUTO
+        // -------------------------
+
+        const respostaProduto =
+            await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/produtos`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        apikey:
+                            process.env.SUPABASE_SECRET_KEY,
+
+                        Authorization:
+                            `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=representation"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            id,
+
+                            nome:
+                                nome.trim(),
+
+                            preco:
+                                precoCentavos,
+
+                            categoria,
+
+                            descricao:
+                                descricao?.trim() || "",
+
+                            imagens: [],
+
+                            cores:
+                                coresProduto,
+
+                            ativo: true
+
+                        })
+
+                }
+            );
+
+
+        const dadosProduto =
+            await respostaProduto.json();
+
+
+        if (
+            respostaProduto.status === 409
+        ) {
 
             return res.status(409).json({
-                erro: "Já existe um produto com esse nome/ID."
+                erro:
+                    "Já existe um produto com esse nome/ID."
             });
 
         }
 
 
-        if (!resposta.ok) {
+        if (!respostaProduto.ok) {
 
             console.error(
-                "Erro Supabase:",
-                dados
+                "Erro produto:",
+                dadosProduto
             );
 
             return res.status(500).json({
-                erro: "Erro ao cadastrar produto."
+                erro:
+                    "Erro ao cadastrar produto."
             });
 
         }
 
+
+        // -------------------------
+        // CRIA ESTOQUE
+        // -------------------------
+
+        const respostaEstoque =
+            await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/estoque`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        apikey:
+                            process.env.SUPABASE_SECRET_KEY,
+
+                        Authorization:
+                            `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=minimal"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            registrosEstoque
+                        )
+
+                }
+            );
+
+
+        if (!respostaEstoque.ok) {
+
+            const erroEstoque =
+                await respostaEstoque.text();
+
+            console.error(
+                "Erro estoque:",
+                erroEstoque
+            );
+
+
+            // REMOVE O PRODUTO CASO
+            // O ESTOQUE NÃO SEJA CRIADO
+
+            await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/produtos?id=eq.${encodeURIComponent(id)}`,
+                {
+
+                    method: "DELETE",
+
+                    headers: {
+
+                        apikey:
+                            process.env.SUPABASE_SECRET_KEY,
+
+                        Authorization:
+                            `Bearer ${process.env.SUPABASE_SECRET_KEY}`
+
+                    }
+
+                }
+            );
+
+
+            return res.status(500).json({
+                erro:
+                    "Não foi possível criar o estoque do produto."
+            });
+
+        }
+
+
+        // -------------------------
+        // SUCESSO
+        // -------------------------
 
         return res.status(201).json({
 
             sucesso: true,
 
             produto:
-                dados[0]
+                dadosProduto[0]
 
         });
-
 
     }
 
@@ -190,6 +378,7 @@ export default async function handler(req, res) {
             "Erro criar produto:",
             erro
         );
+
 
         return res.status(500).json({
             erro: "Erro interno."
