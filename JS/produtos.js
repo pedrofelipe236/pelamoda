@@ -43,7 +43,7 @@ const produtos = {
 
 
     oxente: {
-        nome: "Oxente",
+        nome: "OXENTE",
         preco: 65,
         estoque: {
     Preta: {
@@ -148,7 +148,7 @@ estoque: {
 ]
     },
 meupaispernambuco: {
-    nome: "Meu País Pernambuco",
+    nome: "MEU PAÍS PERNAMBUCO",
     preco: 65,
 
     estoque: {
