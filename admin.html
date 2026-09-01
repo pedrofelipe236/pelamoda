@@ -11,20 +11,20 @@
         * {
             box-sizing: border-box;
         }
+body {
+    margin: 0;
+    font-family: "Segoe UI", Inter, Arial, sans-serif;
+    background: #f3e7d3;
+    color: #111;
+}
 
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Inter, Arial, sans-serif;
-            button,
+button,
 input,
 select,
 textarea {
     font-family: inherit;
 }
-            background: #f3e7d3;
-            color: #111;
-            
-        }
+    
 
         .admin {
             width: min(1100px, calc(100% - 30px));
@@ -807,8 +807,56 @@ async function cadastrarProduto() {
 
     try {
 
-        const resposta =
-            await fetch("/api/criar-produto", {
+const blocosCores =
+    document.querySelectorAll(".nova-cor");
+
+const cores = [];
+
+for (const bloco of blocosCores) {
+
+    const nomeCor =
+        bloco
+            .querySelector(".nome-nova-cor")
+            .value
+            .trim();
+
+    if (!nomeCor) {
+        throw new Error(
+            "Preencha o nome de todas as cores."
+        );
+    }
+
+    const tamanhos = {};
+
+    bloco
+        .querySelectorAll(".estoque-novo-produto")
+        .forEach(input => {
+
+            const quantidade =
+                Number(input.value);
+
+            if (
+                !Number.isInteger(quantidade) ||
+                quantidade < 0
+            ) {
+                throw new Error(
+                    `Estoque inválido na cor ${nomeCor}.`
+                );
+            }
+
+            tamanhos[input.dataset.tamanho] =
+                quantidade;
+
+        });
+
+    cores.push({
+        nome: nomeCor,
+        estoque: tamanhos
+    });
+}
+
+            const resposta =
+    await fetch("/api/criar-produto", {
 
                 method: "POST",
 
@@ -817,12 +865,13 @@ async function cadastrarProduto() {
                     "x-admin-password": senha
                 },
 
-                body: JSON.stringify({
-                    nome,
-                    preco,
-                    categoria,
-                    descricao
-                })
+              body: JSON.stringify({
+    nome,
+    preco,
+    categoria,
+    descricao,
+    cores
+})
 
             });
 
@@ -961,11 +1010,10 @@ function adicionarCorProduto() {
 
     container.appendChild(cor);
 }
-        document.addEventListener(
-            "DOMContentLoaded",
-            adicionarCorProduto(),
-            carregarEstoque
-        );
+       document.addEventListener("DOMContentLoaded", () => {
+    adicionarCorProduto();
+    carregarEstoque();
+});
 
     </script>
 

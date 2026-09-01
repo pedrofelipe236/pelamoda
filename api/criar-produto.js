@@ -21,14 +21,23 @@ export default async function handler(req, res) {
     try {
 
         const {
-            nome,
-            preco,
-            categoria,
-            descricao
-        } = req.body;
+    nome,
+    preco,
+    categoria,
+    descricao,
+    cores
+} = req.body;
 
 
         // VALIDAÇÕES
+        if (
+    !Array.isArray(cores) ||
+    cores.length === 0
+) {
+    return res.status(400).json({
+        erro: "Cadastre pelo menos uma cor."
+    });
+}
         if (!nome || !preco || !categoria) {
 
             return res.status(400).json({
