@@ -1082,6 +1082,10 @@ async function carregarEstoqueAPI() {
 
         const catalogo =
             await resposta.json();
+const produtosAtivos =
+    catalogo.filter(
+        produto => produto.ativo
+    );
 
         if (!resposta.ok) {
 
