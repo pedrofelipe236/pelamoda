@@ -359,6 +359,24 @@ textarea {
     border-radius: 6px;
     border: 1px solid #ddd;
 }
+.acoes-produto-admin {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.alterar-status-produto {
+    border: 1px solid #111;
+    background: #eee;
+    padding: 9px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.alterar-status-produto:hover {
+    background: #ddd;
+}
+
 
 @media (max-width: 600px) {
     .tamanhos-nova-cor {
@@ -495,6 +513,103 @@ textarea {
 
 
     <script>
+
+        async function alterarStatusProduto(
+    produtoId,
+    statusAtual
+) {
+
+    const senha =
+        sessionStorage.getItem(
+            "senhaAdmin"
+        ) ||
+        prompt(
+            "Digite a senha do administrador:"
+        );
+
+    if (!senha) return;
+
+
+    const novoStatus =
+        !statusAtual;
+
+
+    const confirmar =
+        confirm(
+            novoStatus
+                ? "Deseja ativar este produto?"
+                : "Deseja desativar este produto?"
+        );
+
+    if (!confirmar) return;
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/editar-produto",
+                {
+                    method: "PATCH",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "x-admin-password":
+                            senha
+                    },
+
+                    body: JSON.stringify({
+                        acao:
+                            "alterar-status",
+
+                        id:
+                            produtoId,
+
+                        ativo:
+                            novoStatus
+                    })
+                }
+            );
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro ||
+                "Erro ao alterar status."
+            );
+        }
+
+
+        sessionStorage.setItem(
+            "senhaAdmin",
+            senha
+        );
+
+
+        alert(
+            novoStatus
+                ? "Produto ativado."
+                : "Produto desativado."
+        );
+
+
+        await carregarEstoque();
+
+
+    } catch (erro) {
+
+        alert(
+            erro.message
+        );
+
+    }
+}
 let produtoEditando = null;
 let dadosProdutoEditando = null;
 async function editarProduto(produtoId) {
@@ -712,6 +827,8 @@ fotosExtrasAtuais.forEach(imagem => {
         R$ ${preco.toFixed(2).replace(".", ",")}
     </div>
 
+    <div class="acoes-produto-admin">
+
     <button
         type="button"
         class="editar-produto"
@@ -720,12 +837,31 @@ fotosExtrasAtuais.forEach(imagem => {
         Editar produto
     </button>
 
+    <button
+        type="button"
+        class="alterar-status-produto"
+        data-produto-id="${produto.id}"
+        data-ativo="${produto.ativo}"
+    >
+        ${produto.ativo ? "Desativar" : "Ativar"}
+    </button>
+
+</div>
+
     <div class="cores-container"></div>
 `;
 produtoDiv
     .querySelector(".editar-produto")
     .addEventListener("click", () => {
         editarProduto(produto.id);
+    });
+    produtoDiv
+    .querySelector(".alterar-status-produto")
+    .addEventListener("click", () => {
+        alterarStatusProduto(
+            produto.id,
+            produto.ativo
+        );
     });
 
                     const coresContainer =
