@@ -863,252 +863,346 @@ async function cadastrarProduto() {
 
     try {
 
-const blocosCores =
-    document.querySelectorAll(".nova-cor");
+        // -------------------------
+        // ID DO PRODUTO
+        // -------------------------
 
-const cores = [];
+        const produtoIdUpload = nome
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-|-$/g, "");
 
-const produtoIdUpload = nome
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-const produtoIdTemporario =
-    "produto-" + Date.now();
-    
-for (const bloco of blocosCores) {
 
-    const nomeCor =
-        bloco
-            .querySelector(".nome-nova-cor")
-            .value
-            .trim();
+        // -------------------------
+        // CORES + ESTOQUE + FOTO
+        // -------------------------
 
-    if (!nomeCor) {
-        throw new Error(
-            "Preencha o nome de todas as cores."
-        );
-    }
+        const blocosCores =
+            document.querySelectorAll(".nova-cor");
 
-    const tamanhos = {};
+        const cores = [];
 
-    bloco
-        .querySelectorAll(".estoque-novo-produto")
-        .forEach(input => {
 
-            const quantidade =
-                Number(input.value);
+        for (const bloco of blocosCores) {
 
-            if (
-                !Number.isInteger(quantidade) ||
-                quantidade < 0
-            ) {
+            const nomeCor =
+                bloco
+                    .querySelector(".nome-nova-cor")
+                    .value
+                    .trim();
+
+
+            if (!nomeCor) {
+
                 throw new Error(
-                    `Estoque inválido na cor ${nomeCor}.`
+                    "Preencha o nome de todas as cores."
                 );
+
             }
 
-            tamanhos[input.dataset.tamanho] =
-                quantidade;
 
-        });
+            // ESTOQUE
 
-   const arquivoFoto =
-    bloco.querySelector(".foto-nova-cor")?.files[0];
-
-let urlImagem = "";
-
-if (arquivoFoto) {
-
-    mensagem.textContent =
-        `Enviando foto da cor ${nomeCor}...`;
-
-    const fotoBase64 =
-        await new Promise((resolve, reject) => {
-
-            const leitor = new FileReader();
-
-            leitor.onload = () =>
-                resolve(leitor.result);
-
-            leitor.onerror = () =>
-                reject(
-                    new Error(
-                        `Erro ao ler a foto da cor ${nomeCor}.`
-                    )
-                );
-
-            leitor.readAsDataURL(arquivoFoto);
-        });
+            const tamanhos = {};
 
 
-    const respostaUpload =
-        await fetch("/api/upload-produto", {
+            bloco
+                .querySelectorAll(".estoque-novo-produto")
+                .forEach(input => {
 
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-                "x-admin-password": senha
-            },
-
-            body: JSON.stringify({
-                produtoId: produtoIdTemporario,
-                cor: nomeCor,
-                arquivo: fotoBase64,
-                tipo: arquivoFoto.type
-            })
-
-        });
+                    const quantidade =
+                        Number(input.value);
 
 
-    const dadosUpload =
-        await respostaUpload.json();
+                    if (
+                        !Number.isInteger(quantidade) ||
+                        quantidade < 0
+                    ) {
+
+                        throw new Error(
+                            `Estoque inválido na cor ${nomeCor}.`
+                        );
+
+                    }
 
 
-    if (!respostaUpload.ok) {
+                    tamanhos[input.dataset.tamanho] =
+                        quantidade;
 
-        if (respostaUpload.status === 401) {
-            sessionStorage.removeItem(
-                "adminPassword"
-            );
-        }
-
-        throw new Error(
-            dadosUpload.erro ||
-            `Erro ao enviar a foto da cor ${nomeCor}.`
-        );
-    }
+                });
 
 
-    urlImagem =
-        dadosUpload.url;
-}
+            // FOTO PRINCIPAL DA COR
+
+            const arquivoFoto =
+                bloco.querySelector(".foto-nova-cor")?.files[0];
+
+            let urlImagem = "";
 
 
-cores.push({
-    nome: nomeCor,
-    imagem: urlImagem,
-    estoque: tamanhos
-});
-// -------------------------
-// FOTOS EXTRAS DA GALERIA
-// -------------------------
+            if (arquivoFoto) {
 
-const arquivosExtras =
-    document.getElementById("fotosExtrasProduto")?.files;
-
-const imagensExtras = [];
+                mensagem.textContent =
+                    `Enviando foto da cor ${nomeCor}...`;
 
 
-if (arquivosExtras?.length) {
+                const fotoBase64 =
+                    await new Promise(
+                        (resolve, reject) => {
 
-    let numeroFoto = 1;
+                            const leitor =
+                                new FileReader();
 
-    for (const arquivo of arquivosExtras) {
+                            leitor.onload = () =>
+                                resolve(leitor.result);
 
-        mensagem.textContent =
-            `Enviando foto extra ${numeroFoto} de ${arquivosExtras.length}...`;
+                            leitor.onerror = () =>
+                                reject(
+                                    new Error(
+                                        `Erro ao ler a foto da cor ${nomeCor}.`
+                                    )
+                                );
 
+                            leitor.readAsDataURL(
+                                arquivoFoto
+                            );
 
-        const fotoBase64 =
-            await new Promise((resolve, reject) => {
-
-                const leitor =
-                    new FileReader();
-
-                leitor.onload = () =>
-                    resolve(leitor.result);
-
-                leitor.onerror = () =>
-                    reject(
-                        new Error(
-                            "Erro ao ler uma das fotos extras."
-                        )
+                        }
                     );
 
-                leitor.readAsDataURL(arquivo);
 
+                const respostaUpload =
+                    await fetch(
+                        "/api/upload-produto",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "x-admin-password":
+                                    senha
+                            },
+
+                            body: JSON.stringify({
+
+                                produtoId:
+                                    produtoIdUpload,
+
+                                cor:
+                                    nomeCor,
+
+                                arquivo:
+                                    fotoBase64,
+
+                                tipo:
+                                    arquivoFoto.type
+
+                            })
+
+                        }
+                    );
+
+
+                const dadosUpload =
+                    await respostaUpload.json();
+
+
+                if (!respostaUpload.ok) {
+
+                    if (
+                        respostaUpload.status === 401
+                    ) {
+
+                        sessionStorage.removeItem(
+                            "adminPassword"
+                        );
+
+                    }
+
+
+                    throw new Error(
+                        dadosUpload.erro ||
+                        `Erro ao enviar a foto da cor ${nomeCor}.`
+                    );
+
+                }
+
+
+                urlImagem =
+                    dadosUpload.url;
+
+            }
+
+
+            cores.push({
+                nome: nomeCor,
+                imagem: urlImagem,
+                estoque: tamanhos
             });
-
-
-        const respostaUpload =
-            await fetch("/api/upload-produto", {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-admin-password": senha
-                },
-
-                body: JSON.stringify({
-
-                    produtoId:
-                        produtoIdUpload,
-
-                    cor:
-                        `galeria-${numeroFoto}`,
-
-                    arquivo:
-                        fotoBase64,
-
-                    tipo:
-                        arquivo.type
-
-                })
-
-            });
-
-
-        const dadosUpload =
-            await respostaUpload.json();
-
-
-        if (!respostaUpload.ok) {
-
-            throw new Error(
-                dadosUpload.erro ||
-                `Erro ao enviar a foto extra ${numeroFoto}.`
-            );
 
         }
 
 
-        imagensExtras.push(
-            dadosUpload.url
-        );
+        // -------------------------
+        // FOTOS EXTRAS DA GALERIA
+        // -------------------------
 
-        numeroFoto++;
+        const arquivosExtras =
+            document.getElementById(
+                "fotosExtrasProduto"
+            )?.files;
 
-    }
-
-}
-}
+        const imagensExtras = [];
 
 
-            const resposta =
-    await fetch("/api/criar-produto", {
+        if (arquivosExtras?.length) {
 
-                method: "POST",
+            let numeroFoto = 1;
 
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-admin-password": senha
-                },
 
-              body: JSON.stringify({
-    nome,
-    preco,
-    categoria,
-    descricao,
-    cores,
-    imagensExtras
-})
+            for (const arquivo of arquivosExtras) {
 
-            });
+                mensagem.textContent =
+                    `Enviando foto extra ${numeroFoto} de ${arquivosExtras.length}...`;
+
+
+                const fotoBase64 =
+                    await new Promise(
+                        (resolve, reject) => {
+
+                            const leitor =
+                                new FileReader();
+
+                            leitor.onload = () =>
+                                resolve(leitor.result);
+
+                            leitor.onerror = () =>
+                                reject(
+                                    new Error(
+                                        "Erro ao ler uma das fotos extras."
+                                    )
+                                );
+
+                            leitor.readAsDataURL(
+                                arquivo
+                            );
+
+                        }
+                    );
+
+
+                const respostaUpload =
+                    await fetch(
+                        "/api/upload-produto",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "x-admin-password":
+                                    senha
+                            },
+
+                            body: JSON.stringify({
+
+                                produtoId:
+                                    produtoIdUpload,
+
+                                cor:
+                                    `galeria-${numeroFoto}`,
+
+                                arquivo:
+                                    fotoBase64,
+
+                                tipo:
+                                    arquivo.type
+
+                            })
+
+                        }
+                    );
+
+
+                const dadosUpload =
+                    await respostaUpload.json();
+
+
+                if (!respostaUpload.ok) {
+
+                    if (
+                        respostaUpload.status === 401
+                    ) {
+
+                        sessionStorage.removeItem(
+                            "adminPassword"
+                        );
+
+                    }
+
+
+                    throw new Error(
+                        dadosUpload.erro ||
+                        `Erro ao enviar a foto extra ${numeroFoto}.`
+                    );
+
+                }
+
+
+                imagensExtras.push(
+                    dadosUpload.url
+                );
+
+
+                numeroFoto++;
+
+            }
+
+        }
+
+
+        // -------------------------
+        // CRIA PRODUTO
+        // -------------------------
+
+        mensagem.textContent =
+            "Salvando produto...";
+
+
+        const resposta =
+            await fetch(
+                "/api/criar-produto",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "x-admin-password":
+                            senha
+                    },
+
+                    body: JSON.stringify({
+                        nome,
+                        preco,
+                        categoria,
+                        descricao,
+                        cores,
+                        imagensExtras
+                    })
+
+                }
+            );
 
 
         const dados =
@@ -1137,6 +1231,10 @@ if (arquivosExtras?.length) {
 
         }
 
+
+        // -------------------------
+        // SUCESSO
+        // -------------------------
 
         sessionStorage.setItem(
             "adminPassword",
