@@ -463,6 +463,7 @@ textarea {
 
     <script>
 let produtoEditando = null;
+let dadosProdutoEditando = null;
 async function editarProduto(produtoId) {
 
     try {
@@ -481,6 +482,7 @@ async function editarProduto(produtoId) {
         }
 
         produtoEditando = produto.id;
+        dadosProdutoEditando = produto;
 
         // Cabeçalho
         document.getElementById("novoProdutoNome").value =
@@ -1004,20 +1006,21 @@ async function cadastrarProduto() {
     mensagem.className =
         "mensagem-admin";
 
-
     try {
 
         // -------------------------
         // ID DO PRODUTO
         // -------------------------
 
-        const produtoIdUpload = nome
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-|-$/g, "");
+       const produtoIdUpload =
+    produtoEditando ||
+    nome
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
 
 
         // -------------------------
@@ -1084,7 +1087,8 @@ async function cadastrarProduto() {
             const arquivoFoto =
                 bloco.querySelector(".foto-nova-cor")?.files[0];
 
-            let urlImagem = "";
+            let urlImagem =
+    bloco.dataset.imagemAtual || "";
 
 
             if (arquivoFoto) {
@@ -1202,7 +1206,21 @@ async function cadastrarProduto() {
                 "fotosExtrasProduto"
             )?.files;
 
-        const imagensExtras = [];
+        const imagensDasCoresAtuais =
+    new Set(
+        (dadosProdutoEditando?.cores || [])
+            .map(cor => cor.imagem)
+            .filter(Boolean)
+    );
+
+const imagensExtras =
+    produtoEditando
+        ? (dadosProdutoEditando?.imagens || [])
+            .filter(
+                imagem =>
+                    !imagensDasCoresAtuais.has(imagem)
+            )
+        : [];
 
 
         if (arquivosExtras?.length) {
@@ -1321,33 +1339,42 @@ async function cadastrarProduto() {
             "Salvando produto...";
 
 
-        const resposta =
-            await fetch(
-                "/api/criar-produto",
-                {
+        const urlSalvar =
+    produtoEditando
+        ? "/api/editar-produto"
+        : "/api/criar-produto";
 
-                    method: "POST",
+const metodoSalvar =
+    produtoEditando
+        ? "PATCH"
+        : "POST";
 
-                    headers: {
-                        "Content-Type":
-                            "application/json",
 
-                        "x-admin-password":
-                            senha
-                    },
+const resposta =
+    await fetch(
+        urlSalvar,
+        {
+            method: metodoSalvar,
 
-                    body: JSON.stringify({
-                        nome,
-                        preco,
-                        categoria,
-                        descricao,
-                        cores,
-                        imagensExtras
-                    })
+            headers: {
+                "Content-Type":
+                    "application/json",
 
-                }
-            );
+                "x-admin-password":
+                    senha
+            },
 
+            body: JSON.stringify({
+                id: produtoEditando,
+                nome,
+                preco,
+                categoria,
+                descricao,
+                cores,
+                imagensExtras
+            })
+        }
+    );
 
         const dados =
             await resposta.json();
@@ -1387,7 +1414,11 @@ async function cadastrarProduto() {
 
 
         mensagem.textContent =
-            `Produto "${dados.produto.nome}" cadastrado com sucesso.`;
+    produtoEditando
+        ? `Produto "${dados.produto.nome}" atualizado com sucesso.`
+        : `Produto "${dados.produto.nome}" cadastrado com sucesso.`;
+        produtoEditando = null;
+dadosProdutoEditando = null;
 
         mensagem.className =
             "mensagem-admin sucesso";
@@ -1404,6 +1435,15 @@ async function cadastrarProduto() {
         document.getElementById(
             "novoProdutoDescricao"
         ).value = "";
+        document.getElementById(
+    "novasCores"
+).innerHTML = "";
+
+document.getElementById(
+    "fotosExtrasProduto"
+).value = "";
+
+adicionarCorProduto();
 
 
         await carregarEstoque();

@@ -29,7 +29,8 @@ export default async function handler(req, res) {
             preco,
             categoria,
             descricao,
-            cores
+            cores,
+            imagensExtras = []  
         } = req.body;
 
 
@@ -133,10 +134,16 @@ export default async function handler(req, res) {
 
         // Preserva todas as imagens utilizadas pelas cores.
         // Fotos extras serão tratadas em seguida.
-        const imagensProduto =
-            coresProduto
-                .map(cor => cor.imagem)
-                .filter(Boolean);
+
+      const imagensProduto = [
+    ...coresProduto
+        .map(cor => cor.imagem)
+        .filter(Boolean),
+
+    ...imagensExtras
+        .map(imagem => String(imagem || "").trim())
+        .filter(Boolean)
+];
 
 
         // -------------------------
