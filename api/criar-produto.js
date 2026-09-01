@@ -139,12 +139,86 @@ export default async function handler(req, res) {
             }
 
 
-            // Por enquanto sem foto.
-            // Depois colocaremos a URL aqui.
-            coresProduto.push({
-                nome: nomeCor,
-                imagem: ""
-            });
+            let urlImagem = "";
+
+if (cor.fotoBase64 && cor.tipoFoto) {
+
+    const respostaUpload =
+        await fetch(
+            `${process.env.SUPABASE_URL}/storage/v1/object/produtos/${id}/${nomeCor
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")}-${Date.now()}.${
+
+                    cor.tipoFoto === "image/png"
+                        ? "png"
+                        : cor.tipoFoto === "image/webp"
+                            ? "webp"
+                            : "jpg"
+
+                }`,
+            {
+                method: "POST",
+
+                headers: {
+                    apikey:
+                        process.env.SUPABASE_SECRET_KEY,
+
+                    Authorization:
+                        `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+
+                    "Content-Type":
+                        cor.tipoFoto,
+
+                    "x-upsert":
+                        "false"
+                },
+
+                body:
+                    Buffer.from(
+                        cor.fotoBase64.split(",")[1],
+                        "base64"
+                    )
+            }
+        );
+
+
+    if (!respostaUpload.ok) {
+
+        const detalhe =
+            await respostaUpload.text();
+
+        console.error(
+            "Erro upload imagem:",
+            detalhe
+        );
+
+        return res.status(500).json({
+            erro:
+                `Não foi possível enviar a foto da cor ${nomeCor}.`
+        });
+
+    }
+
+
+    const dadosUpload =
+        await respostaUpload.json();
+
+
+    urlImagem =
+        `${process.env.SUPABASE_URL}` +
+        `/storage/v1/object/public/produtos/` +
+        dadosUpload.Key
+            .replace(/^produtos\//, "");
+
+}
+
+
+coresProduto.push({
+    nome: nomeCor,
+    imagem: urlImagem
+});
 
 
             const tamanhos =
@@ -196,7 +270,10 @@ export default async function handler(req, res) {
         // -------------------------
         // CRIA PRODUTO
         // -------------------------
-
+const imagensProduto =
+    coresProduto
+        .map(cor => cor.imagem)
+        .filter(Boolean);
         const respostaProduto =
             await fetch(
                 `${process.env.SUPABASE_URL}/rest/v1/produtos`,
@@ -236,7 +313,7 @@ export default async function handler(req, res) {
                             descricao:
                                 descricao?.trim() || "",
 
-                            imagens: [],
+                            imagens: imagensProduto,
 
                             cores:
                                 coresProduto,
