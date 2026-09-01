@@ -313,6 +313,39 @@ textarea {
     background: #111;
     color: #fff;
 }
+#previewFotosExtras {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.foto-extra-atual {
+    width: 100px;
+    display: grid;
+    gap: 6px;
+}
+
+.foto-extra-atual img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 7px;
+    border: 1px solid #ddd;
+}
+
+.remover-foto-extra {
+    border: 0;
+    border-radius: 5px;
+    padding: 7px;
+    cursor: pointer;
+    background: #eee;
+}
+
+.remover-foto-extra:hover {
+    background: #ddd;
+}
+
 @media (max-width: 700px) {
     .nova-cor-topo {
         flex-direction: column;
@@ -560,7 +593,71 @@ if (cor.imagem) {
         // Muda botão
         const btn =
             document.getElementById("btnCadastrarProduto");
+// -------------------------
+// MOSTRA FOTOS EXTRAS ATUAIS
+// -------------------------
 
+const previewExtras =
+    document.getElementById("previewFotosExtras");
+
+previewExtras.innerHTML = "";
+
+
+const imagensDasCores =
+    new Set(
+        (produto.cores || [])
+            .map(cor => cor.imagem)
+            .filter(Boolean)
+    );
+
+
+const fotosExtrasAtuais =
+    (produto.imagens || [])
+        .filter(
+            imagem =>
+                !imagensDasCores.has(imagem)
+        );
+
+
+fotosExtrasAtuais.forEach(imagem => {
+
+    const item =
+        document.createElement("div");
+
+    item.className =
+        "foto-extra-atual";
+
+    item.dataset.imagem =
+        imagem;
+
+
+    item.innerHTML = `
+        <img
+            src="${imagem}"
+            alt="Foto extra do produto"
+        >
+
+        <button
+            type="button"
+            class="remover-foto-extra"
+        >
+            Remover
+        </button>
+    `;
+
+
+    item
+        .querySelector(".remover-foto-extra")
+        .addEventListener("click", () => {
+
+            item.remove();
+
+        });
+
+
+    previewExtras.appendChild(item);
+
+});
         btn.textContent =
             "Salvar alterações";
 
