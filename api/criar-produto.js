@@ -138,134 +138,49 @@ export default async function handler(req, res) {
 
             }
 
-
-            let urlImagem = "";
-
-if (cor.fotoBase64 && cor.tipoFoto) {
-
-    const respostaUpload =
-        await fetch(
-            `${process.env.SUPABASE_URL}/storage/v1/object/produtos/${id}/${nomeCor
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, "-")}-${Date.now()}.${
-
-                    cor.tipoFoto === "image/png"
-                        ? "png"
-                        : cor.tipoFoto === "image/webp"
-                            ? "webp"
-                            : "jpg"
-
-                }`,
-            {
-                method: "POST",
-
-                headers: {
-                    apikey:
-                        process.env.SUPABASE_SECRET_KEY,
-
-                    Authorization:
-                        `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
-
-                    "Content-Type":
-                        cor.tipoFoto,
-
-                    "x-upsert":
-                        "false"
-                },
-
-                body:
-                    Buffer.from(
-                        cor.fotoBase64.split(",")[1],
-                        "base64"
-                    )
-            }
-        );
-
-
-    if (!respostaUpload.ok) {
-
-        const detalhe =
-            await respostaUpload.text();
-
-        console.error(
-            "Erro upload imagem:",
-            detalhe
-        );
-
-        return res.status(500).json({
-            erro:
-                `Não foi possível enviar a foto da cor ${nomeCor}.`
-        });
-
-    }
-
-
-    const dadosUpload =
-        await respostaUpload.json();
-
-
-    urlImagem =
-        `${process.env.SUPABASE_URL}` +
-        `/storage/v1/object/public/produtos/` +
-        dadosUpload.Key
-            .replace(/^produtos\//, "");
-
-}
-
+const urlImagem =
+    String(cor.imagem || "").trim();
 
 coresProduto.push({
     nome: nomeCor,
     imagem: urlImagem
 });
+       const tamanhos =
+    cor.estoque || {};
 
+for (
+    const tamanho of
+    ["PP", "P", "M", "G", "GG"]
+) {
 
-            const tamanhos =
-                cor.estoque || {};
+    const quantidade =
+        Number(
+            tamanhos[tamanho] ?? 0
+        );
 
+    if (
+        !Number.isInteger(quantidade) ||
+        quantidade < 0
+    ) {
 
-            for (
-                const tamanho of
-                ["PP", "P", "M", "G", "GG"]
-            ) {
+        return res.status(400).json({
+            erro:
+                `Quantidade inválida em ${nomeCor} / ${tamanho}.`
+        });
 
-                const quantidade =
-                    Number(
-                        tamanhos[tamanho] ?? 0
-                    );
+    }
 
+    registrosEstoque.push({
+        produto_id: id,
+        nome_produto: nome.trim(),
+        cor: nomeCor,
+        tamanho,
+        quantidade
+    });
 
-                if (
-                    !Number.isInteger(quantidade) ||
-                    quantidade < 0
-                ) {
+}
 
-                    return res.status(400).json({
-                        erro:
-                            `Quantidade inválida em ${nomeCor} / ${tamanho}.`
-                    });
-
-                }
-
-
-                registrosEstoque.push({
-
-    produto_id: id,
-
-    nome_produto: nome.trim(),
-
-    cor: nomeCor,
-
-    tamanho,
-
-    quantidade
-
-});
-            }
-
-        }
-
+}
 
         // -------------------------
         // CRIA PRODUTO
@@ -274,6 +189,7 @@ const imagensProduto =
     coresProduto
         .map(cor => cor.imagem)
         .filter(Boolean);
+
         const respostaProduto =
             await fetch(
                 `${process.env.SUPABASE_URL}/rest/v1/produtos`,
