@@ -177,16 +177,17 @@ export default async function handler(req, res) {
 
                 registrosEstoque.push({
 
-                    produto_id: id,
+    produto_id: id,
 
-                    cor: nomeCor,
+    nome_produto: nome.trim(),
 
-                    tamanho,
+    cor: nomeCor,
 
-                    quantidade
+    tamanho,
 
-                });
+    quantidade
 
+});
             }
 
         }
