@@ -57,12 +57,14 @@
     }
 
     .logo {
-      font-family: 'Xilosa', sans-serif;
-      display: flex;
-      flex-direction: column;
-      line-height: 1;
-      flex-shrink: 0;
-    }
+    font-family: 'Xilosa', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+    text-decoration: none;
+}
 
     .logo strong {
       font-family: 'Xilosa', serif;
@@ -2068,18 +2070,13 @@ html {
     .product-details h1 {
     text-transform: uppercase;
 }
-.logo-pelamoda {
+.logo img.logo-pelamoda {
     width: 75px;
     height: 75px;
-    object-fit: cover;
+    max-width: 75px;
+    object-fit: contain;
     border-radius: 50%;
     display: block;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
 }
 }
 
