@@ -339,8 +339,19 @@
 </button>
             </section>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL =
+    "https://vzvtsloymfzawmwgndiw.supabase.co";
 
+const SUPABASE_KEY =
+    "sb_publishable_ezgD5HdaJe9jNrbjDXbqfg_UmXWR6Rr";
+
+const supabaseClient =
+    supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
     // ========================================
     // VARIÁVEIS PRINCIPAIS
     // ========================================
@@ -1170,12 +1181,25 @@ cupom: cupomAplicado,
             ) * 100
         )
 };
+const {
+    data: { session }
+} = await supabaseClient.auth.getSession();
+
 const respostaPedido = await fetch("/api/criar-pedido", {
+
     method: "POST",
+
     headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+
+        ...(session?.access_token && {
+            Authorization:
+                `Bearer ${session.access_token}`
+        })
     },
+
     body: JSON.stringify(dadosPedido)
+
 });
 
 const pedidoCriado = await respostaPedido.json();

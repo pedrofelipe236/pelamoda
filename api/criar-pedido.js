@@ -140,7 +140,42 @@ export default async function handler(req, res) {
     }
 
     try {
+        let usuarioId = null;
 
+        const authHeader = req.headers.authorization;
+
+        if (authHeader?.startsWith("Bearer ")) {
+
+            const accessToken =
+                authHeader.substring(7);
+
+            const respostaUsuario = await fetch(
+                `${process.env.SUPABASE_URL}/auth/v1/user`,
+                {
+                    method: "GET",
+                    headers: {
+                        apikey:
+                            process.env.SUPABASE_SECRET_KEY,
+
+                        Authorization:
+                            `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+            if (!respostaUsuario.ok) {
+
+                return res.status(401).json({
+                    erro: "Sessão do usuário inválida"
+                });
+            }
+
+            const usuario =
+                await respostaUsuario.json();
+
+            usuarioId =
+                usuario.id || null;
+        }
         const {
             order_nsu,
             nome_cliente,
@@ -158,6 +193,7 @@ export default async function handler(req, res) {
             valor_frete,
             valor_total,
             cupom
+
         } = req.body;
 
 
@@ -356,204 +392,204 @@ export default async function handler(req, res) {
         // CALCULA TOTAL
         // ======================================================
 
-        
-let valorFreteCalculado = 0;
 
-const tipoEntregaNormalizado =
-    normalizarTexto(tipo_entrega);
+        let valorFreteCalculado = 0;
 
-
-/* RETIRADA */
-
-if (
-    tipoEntregaNormalizado === "retirada"
-) {
-
-    valorFreteCalculado = 0;
-
-}
+        const tipoEntregaNormalizado =
+            normalizarTexto(tipo_entrega);
 
 
-/* MOTO UBER */
+        /* RETIRADA */
 
-else if (
-    tipoEntregaNormalizado === "motouber"
-) {
+        if (
+            tipoEntregaNormalizado === "retirada"
+        ) {
 
-    valorFreteCalculado = 0;
+            valorFreteCalculado = 0;
 
-}
-
-
-/* ENTREGA GRÁTIS */
-
-else if (
-    temEntregaGratis(
-        cidade,
-        bairro
-    )
-) {
-
-    valorFreteCalculado = 0;
-
-}
-
-
-/* SUPERFRETE */
-
-else {
-
-    const cepLimpo =
-        String(cep || "")
-            .replace(/\D/g, "");
-
-
-    if (cepLimpo.length !== 8) {
-
-        return res.status(400).json({
-            erro:
-                "CEP inválido para cálculo do frete"
-        });
-
-    }
-
-
-    const fretesReais =
-        await calcularFretesReais(
-            cepLimpo
-        );
-
-
-    if (fretesReais.length === 0) {
-
-        return res.status(400).json({
-            erro:
-                "Nenhuma opção de frete disponível"
-        });
-
-    }
-
-
-    const freteEnviado =
-        Number(valor_frete || 0);
-
-
-    const freteValido =
-        fretesReais.includes(
-            freteEnviado
-        );
-
-
-    if (!freteValido) {
-
-        console.warn(
-            "Tentativa de alterar frete:",
-            {
-                recebido: freteEnviado,
-                permitidos: fretesReais,
-                cep: cepLimpo
-            }
-        );
-
-
-        return res.status(400).json({
-            erro:
-                "Valor de frete inválido. Recalcule o frete."
-        });
-
-    }
-
-
-    valorFreteCalculado =
-        freteEnviado;
-
-}
-
-let valorDescontoCalculado = 0;
-let cupomAplicado = null;
-
-if (cupom && cupom.trim()) {
-
-    const codigoCupom =
-        cupom.trim().toUpperCase();
-
-    const respostaCupom = await fetch(
-        `${process.env.SUPABASE_URL}/rest/v1/cupons?codigo=eq.${encodeURIComponent(codigoCupom)}&ativo=eq.true&select=*`,
-        {
-            headers: {
-                apikey: process.env.SUPABASE_SECRET_KEY
-            }
         }
-    );
 
-    const cupons =
-        await respostaCupom.json();
 
-    if (
-        !respostaCupom.ok ||
-        !Array.isArray(cupons) ||
-        cupons.length === 0
-    ) {
-        return res.status(400).json({
-            erro: "Cupom inválido ou inativo"
-        });
-    }
+        /* MOTO UBER */
 
-    const cupomEncontrado =
-        cupons[0];
+        else if (
+            tipoEntregaNormalizado === "motouber"
+        ) {
 
-    if (
-        cupomEncontrado.valido_ate &&
-        new Date(cupomEncontrado.valido_ate) <
-        new Date()
-    ) {
-        return res.status(400).json({
-            erro: "Este cupom expirou"
-        });
-    }
+            valorFreteCalculado = 0;
 
-    if (
-        valorProdutosCalculado <
-        Number(cupomEncontrado.valor_minimo || 0)
-    ) {
-        return res.status(400).json({
-            erro: "Valor mínimo do cupom não atingido"
-        });
-    }
+        }
 
-    if (
-        cupomEncontrado.tipo ===
-        "percentual"
-    ) {
-        valorDescontoCalculado =
-            Math.round(
-                valorProdutosCalculado *
-                Number(cupomEncontrado.valor) /
-                100
+
+        /* ENTREGA GRÁTIS */
+
+        else if (
+            temEntregaGratis(
+                cidade,
+                bairro
+            )
+        ) {
+
+            valorFreteCalculado = 0;
+
+        }
+
+
+        /* SUPERFRETE */
+
+        else {
+
+            const cepLimpo =
+                String(cep || "")
+                    .replace(/\D/g, "");
+
+
+            if (cepLimpo.length !== 8) {
+
+                return res.status(400).json({
+                    erro:
+                        "CEP inválido para cálculo do frete"
+                });
+
+            }
+
+
+            const fretesReais =
+                await calcularFretesReais(
+                    cepLimpo
+                );
+
+
+            if (fretesReais.length === 0) {
+
+                return res.status(400).json({
+                    erro:
+                        "Nenhuma opção de frete disponível"
+                });
+
+            }
+
+
+            const freteEnviado =
+                Number(valor_frete || 0);
+
+
+            const freteValido =
+                fretesReais.includes(
+                    freteEnviado
+                );
+
+
+            if (!freteValido) {
+
+                console.warn(
+                    "Tentativa de alterar frete:",
+                    {
+                        recebido: freteEnviado,
+                        permitidos: fretesReais,
+                        cep: cepLimpo
+                    }
+                );
+
+
+                return res.status(400).json({
+                    erro:
+                        "Valor de frete inválido. Recalcule o frete."
+                });
+
+            }
+
+
+            valorFreteCalculado =
+                freteEnviado;
+
+        }
+
+        let valorDescontoCalculado = 0;
+        let cupomAplicado = null;
+
+        if (cupom && cupom.trim()) {
+
+            const codigoCupom =
+                cupom.trim().toUpperCase();
+
+            const respostaCupom = await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/cupons?codigo=eq.${encodeURIComponent(codigoCupom)}&ativo=eq.true&select=*`,
+                {
+                    headers: {
+                        apikey: process.env.SUPABASE_SECRET_KEY
+                    }
+                }
             );
-    }
 
-    if (
-        cupomEncontrado.tipo ===
-        "fixo"
-    ) {
-        valorDescontoCalculado =
-            Number(cupomEncontrado.valor);
-    }
+            const cupons =
+                await respostaCupom.json();
 
-    valorDescontoCalculado =
-        Math.min(
-            valorDescontoCalculado,
-            valorProdutosCalculado
-        );
+            if (
+                !respostaCupom.ok ||
+                !Array.isArray(cupons) ||
+                cupons.length === 0
+            ) {
+                return res.status(400).json({
+                    erro: "Cupom inválido ou inativo"
+                });
+            }
 
-    cupomAplicado =
-        codigoCupom;
-}
-const valorTotalCalculado =
-    valorProdutosCalculado -
-    valorDescontoCalculado +
-    valorFreteCalculado;
+            const cupomEncontrado =
+                cupons[0];
+
+            if (
+                cupomEncontrado.valido_ate &&
+                new Date(cupomEncontrado.valido_ate) <
+                new Date()
+            ) {
+                return res.status(400).json({
+                    erro: "Este cupom expirou"
+                });
+            }
+
+            if (
+                valorProdutosCalculado <
+                Number(cupomEncontrado.valor_minimo || 0)
+            ) {
+                return res.status(400).json({
+                    erro: "Valor mínimo do cupom não atingido"
+                });
+            }
+
+            if (
+                cupomEncontrado.tipo ===
+                "percentual"
+            ) {
+                valorDescontoCalculado =
+                    Math.round(
+                        valorProdutosCalculado *
+                        Number(cupomEncontrado.valor) /
+                        100
+                    );
+            }
+
+            if (
+                cupomEncontrado.tipo ===
+                "fixo"
+            ) {
+                valorDescontoCalculado =
+                    Number(cupomEncontrado.valor);
+            }
+
+            valorDescontoCalculado =
+                Math.min(
+                    valorDescontoCalculado,
+                    valorProdutosCalculado
+                );
+
+            cupomAplicado =
+                codigoCupom;
+        }
+        const valorTotalCalculado =
+            valorProdutosCalculado -
+            valorDescontoCalculado +
+            valorFreteCalculado;
         // ======================================================
         // CRIA O PEDIDO
         // ======================================================
@@ -574,6 +610,7 @@ const valorTotalCalculado =
                     nome_cliente,
                     telefone,
                     email,
+                    usuario_id: usuarioId,
                     itens: itensSeguros,
                     tipo_entrega,
                     cep,
@@ -585,9 +622,9 @@ const valorTotalCalculado =
                     estado,
                     valor_produtos:
                         valorProdutosCalculado,
-                        cupom: cupomAplicado,
-valor_desconto:
-    valorDescontoCalculado,
+                    cupom: cupomAplicado,
+                    valor_desconto:
+                        valorDescontoCalculado,
                     valor_frete:
                         valorFreteCalculado,
                     valor_total:
