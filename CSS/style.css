@@ -1001,10 +1001,14 @@
 }
 
 .product-description {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.65;
+
     color: #665b51;
 
     margin-bottom: 32px;
-
     max-width: 480px;
 }
 
