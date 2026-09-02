@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrar | PêlaModa</title>
+
+    <title>Minha Conta | PêlaModa</title>
 
     <style>
         * {
@@ -18,7 +19,9 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+
             background: #f5f0e8;
+
             font-family: "Segoe UI", Arial, sans-serif;
             color: #111;
         }
@@ -26,11 +29,16 @@
         .login-box {
             width: 100%;
             max-width: 420px;
+
             background: #fff;
+
             padding: 32px;
+
             border: 1px solid rgba(0, 0, 0, .08);
             border-radius: 14px;
+
             box-shadow: 0 4px 18px rgba(0, 0, 0, .05);
+
             text-align: center;
         }
 
@@ -48,15 +56,20 @@
         .btn-google {
             width: 100%;
             height: 48px;
+
             border: 1px solid #d8d2ca;
             border-radius: 8px;
+
             background: #fff;
+
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+
             font-size: 14px;
             font-weight: 600;
+
             cursor: pointer;
         }
 
@@ -71,8 +84,11 @@
 
         .voltar {
             display: inline-block;
+
             margin-top: 22px;
+
             font-size: 13px;
+
             color: #111;
             text-decoration: none;
         }
@@ -80,6 +96,49 @@
         #mensagem {
             margin-top: 16px;
             font-size: 13px;
+        }
+
+        #meus-pedidos {
+            margin-top: 28px;
+            text-align: left;
+        }
+
+        #meus-pedidos h2 {
+            margin: 0 0 15px;
+            font-size: 15px;
+        }
+
+        .pedido-card {
+            padding: 16px;
+            margin-bottom: 10px;
+
+            border: 1px solid #ddd6cd;
+            border-radius: 9px;
+
+            background: #faf8f5;
+        }
+
+        .pedido-topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 15px;
+        }
+
+        .pedido-topo strong {
+            font-size: 13px;
+        }
+
+        .pedido-valor {
+            white-space: nowrap;
+        }
+
+        .pedido-status {
+            margin-top: 7px;
+
+            font-size: 12px;
+            color: #665f58;
         }
     </style>
 </head>
@@ -94,231 +153,370 @@
             Entre na sua conta PêlaModa.
         </p>
 
-        <button class="btn-google" id="btn-google">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+        <button
+            class="btn-google"
+            id="btn-google"
+        >
+            <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt=""
+            >
+
             Continuar com Google
         </button>
 
         <div id="mensagem"></div>
 
-        <a href="index.html" class="voltar">
+        <a
+            href="index.html"
+            class="voltar"
+        >
             ← Voltar para a loja
         </a>
 
     </div>
 
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
     <script>
 
         const SUPABASE_URL =
             "https://vzvtsloymfzawmwgndiw.supabase.co";
 
+
         const SUPABASE_KEY =
             "sb_publishable_ezgD5HdaJe9jNrbjDXbqfg_UmXWR6Rr";
+
 
         const supabaseClient =
             supabase.createClient(
                 SUPABASE_URL,
                 SUPABASE_KEY
             );
+
+
+        function formatarStatus(status) {
+
+            const statusFormatados = {
+                aguardando_pagamento:
+                    "Aguardando pagamento",
+
+                pago:
+                    "Pagamento confirmado",
+
+                cancelado:
+                    "Cancelado",
+
+                expirado:
+                    "Expirado"
+            };
+
+
+            return (
+                statusFormatados[status] ||
+                String(status || "")
+                    .replaceAll("_", " ")
+            );
+        }
+
+
+
+        async function carregarMeusPedidos(
+            accessToken
+        ) {
+
+            const lista =
+                document.getElementById(
+                    "lista-meus-pedidos"
+                );
+
+
+            if (!lista) {
+                return;
+            }
+
+
+            try {
+
+                const resposta =
+                    await fetch(
+                        "/api/buscar-pedido?modo=meus-pedidos",
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bearer ${accessToken}`
+                            }
+                        }
+                    );
+
+
+                const dados =
+                    await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        dados.erro ||
+                        "Erro ao buscar pedidos"
+                    );
+                }
+
+
+                if (!dados.pedidos?.length) {
+
+                    lista.innerHTML = `
+                        <p style="
+                            font-size:13px;
+                            color:#665f58;
+                            margin:0;
+                        ">
+                            Você ainda não possui pedidos.
+                        </p>
+                    `;
+
+                    return;
+                }
+
+
+                lista.innerHTML =
+                    dados.pedidos
+                        .map(pedido => {
+
+                            const valor =
+                                (
+                                    Number(
+                                        pedido.valor_total ||
+                                        0
+                                    ) / 100
+                                )
+                                .toLocaleString(
+                                    "pt-BR",
+                                    {
+                                        style:
+                                            "currency",
+
+                                        currency:
+                                            "BRL"
+                                    }
+                                );
+
+
+                            return `
+                                <div class="pedido-card">
+
+                                    <div class="pedido-topo">
+
+                                        <strong>
+                                            Pedido #${pedido.numero_pedido}
+                                        </strong>
+
+                                        <strong class="pedido-valor">
+                                            ${valor}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="pedido-status">
+                                        ${formatarStatus(
+                                            pedido.status
+                                        )}
+                                    </div>
+
+                                </div>
+                            `;
+
+                        })
+                        .join("");
+
+
+            } catch (erro) {
+
+                console.error(
+                    "Erro ao carregar pedidos:",
+                    erro
+                );
+
+
+                lista.innerHTML = `
+                    <p style="
+                        font-size:13px;
+                        margin:0;
+                    ">
+                        Não foi possível carregar seus pedidos.
+                    </p>
+                `;
+            }
+        }
+
+
+
         async function verificarUsuario() {
 
             const {
                 data: { user }
-            } = await supabaseClient.auth.getUser();
+            } =
+                await supabaseClient.auth.getUser();
+
 
             if (!user) {
                 return;
             }
+
 
             const nome =
                 user.user_metadata?.full_name ||
                 user.user_metadata?.name ||
                 "Cliente";
 
+
             const foto =
-                user.user_metadata?.avatar_url || "";
+                user.user_metadata?.avatar_url ||
+                "";
 
-            document.querySelector(".login-box").innerHTML = `
-        ${foto ? `
-            <img
-                src="${foto}"
-                alt=""
-                style="
-                    width:80px;
-                    height:80px;
-                    border-radius:50%;
-                    object-fit:cover;
-                    margin-bottom:15px;
-                "
-            >
-        ` : ""}
 
-        <h1>Olá, ${nome}!</h1>
+            document
+                .querySelector(".login-box")
+                .innerHTML = `
 
-        <p>
-            ${user.email}
-        </p>
+                    ${
+                        foto
+                            ? `
+                                <img
+                                    src="${foto}"
+                                    alt=""
+                                    style="
+                                        width:80px;
+                                        height:80px;
+                                        border-radius:50%;
+                                        object-fit:cover;
+                                        margin-bottom:15px;
+                                    "
+                                >
+                            `
+                            : ""
+                    }
 
-        <button
-            id="btn-sair"
-            class="btn-google"
-        >
-            Sair da conta
-        </button>
-<div id="meus-pedidos" style="
-    margin-top: 28px;
-    text-align: left;
-">
-    <h2 style="
-        font-size: 15px;
-        margin-bottom: 15px;
-    ">
-        MEUS PEDIDOS
-    </h2>
 
-    <div id="lista-meus-pedidos">
-        Carregando pedidos...
-    </div>
-</div>
-        <a href="index.html" class="voltar">
-            ← Voltar para a loja
-        </a>
-    `;
+                    <h1>
+                        Olá, ${nome}!
+                    </h1>
+
+
+                    <p>
+                        ${user.email}
+                    </p>
+
+
+                    <button
+                        id="btn-sair"
+                        class="btn-google"
+                    >
+                        Sair da conta
+                    </button>
+
+
+                    <div id="meus-pedidos">
+
+                        <h2>
+                            MEUS PEDIDOS
+                        </h2>
+
+
+                        <div id="lista-meus-pedidos">
+                            Carregando pedidos...
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        href="index.html"
+                        class="voltar"
+                    >
+                        ← Voltar para a loja
+                    </a>
+                `;
+
 
             document
                 .getElementById("btn-sair")
-                .addEventListener("click", async () => {
+                .addEventListener(
+                    "click",
+                    async () => {
 
-                    await supabaseClient.auth.signOut();
+                        await supabaseClient
+                            .auth
+                            .signOut();
 
-                    window.location.href =
-                        "login.html";
-                });
-                const {
-    data: { session }
-} = await supabaseClient.auth.getSession();
 
-if (session?.access_token) {
-    await carregarMeusPedidos(
-        session.access_token
-    );
-}
-async function carregarMeusPedidos(accessToken) {
+                        window.location.href =
+                            "login.html";
+                    }
+                );
 
-    const lista =
-        document.getElementById("lista-meus-pedidos");
 
-    try {
+            const {
+                data: { session }
+            } =
+                await supabaseClient.auth
+                    .getSession();
 
-        const resposta = await fetch(
-            "/api/buscar-pedido?modo=meus-pedidos",
-            {
-                headers: {
-                    Authorization:
-                        `Bearer ${accessToken}`
-                }
+
+            if (session?.access_token) {
+
+                await carregarMeusPedidos(
+                    session.access_token
+                );
             }
-        );
-
-        const dados = await resposta.json();
-
-        if (!resposta.ok) {
-            throw new Error(
-                dados.erro || "Erro ao buscar pedidos"
-            );
         }
 
-        if (!dados.pedidos?.length) {
-            lista.innerHTML = `
-                <p style="font-size:13px;color:#665f58;">
-                    Você ainda não possui pedidos.
-                </p>
-            `;
-            return;
-        }
 
-        lista.innerHTML =
-            dados.pedidos.map(pedido => {
 
-                const valor =
-                    (pedido.valor_total / 100)
-                    .toLocaleString(
-                        "pt-BR",
-                        {
-                            style: "currency",
-                            currency: "BRL"
-                        }
-                    );
-
-                const status =
-                    String(pedido.status || "")
-                    .replaceAll("_", " ");
-
-                return `
-                    <div style="
-                        border-top:1px solid #ddd6cd;
-                        padding:14px 0;
-                    ">
-                        <strong>
-                            Pedido #${pedido.numero_pedido}
-                        </strong>
-
-                        <div style="
-                            font-size:13px;
-                            margin-top:5px;
-                            color:#665f58;
-                        ">
-                            ${valor}
-                            •
-                            ${status}
-                        </div>
-                    </div>
-                `;
-            }).join("");
-
-    } catch (erro) {
-
-        console.error(erro);
-
-        lista.innerHTML = `
-            <p style="font-size:13px;">
-                Não foi possível carregar seus pedidos.
-            </p>
-        `;
-    }
-}
-        }
-
-        verificarUsuario();
         document
             .getElementById("btn-google")
-            .addEventListener("click", async () => {
+            .addEventListener(
+                "click",
+                async () => {
 
-                const mensagem =
-                    document.getElementById("mensagem");
+                    const mensagem =
+                        document.getElementById(
+                            "mensagem"
+                        );
 
-                mensagem.textContent =
-                    "Abrindo login do Google...";
-
-                const { error } =
-                    await supabaseClient.auth.signInWithOAuth({
-                        provider: "google",
-                        options: {
-                            redirectTo:
-                                `${window.location.origin}/login.html`
-                        }
-                    });
-
-                if (error) {
-                    console.error(error);
 
                     mensagem.textContent =
-                        "Não foi possível entrar com Google.";
-                }
+                        "Abrindo login do Google...";
 
-            });
+
+                    const { error } =
+                        await supabaseClient.auth
+                            .signInWithOAuth({
+                                provider: "google",
+
+                                options: {
+                                    redirectTo:
+                                        `${window.location.origin}/login.html`
+                                }
+                            });
+
+
+                    if (error) {
+
+                        console.error(error);
+
+
+                        mensagem.textContent =
+                            "Não foi possível entrar com Google.";
+                    }
+                }
+            );
+
+
+        verificarUsuario();
 
     </script>
 
