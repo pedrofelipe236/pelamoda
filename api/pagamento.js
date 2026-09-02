@@ -133,11 +133,10 @@ if (valorDesconto > 0) {
 
                     order_nsu,
 
-                    redirect_url:
-                        "https://pelamoda.vercel.app/pagamento-concluido.html",
+                    redirect_url: "https://pelamoda.com.br/pagamento-concluido.html",
 
                     webhook_url:
-                        "https://pelamoda.vercel.app/api/webhook-infinitepay",
+                        "https://pelamoda.com.br/api/webhook-infinitepay",
 
                     customer,
 
