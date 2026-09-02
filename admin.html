@@ -648,16 +648,150 @@ async function carregarCupons() {
                         .toFixed(2)
                         .replace(".", ",")}`;
 
-            item.innerHTML = `
-                <strong>${cupom.codigo}</strong>
-                <span>${desconto}</span>
-                <span>
-                    ${cupom.ativo
-                        ? "Ativo"
-                        : "Desativado"}
-                </span>
-            `;
+           item.innerHTML = `
+    <strong>${cupom.codigo}</strong>
 
+    <span>
+        ${desconto}
+    </span>
+
+    <span>
+        ${cupom.ativo
+            ? "Ativo"
+            : "Desativado"}
+    </span>
+
+    <button
+        type="button"
+        class="editar-cupom"
+    >
+        Editar
+    </button>
+
+    <button
+        type="button"
+        class="status-cupom"
+    >
+        ${cupom.ativo
+            ? "Desativar"
+            : "Ativar"}
+    </button>
+`;
+item
+    .querySelector(".editar-cupom")
+    .addEventListener("click", () => {
+
+        document.getElementById("cupomCodigo")
+            .value =
+            cupom.codigo;
+
+        document.getElementById("cupomTipo")
+            .value =
+            cupom.tipo;
+
+        document.getElementById("cupomValor")
+            .value =
+            cupom.valor;
+
+        document.getElementById("cupomMinimo")
+            .value =
+            cupom.valor_minimo || 0;
+
+        document.getElementById("cupomValidade")
+            .value =
+            cupom.valido_ate
+                ? cupom.valido_ate.split("T")[0]
+                : "";
+
+        document.getElementById("cupomAtivo")
+            .checked =
+            cupom.ativo;
+
+        document.getElementById("cupomCodigo")
+            .scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+    });
+item
+    .querySelector(".status-cupom")
+    .addEventListener("click", async () => {
+
+        const senha =
+            sessionStorage.getItem("senhaAdmin");
+
+        if (!senha) return;
+
+        const novoStatus =
+            !cupom.ativo;
+
+        const confirmar =
+            confirm(
+                novoStatus
+                    ? `Ativar o cupom ${cupom.codigo}?`
+                    : `Desativar o cupom ${cupom.codigo}?`
+            );
+
+        if (!confirmar) return;
+
+        try {
+
+            const resposta =
+                await fetch(
+                    "/api/validar-cupom",
+                    {
+                        method: "PATCH",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "x-admin-password":
+                                senha
+                        },
+
+                        body: JSON.stringify({
+                            acao:
+                                "salvar-cupom",
+
+                            codigo:
+                                cupom.codigo,
+
+                            tipo:
+                                cupom.tipo,
+
+                            valor:
+                                cupom.valor,
+
+                            valor_minimo:
+                                cupom.valor_minimo || 0,
+
+                            valido_ate:
+                                cupom.valido_ate || null,
+
+                            ativo:
+                                novoStatus
+                        })
+                    }
+                );
+
+            const dados =
+                await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.erro ||
+                    "Erro ao alterar cupom."
+                );
+            }
+
+            await carregarCupons();
+
+        } catch (erro) {
+
+            alert(erro.message);
+        }
+    });
             lista.appendChild(item);
         });
 
