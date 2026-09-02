@@ -2311,6 +2311,14 @@ html {
     flex-direction: column;
     gap: 5px;
 }
+.checkout-login {
+    margin-bottom: 22px;
+    padding: 16px;
+    border: 1px solid #ddd6cd;
+    border-radius: 10px;
+    background: #faf8f5;
 }
+}
+
 
 
