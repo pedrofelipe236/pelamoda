@@ -364,9 +364,9 @@
 
     .benefit:last-child { border: 0; }
 
-    .benefit-icon {
-    width: 34px;
-    height: 34px;
+ .benefit-icon {
+    width: 52px;
+    height: 52px;
     margin-bottom: 10px;
     color: #11110f;
 }
