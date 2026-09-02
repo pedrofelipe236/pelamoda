@@ -2112,6 +2112,18 @@ html {
     transform: translateY(-3px);
     box-shadow: 0 9px 22px rgba(0, 0, 0, .28);
 }
+.checkout-login-logado {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.checkout-login {
+    margin-bottom: 22px;
+    padding: 16px;
+    border: 1px solid #ddd6cd;
+    border-radius: 10px;
+    background: #faf8f5;
+}
 
 @media (max-width: 600px) {
     .whatsapp-float {
@@ -2306,18 +2318,6 @@ html {
     color: #777;
 }
 
-.checkout-login-logado {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-.checkout-login {
-    margin-bottom: 22px;
-    padding: 16px;
-    border: 1px solid #ddd6cd;
-    border-radius: 10px;
-    background: #faf8f5;
-}
 }
 
 
