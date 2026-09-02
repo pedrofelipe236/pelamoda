@@ -602,10 +602,16 @@ async function carregarCupons() {
 
     if (!lista) return;
 
-    const senha =
-        sessionStorage.getItem("senhaAdmin");
+   const senha =
+    sessionStorage.getItem("senhaAdmin") ||
+    prompt("Digite a senha do administrador:");
 
-    if (!senha) return;
+if (!senha) return;
+
+sessionStorage.setItem(
+    "senhaAdmin",
+    senha
+);
 
     try {
 
@@ -2155,9 +2161,11 @@ function adicionarCorProduto() {
 
     container.appendChild(cor);
 }
-       document.addEventListener("DOMContentLoaded", () => {
+       document.addEventListener("DOMContentLoaded", async () => {
     adicionarCorProduto();
     carregarEstoque();
+     await carregarCupons();
+    
 });
 
     </script>
