@@ -31,7 +31,28 @@
             <section class="checkout-box">
 
                 <h2>1. SEUS DADOS</h2>
+<div id="checkout-login" class="checkout-login">
+    <div class="checkout-login-texto">
+        <strong>Acompanhe seu pedido</strong>
 
+        <span>
+            Entre com Google para salvar este pedido
+            na sua conta e acompanhar o andamento.
+        </span>
+    </div>
+
+    <button
+        type="button"
+        id="btn-login-checkout"
+        class="checkout-login-btn"
+    >
+        Entrar com Google
+    </button>
+
+    <small>
+        Ou continue a compra sem entrar.
+    </small>
+</div>
                 <div class="checkout-fields">
 
                     <div class="checkout-field full">
@@ -354,17 +375,14 @@ const supabaseClient =
         SUPABASE_KEY
         
     );
-    async function preencherDadosUsuario() {
+    async function prepararUsuarioCheckout() {
+
     const {
         data: { user }
     } = await supabaseClient.auth.getUser();
 
-    if (!user) return;
-
-    const nome =
-        user.user_metadata?.full_name ||
-        user.user_metadata?.name ||
-        "";
+    const areaLogin =
+        document.getElementById("checkout-login");
 
     const campoNome =
         document.getElementById("nome");
@@ -372,16 +390,91 @@ const supabaseClient =
     const campoEmail =
         document.getElementById("email");
 
+
+    // CLIENTE NÃO LOGADO
+
+    if (!user) {
+
+        const botaoLogin =
+            document.getElementById(
+                "btn-login-checkout"
+            );
+
+        botaoLogin?.addEventListener(
+            "click",
+            async () => {
+
+                const { error } =
+                    await supabaseClient.auth
+                        .signInWithOAuth({
+                            provider: "google",
+
+                            options: {
+                                redirectTo:
+                                    `${window.location.origin}/checkout.html`
+                            }
+                        });
+
+                if (error) {
+                    console.error(
+                        "Erro no login:",
+                        error
+                    );
+
+                    alert(
+                        "Não foi possível entrar com Google."
+                    );
+                }
+            }
+        );
+
+        return;
+    }
+
+
+    // CLIENTE LOGADO
+
+    const nome =
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name ||
+        "";
+
+
     if (campoNome && !campoNome.value) {
         campoNome.value = nome;
     }
 
+
     if (campoEmail && !campoEmail.value) {
-        campoEmail.value = user.email || "";
+        campoEmail.value =
+            user.email || "";
+    }
+
+
+    if (areaLogin) {
+
+        const primeiroNome =
+            nome.split(" ")[0] || "Cliente";
+
+        areaLogin.innerHTML = `
+            <div class="checkout-login-logado">
+
+                <strong>
+                    ✓ Olá, ${primeiroNome}!
+                </strong>
+
+                <span>
+                    Este pedido ficará salvo
+                    em Meus Pedidos.
+                </span>
+
+            </div>
+        `;
     }
 }
 
-preencherDadosUsuario();
+prepararUsuarioCheckout();
+
     // ========================================
     // VARIÁVEIS PRINCIPAIS
     // ========================================
