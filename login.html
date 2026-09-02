@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,9 +28,9 @@
             max-width: 420px;
             background: #fff;
             padding: 32px;
-            border: 1px solid rgba(0,0,0,.08);
+            border: 1px solid rgba(0, 0, 0, .08);
             border-radius: 14px;
-            box-shadow: 0 4px 18px rgba(0,0,0,.05);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, .05);
             text-align: center;
         }
 
@@ -121,25 +122,25 @@
                 SUPABASE_URL,
                 SUPABASE_KEY
             );
-async function verificarUsuario() {
+        async function verificarUsuario() {
 
-    const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
+            const {
+                data: { user }
+            } = await supabaseClient.auth.getUser();
 
-    if (!user) {
-        return;
-    }
+            if (!user) {
+                return;
+            }
 
-    const nome =
-        user.user_metadata?.full_name ||
-        user.user_metadata?.name ||
-        "Cliente";
+            const nome =
+                user.user_metadata?.full_name ||
+                user.user_metadata?.name ||
+                "Cliente";
 
-    const foto =
-        user.user_metadata?.avatar_url || "";
+            const foto =
+                user.user_metadata?.avatar_url || "";
 
-    document.querySelector(".login-box").innerHTML = `
+            document.querySelector(".login-box").innerHTML = `
         ${foto ? `
             <img
                 src="${foto}"
@@ -166,24 +167,131 @@ async function verificarUsuario() {
         >
             Sair da conta
         </button>
+<div id="meus-pedidos" style="
+    margin-top: 28px;
+    text-align: left;
+">
+    <h2 style="
+        font-size: 15px;
+        margin-bottom: 15px;
+    ">
+        MEUS PEDIDOS
+    </h2>
 
+    <div id="lista-meus-pedidos">
+        Carregando pedidos...
+    </div>
+</div>
         <a href="index.html" class="voltar">
             ← Voltar para a loja
         </a>
     `;
 
-    document
-        .getElementById("btn-sair")
-        .addEventListener("click", async () => {
+            document
+                .getElementById("btn-sair")
+                .addEventListener("click", async () => {
 
-            await supabaseClient.auth.signOut();
+                    await supabaseClient.auth.signOut();
 
-            window.location.href =
-                "login.html";
-        });
+                    window.location.href =
+                        "login.html";
+                });
+                const {
+    data: { session }
+} = await supabaseClient.auth.getSession();
+
+if (session?.access_token) {
+    await carregarMeusPedidos(
+        session.access_token
+    );
 }
+async function carregarMeusPedidos(accessToken) {
 
-verificarUsuario();
+    const lista =
+        document.getElementById("lista-meus-pedidos");
+
+    try {
+
+        const resposta = await fetch(
+            "/api/buscar-pedido?modo=meus-pedidos",
+            {
+                headers: {
+                    Authorization:
+                        `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || "Erro ao buscar pedidos"
+            );
+        }
+
+        if (!dados.pedidos?.length) {
+            lista.innerHTML = `
+                <p style="font-size:13px;color:#665f58;">
+                    Você ainda não possui pedidos.
+                </p>
+            `;
+            return;
+        }
+
+        lista.innerHTML =
+            dados.pedidos.map(pedido => {
+
+                const valor =
+                    (pedido.valor_total / 100)
+                    .toLocaleString(
+                        "pt-BR",
+                        {
+                            style: "currency",
+                            currency: "BRL"
+                        }
+                    );
+
+                const status =
+                    String(pedido.status || "")
+                    .replaceAll("_", " ");
+
+                return `
+                    <div style="
+                        border-top:1px solid #ddd6cd;
+                        padding:14px 0;
+                    ">
+                        <strong>
+                            Pedido #${pedido.numero_pedido}
+                        </strong>
+
+                        <div style="
+                            font-size:13px;
+                            margin-top:5px;
+                            color:#665f58;
+                        ">
+                            ${valor}
+                            •
+                            ${status}
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        lista.innerHTML = `
+            <p style="font-size:13px;">
+                Não foi possível carregar seus pedidos.
+            </p>
+        `;
+    }
+}
+        }
+
+        verificarUsuario();
         document
             .getElementById("btn-google")
             .addEventListener("click", async () => {
@@ -215,4 +323,5 @@ verificarUsuario();
     </script>
 
 </body>
+
 </html>
