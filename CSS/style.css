@@ -1621,7 +1621,7 @@ body {
 
 .checkout-item {
     display: grid;
-    grid-template-columns: 70px 1fr auto;
+    grid-template-columns: 70px minmax(0, 1fr) auto;
     align-items: center;
     gap: 14px;
     padding: 14px 0;
@@ -1764,32 +1764,39 @@ body {
 
 .checkout-totals {
     border-top: 1px solid #ddd6cd;
-    margin-top: 20px;
-    padding-top: 15px;
+    margin-top: 22px;
+    padding-top: 16px;
 }
 
 .checkout-totals > div {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 20px;
-    padding: 7px 0;
+    padding: 9px 0;
     font-size: 13px;
 }
 
 .checkout-total {
     border-top: 1px solid #ddd6cd;
-    margin-top: 8px;
-    padding-top: 15px !important;
-    font-size: 17px !important;
+    margin-top: 10px;
+    padding-top: 17px !important;
+    font-size: 18px !important;
+}
+
+.checkout-total span,
+.checkout-total strong {
+    font-weight: 700;
 }
 
 .checkout-pay {
     width: 100%;
     border: 0;
+    border-radius: 8px;
     background: #111;
     color: #fff;
-    padding: 16px;
-    margin-top: 20px;
+    padding: 17px;
+    margin-top: 22px;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: .8px;
@@ -1799,7 +1806,6 @@ body {
 .checkout-pay:hover {
     opacity: .88;
 }
-
 
 /* CHECKOUT MOBILE */
 
