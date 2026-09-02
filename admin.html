@@ -1265,7 +1265,114 @@ async function salvarEstoque() {
     }
 
 }
+async function salvarCupom() {
 
+    const codigo =
+        document.getElementById("cupomCodigo")
+            .value
+            .trim()
+            .toUpperCase();
+
+    const tipo =
+        document.getElementById("cupomTipo")
+            .value;
+
+    const valor =
+        Number(
+            document.getElementById("cupomValor")
+                .value
+        );
+
+    const valorMinimo =
+        Number(
+            document.getElementById("cupomMinimo")
+                .value || 0
+        );
+
+    const validade =
+        document.getElementById("cupomValidade")
+            .value;
+
+    const ativo =
+        document.getElementById("cupomAtivo")
+            .checked;
+
+    const mensagem =
+        document.getElementById("mensagemCupom");
+
+    if (!codigo || !valor || valor <= 0) {
+        mensagem.textContent =
+            "Preencha o código e o desconto.";
+        return;
+    }
+
+    const senha =
+        sessionStorage.getItem("senhaAdmin") ||
+        prompt("Digite a senha do administrador:");
+
+    if (!senha) return;
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/validar-cupom",
+                {
+                    method: "PATCH",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "x-admin-password":
+                            senha
+                    },
+
+                    body: JSON.stringify({
+                        acao:
+                            "salvar-cupom",
+
+                        codigo,
+
+                        tipo,
+
+                        valor,
+
+                        valor_minimo:
+                            valorMinimo,
+
+                        valido_ate:
+                            validade || null,
+
+                        ativo
+                    })
+                }
+            );
+
+        const dados =
+            await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro ||
+                "Erro ao salvar cupom."
+            );
+        }
+
+        sessionStorage.setItem(
+            "senhaAdmin",
+            senha
+        );
+
+        mensagem.textContent =
+            `Cupom ${codigo} salvo com sucesso.`;
+
+    } catch (erro) {
+
+        mensagem.textContent =
+            erro.message;
+    }
+}
 async function cadastrarProduto() {
 
     const nome =
