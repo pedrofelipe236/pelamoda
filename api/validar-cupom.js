@@ -119,49 +119,71 @@ if (
     }
 
 
-    const resposta =
-        await fetch(
-            `${process.env.SUPABASE_URL}/rest/v1/cupons?codigo=eq.${encodeURIComponent(codigoFinal)}`,
-            {
-                method: "POST",
+    // verifica se já existe
+const respostaBusca =
+    await fetch(
+        `${process.env.SUPABASE_URL}/rest/v1/cupons?codigo=eq.${encodeURIComponent(codigoFinal)}&select=codigo`,
+        {
+            headers: {
+                apikey:
+                    process.env.SUPABASE_SECRET_KEY,
 
-                headers: {
-                    apikey:
-                        process.env.SUPABASE_SECRET_KEY,
-
-                    Authorization:
-                        `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
-
-                    "Content-Type":
-                        "application/json",
-
-                    Prefer:
-                        "resolution=merge-duplicates,return=representation"
-                },
-
-                body: JSON.stringify({
-                    codigo:
-                        codigoFinal,
-
-                    tipo,
-
-                    valor:
-                        valorNumero,
-
-                    valor_minimo:
-                        Number(
-                            valor_minimo || 0
-                        ),
-
-                    valido_ate:
-                        valido_ate || null,
-
-                    ativo:
-                        Boolean(ativo)
-                })
+                Authorization:
+                    `Bearer ${process.env.SUPABASE_SECRET_KEY}`
             }
-        );
+        }
+    );
 
+const cuponsExistentes =
+    await respostaBusca.json();
+
+const cupomExiste =
+    Array.isArray(cuponsExistentes) &&
+    cuponsExistentes.length > 0;
+
+
+const dadosCupom = {
+    codigo: codigoFinal,
+    tipo,
+    valor: valorNumero,
+    valor_minimo:
+        Number(valor_minimo || 0),
+    valido_ate:
+        valido_ate || null,
+    ativo:
+        Boolean(ativo)
+};
+
+
+const resposta =
+    await fetch(
+        cupomExiste
+            ? `${process.env.SUPABASE_URL}/rest/v1/cupons?codigo=eq.${encodeURIComponent(codigoFinal)}`
+            : `${process.env.SUPABASE_URL}/rest/v1/cupons`,
+        {
+            method:
+                cupomExiste
+                    ? "PATCH"
+                    : "POST",
+
+            headers: {
+                apikey:
+                    process.env.SUPABASE_SECRET_KEY,
+
+                Authorization:
+                    `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+
+                "Content-Type":
+                    "application/json",
+
+                Prefer:
+                    "return=representation"
+            },
+
+            body:
+                JSON.stringify(dadosCupom)
+        }
+    );
 
     const dados =
         await resposta.json();
