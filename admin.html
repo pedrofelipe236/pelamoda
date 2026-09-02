@@ -511,6 +511,88 @@ textarea {
 ></div>
     </main>
 
+<section class="admin-cupons">
+
+    <h2>Cupons</h2>
+
+    <div class="form-cupom">
+
+        <label>
+            Código
+            <input
+                type="text"
+                id="cupomCodigo"
+                placeholder="Ex: CLIENTE10"
+            >
+        </label>
+
+        <label>
+            Tipo
+            <select id="cupomTipo">
+                <option value="percentual">
+                    Percentual (%)
+                </option>
+
+                <option value="fixo">
+                    Valor fixo (R$)
+                </option>
+            </select>
+        </label>
+
+        <label>
+            Desconto
+            <input
+                type="number"
+                id="cupomValor"
+                min="0"
+                step="0.01"
+                placeholder="10"
+            >
+        </label>
+
+        <label>
+            Valor mínimo da compra
+            <input
+                type="number"
+                id="cupomMinimo"
+                min="0"
+                step="0.01"
+                value="0"
+            >
+        </label>
+
+        <label>
+            Validade
+            <input
+                type="date"
+                id="cupomValidade"
+            >
+        </label>
+
+        <label class="cupom-ativo">
+            <input
+                type="checkbox"
+                id="cupomAtivo"
+                checked
+            >
+            Cupom ativo
+        </label>
+
+        <button
+            type="button"
+            id="btnSalvarCupom"
+            onclick="salvarCupom()"
+        >
+            Salvar cupom
+        </button>
+
+        <p id="mensagemCupom"></p>
+
+    </div>
+
+    <div id="listaCupons"></div>
+
+</section>
 
     <script>
 
@@ -1183,6 +1265,7 @@ async function salvarEstoque() {
     }
 
 }
+
 async function cadastrarProduto() {
 
     const nome =
