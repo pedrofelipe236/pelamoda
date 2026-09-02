@@ -345,7 +345,129 @@ textarea {
 .remover-foto-extra:hover {
     background: #ddd;
 }
+.admin-cupons {
+    margin: 30px 0;
+    padding: 24px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+}
 
+.admin-cupons h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.form-cupom {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(180px, 1fr));
+    gap: 16px;
+    align-items: end;
+}
+
+.form-cupom label {
+    display: grid;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.form-cupom input,
+.form-cupom select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.cupom-ativo {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 8px !important;
+    height: 42px;
+}
+
+.cupom-ativo input {
+    width: auto;
+}
+
+#btnSalvarCupom {
+    height: 42px;
+    border: 0;
+    border-radius: 6px;
+    padding: 0 18px;
+    background: #111;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#btnSalvarCupom:hover {
+    opacity: 0.85;
+}
+
+#mensagemCupom {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 14px;
+}
+
+#listaCupons {
+    display: grid;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.cupom-admin {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.cupom-admin strong {
+    min-width: 150px;
+}
+
+.cupom-admin span {
+    min-width: 80px;
+}
+
+.cupom-admin button {
+    border: 1px solid #bbb;
+    background: #fff;
+    padding: 7px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cupom-admin button:hover {
+    background: #eee;
+}
+
+@media (max-width: 800px) {
+
+    .form-cupom {
+        grid-template-columns: 1fr;
+    }
+
+    .cupom-admin {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .cupom-admin strong,
+    .cupom-admin span {
+        min-width: auto;
+    }
+}
 @media (max-width: 700px) {
     .nova-cor-topo {
         flex-direction: column;
