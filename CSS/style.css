@@ -630,8 +630,9 @@
     font-size: 7px;
     letter-spacing: .8px;
     margin-top: 3px;
+}.nav-actions .icon-btn:not(.menu-btn):not(.account-btn) {
+    display: none;
 }
-      .nav-actions .icon-btn:not(.menu-btn) { display: none; }
 .nav-actions {
     gap: 8px;
 }
