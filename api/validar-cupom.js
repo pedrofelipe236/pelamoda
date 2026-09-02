@@ -1,13 +1,191 @@
 export default async function handler(req, res) {
 
-    if (req.method !== "POST") {
-        return res.status(405).json({
-            erro: "Método não permitido"
+ if (!["POST", "GET", "PATCH"].includes(req.method)) {
+    return res.status(405).json({
+        erro: "Método não permitido"
+    });
+}
+
+    try {
+// =====================================
+// ADMIN - LISTAR CUPONS
+// =====================================
+
+if (req.method === "GET") {
+
+    const senhaAdmin =
+        req.headers["x-admin-password"];
+
+    if (
+        !senhaAdmin ||
+        senhaAdmin !== process.env.ADMIN_PASSWORD
+    ) {
+        return res.status(401).json({
+            erro: "Não autorizado"
         });
     }
 
-    try {
+    const resposta =
+        await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/cupons?select=*&order=codigo.asc`,
+            {
+                headers: {
+                    apikey:
+                        process.env.SUPABASE_SECRET_KEY
+                }
+            }
+        );
 
+    const cupons =
+        await resposta.json();
+
+    if (!resposta.ok) {
+        return res.status(500).json({
+            erro: "Erro ao listar cupons"
+        });
+    }
+
+    return res.status(200).json(
+        cupons
+    );
+}
+
+
+// =====================================
+// ADMIN - CRIAR / EDITAR CUPOM
+// =====================================
+
+if (
+    req.method === "PATCH" &&
+    req.body?.acao === "salvar-cupom"
+) {
+
+    const senhaAdmin =
+        req.headers["x-admin-password"];
+
+    if (
+        !senhaAdmin ||
+        senhaAdmin !== process.env.ADMIN_PASSWORD
+    ) {
+        return res.status(401).json({
+            erro: "Não autorizado"
+        });
+    }
+
+
+    const {
+        codigo,
+        tipo,
+        valor,
+        valor_minimo = 0,
+        valido_ate = null,
+        ativo = true
+    } = req.body;
+
+
+    const codigoFinal =
+        String(codigo || "")
+            .trim()
+            .toUpperCase();
+
+
+    if (!codigoFinal) {
+        return res.status(400).json({
+            erro: "Informe o código do cupom"
+        });
+    }
+
+
+    if (
+        !["percentual", "fixo"].includes(tipo)
+    ) {
+        return res.status(400).json({
+            erro: "Tipo de cupom inválido"
+        });
+    }
+
+
+    const valorNumero =
+        Number(valor);
+
+
+    if (
+        !Number.isFinite(valorNumero) ||
+        valorNumero <= 0
+    ) {
+        return res.status(400).json({
+            erro: "Valor do desconto inválido"
+        });
+    }
+
+
+    const resposta =
+        await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/cupons?codigo=eq.${encodeURIComponent(codigoFinal)}`,
+            {
+                method: "POST",
+
+                headers: {
+                    apikey:
+                        process.env.SUPABASE_SECRET_KEY,
+
+                    Authorization:
+                        `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+
+                    "Content-Type":
+                        "application/json",
+
+                    Prefer:
+                        "resolution=merge-duplicates,return=representation"
+                },
+
+                body: JSON.stringify({
+                    codigo:
+                        codigoFinal,
+
+                    tipo,
+
+                    valor:
+                        valorNumero,
+
+                    valor_minimo:
+                        Number(
+                            valor_minimo || 0
+                        ),
+
+                    valido_ate:
+                        valido_ate || null,
+
+                    ativo:
+                        Boolean(ativo)
+                })
+            }
+        );
+
+
+    const dados =
+        await resposta.json();
+
+
+    if (!resposta.ok) {
+
+        console.error(
+            "Erro ao salvar cupom:",
+            dados
+        );
+
+        return res.status(500).json({
+            erro:
+                "Não foi possível salvar o cupom"
+        });
+    }
+
+
+    return res.status(200).json({
+        sucesso: true,
+        cupom: dados[0]
+    });
+}
         const {
             cupom,
             valor_produtos
