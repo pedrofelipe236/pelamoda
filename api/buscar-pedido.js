@@ -29,6 +29,7 @@ export default async function handler(req, res) {
                 });
             }
 
+
             const accessToken =
                 authHeader.substring(7);
 
@@ -72,7 +73,7 @@ export default async function handler(req, res) {
             // Busca somente os pedidos desse usuário
 
             const respostaPedidos = await fetch(
-                `${process.env.SUPABASE_URL}/rest/v1/pedidos?usuario_id=eq.${encodeURIComponent(usuario.id)}&select=id,numero_pedido,order_nsu,status,valor_total&order=id.desc`,
+                `${process.env.SUPABASE_URL}/rest/v1/pedidos?usuario_id=eq.${encodeURIComponent(usuario.id)}&select=id,numero_pedido,order_nsu,status,valor_total,itens,tipo_entrega,endereco,numero,complemento,bairro,cidade,estado,cep&order=id.desc`,
                 {
                     headers: {
                         apikey:
