@@ -121,7 +121,69 @@
                 SUPABASE_URL,
                 SUPABASE_KEY
             );
+async function verificarUsuario() {
 
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if (!user) {
+        return;
+    }
+
+    const nome =
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name ||
+        "Cliente";
+
+    const foto =
+        user.user_metadata?.avatar_url || "";
+
+    document.querySelector(".login-box").innerHTML = `
+        ${foto ? `
+            <img
+                src="${foto}"
+                alt=""
+                style="
+                    width:80px;
+                    height:80px;
+                    border-radius:50%;
+                    object-fit:cover;
+                    margin-bottom:15px;
+                "
+            >
+        ` : ""}
+
+        <h1>Olá, ${nome}!</h1>
+
+        <p>
+            ${user.email}
+        </p>
+
+        <button
+            id="btn-sair"
+            class="btn-google"
+        >
+            Sair da conta
+        </button>
+
+        <a href="index.html" class="voltar">
+            ← Voltar para a loja
+        </a>
+    `;
+
+    document
+        .getElementById("btn-sair")
+        .addEventListener("click", async () => {
+
+            await supabaseClient.auth.signOut();
+
+            window.location.href =
+                "login.html";
+        });
+}
+
+verificarUsuario();
         document
             .getElementById("btn-google")
             .addEventListener("click", async () => {
