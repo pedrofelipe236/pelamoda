@@ -591,7 +591,78 @@ textarea {
     </div>
 
     <div id="listaCupons"></div>
+async function carregarCupons() {
 
+    const lista =
+        document.getElementById("listaCupons");
+
+    if (!lista) return;
+
+    const senha =
+        sessionStorage.getItem("senhaAdmin");
+
+    if (!senha) return;
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/validar-cupom",
+                {
+                    method: "GET",
+                    headers: {
+                        "x-admin-password":
+                            senha
+                    }
+                }
+            );
+
+        const cupons =
+            await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                cupons.erro ||
+                "Erro ao carregar cupons."
+            );
+        }
+
+        lista.innerHTML = "";
+
+        cupons.forEach(cupom => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "cupom-admin";
+
+            const desconto =
+                cupom.tipo === "percentual"
+                    ? `${cupom.valor}%`
+                    : `R$ ${Number(cupom.valor)
+                        .toFixed(2)
+                        .replace(".", ",")}`;
+
+            item.innerHTML = `
+                <strong>${cupom.codigo}</strong>
+                <span>${desconto}</span>
+                <span>
+                    ${cupom.ativo
+                        ? "Ativo"
+                        : "Desativado"}
+                </span>
+            `;
+
+            lista.appendChild(item);
+        });
+
+    } catch (erro) {
+
+        lista.innerHTML =
+            `<p>${erro.message}</p>`;
+    }
+}
 </section>
 
     <script>
@@ -1366,6 +1437,7 @@ async function salvarCupom() {
 
         mensagem.textContent =
             `Cupom ${codigo} salvo com sucesso.`;
+            await carregarCupons();
 
     } catch (erro) {
 
