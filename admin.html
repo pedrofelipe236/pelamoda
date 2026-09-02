@@ -807,14 +807,15 @@ item
 ) {
 
     const senha =
-        sessionStorage.getItem(
-            "senhaAdmin"
-        ) ||
-        prompt(
-            "Digite a senha do administrador:"
-        );
+    sessionStorage.getItem("senhaAdmin") ||
+    prompt("Digite a senha do administrador:");
 
-    if (!senha) return;
+if (!senha) return;
+
+sessionStorage.setItem(
+    "senhaAdmin",
+    senha
+);
 
 
     const novoStatus =
