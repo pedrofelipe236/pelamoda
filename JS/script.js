@@ -520,6 +520,78 @@ async function carregarEstoqueAPI() {
     titulo.textContent =
         produto.nome.toUpperCase();
 }
+// SEO DINÂMICO DA PÁGINA DO PRODUTO
+
+let tituloSeo =
+    `${produto.nome} | PêlaModa`;
+
+let descricaoSeo =
+    produto.descricao ||
+    `Confira ${produto.nome} na PêlaModa. Camisa com identidade nordestina, produzida em Pernambuco.`;
+
+
+// TERMOS MAIS FORTES PARA ALGUNS PRODUTOS
+
+if (idProduto === "pe") {
+
+    tituloSeo =
+        "Camisa de Pernambuco - Mapa de PE | PêlaModa";
+
+    descricaoSeo =
+        "Camisa de Pernambuco com estampa Mapa de PE. Design autoral nordestino, produzida em Pernambuco. Confira cores e tamanhos na PêlaModa.";
+}
+
+if (idProduto === "oxente") {
+
+    tituloSeo =
+        "Camisa Oxente | PêlaModa";
+
+    descricaoSeo =
+        "Camisa Oxente com identidade nordestina e design autoral. Confira cores e tamanhos disponíveis na PêlaModa.";
+}
+
+if (idProduto === "nordeste") {
+
+    tituloSeo =
+        "Camisa Nordestina - Nordeste | PêlaModa";
+
+    descricaoSeo =
+        "Camisa nordestina com estampa Nordeste. Design autoral inspirado na cultura do Nordeste. Confira na PêlaModa.";
+}
+
+
+// MUDA O TITLE
+
+document.title =
+    tituloSeo;
+
+
+// CRIA OU ATUALIZA META DESCRIPTION
+
+let metaDescricao =
+    document.querySelector(
+        'meta[name="description"]'
+    );
+
+if (!metaDescricao) {
+
+    metaDescricao =
+        document.createElement("meta");
+
+    metaDescricao.setAttribute(
+        "name",
+        "description"
+    );
+
+    document.head.appendChild(
+        metaDescricao
+    );
+}
+
+metaDescricao.setAttribute(
+    "content",
+    descricaoSeo
+);
 
         const preco =
             document.querySelector(
