@@ -732,46 +732,6 @@ lista
         );
 
     });
-
-                lista
-                    .querySelectorAll(
-                        ".btn-detalhes-pedido"
-                    )
-                    .forEach(botao => {
-
-                        botao.addEventListener(
-                            "click",
-                            () => {
-
-                                abrirDetalhesPedido(
-                                    Number(
-                                        botao.dataset.indice
-                                    )
-                                );
-                            }
-                        );
-
-                    });
-
-
-            } catch (erro) {
-
-                console.error(
-                    "Erro ao carregar pedidos:",
-                    erro
-                );
-
-
-                lista.innerHTML = `
-                    <p style="
-                        font-size:13px;
-                        margin:0;
-                    ">
-                        Não foi possível carregar seus pedidos.
-                    </p>
-                `;
-            }
-        }
 lista
     .querySelectorAll(
         ".btn-cancelar-pedido"
@@ -889,6 +849,46 @@ lista
         );
 
     });
+                lista
+                    .querySelectorAll(
+                        ".btn-detalhes-pedido"
+                    )
+                    .forEach(botao => {
+
+                        botao.addEventListener(
+                            "click",
+                            () => {
+
+                                abrirDetalhesPedido(
+                                    Number(
+                                        botao.dataset.indice
+                                    )
+                                );
+                            }
+                        );
+
+                    });
+
+
+            } catch (erro) {
+
+                console.error(
+                    "Erro ao carregar pedidos:",
+                    erro
+                );
+
+
+                lista.innerHTML = `
+                    <p style="
+                        font-size:13px;
+                        margin:0;
+                    ">
+                        Não foi possível carregar seus pedidos.
+                    </p>
+                `;
+            }
+        }
+
         async function verificarUsuario() {
 
             const {
