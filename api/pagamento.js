@@ -163,6 +163,37 @@ if (valorDesconto > 0) {
             ).json(dados);
         }
 
+// SALVA O LINK DE PAGAMENTO NO PEDIDO
+if (dados.url) {
+
+    const respostaSalvarUrl = await fetch(
+        `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}`,
+        {
+            method: "PATCH",
+
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": process.env.SUPABASE_SECRET_KEY,
+                "Prefer": "return=minimal"
+            },
+
+            body: JSON.stringify({
+                pagamento_url: dados.url
+            })
+        }
+    );
+
+    if (!respostaSalvarUrl.ok) {
+
+        const erroSalvar =
+            await respostaSalvarUrl.text();
+
+        console.error(
+            "Erro ao salvar pagamento_url:",
+            erroSalvar
+        );
+    }
+}
 
         return res.status(200).json(dados);
 
