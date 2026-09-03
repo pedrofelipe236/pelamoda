@@ -777,16 +777,34 @@
 
 @media (max-width: 600px) {
     
-    .benefit-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0;
+   .benefit-grid {
+    display: flex;
+    gap: 12px;
+
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+
+    padding: 0 20px 18px;
+
+    scrollbar-width: none;
+}
+.benefit-grid::-webkit-scrollbar {
+    display: none;
 }
 
 .benefit {
-    padding: 18px 12px;
+    flex: 0 0 82%;
+    scroll-snap-align: center;
+
     min-width: 0;
+    padding: 20px 18px;
+
+    border: 1px solid rgba(81, 50, 31, .18) !important;
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, .25);
 }
+
 
 .benefit h3 {
     font-size: 13px;
