@@ -1277,6 +1277,7 @@ const produtosAtivos =
     document.addEventListener(
         "DOMContentLoaded",
         async () => {
+            await atualizarLinkMeusPedidos();
             inicializarCarrossel();
 
             await carregarEstoqueAPI();
@@ -1306,4 +1307,36 @@ if (botaoMenu && menuDropdown) {
             menuDropdown.classList.remove("ativo");
         }
     });
+    async function atualizarLinkMeusPedidos() {
+
+    const link =
+        document.getElementById("linkMeusPedidos");
+
+    if (!link) return;
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if (user) {
+
+        link.textContent =
+            "Meus pedidos";
+
+        link.href =
+            "login.html";
+
+        link.onclick = null;
+
+    } else {
+
+        link.textContent =
+            "Como comprar";
+
+        link.href =
+            "#como-comprar";
+
+        link.onclick = null;
+    }
+}
 }
