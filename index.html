@@ -478,5 +478,20 @@
 </a>
 <script src="JS/produtos.js"></script>
 <script src="JS/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const SUPABASE_URL =
+        "https://vzvtsloymfzawmwgndiw.supabase.co";
+
+    const SUPABASE_KEY =
+        "sb_publishable_ezgD5HdaJe9jNrbjDXbqfg_UmXWR6Rr";
+
+    const supabaseClient =
+        supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+</script>
 </body>
 </html>
