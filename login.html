@@ -141,6 +141,31 @@
 .btn-pagar-pedido:hover {
     opacity: .88;
 }
+.btn-cancelar-pedido {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 14px;
+
+    border: 1px solid #c94b4b;
+    border-radius: 7px;
+
+    background: transparent;
+    color: #a83232;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.btn-cancelar-pedido:hover {
+    background: #fff1f1;
+}
+
+.btn-cancelar-pedido:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
         .btn-detalhes-pedido {
             margin-top: 12px;
             padding: 0;
@@ -655,6 +680,19 @@ return `
             class="btn-detalhes-pedido"
             data-indice="${indice}"
         >
+        ${
+    aguardandoPagamento
+        ? `
+            <button
+                type="button"
+                class="btn-cancelar-pedido"
+                data-indice="${indice}"
+            >
+                CANCELAR PEDIDO
+            </button>
+        `
+        : ""
+}
             Ver detalhes
         </button>
 
@@ -734,8 +772,123 @@ lista
                 `;
             }
         }
+lista
+    .querySelectorAll(
+        ".btn-cancelar-pedido"
+    )
+    .forEach(botao => {
+
+        botao.addEventListener(
+            "click",
+            async () => {
+
+                const indice =
+                    Number(
+                        botao.dataset.indice
+                    );
+
+                const pedido =
+                    meusPedidos[indice];
+
+                if (!pedido) {
+                    return;
+                }
+
+                const confirmar =
+                    confirm(
+                        `Deseja realmente cancelar o pedido #${pedido.numero_pedido}?`
+                    );
+
+                if (!confirmar) {
+                    return;
+                }
 
 
+                const {
+                    data: { session }
+                } =
+                    await supabaseClient.auth
+                        .getSession();
+
+
+                if (!session?.access_token) {
+
+                    alert(
+                        "Sua sessão expirou. Entre novamente."
+                    );
+
+                    return;
+                }
+
+
+                botao.disabled = true;
+                botao.textContent =
+                    "CANCELANDO...";
+
+
+                try {
+
+                    const resposta =
+                        await fetch(
+                            "/api/buscar-pedido",
+                            {
+                                method: "PATCH",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json",
+
+                                    Authorization:
+                                        `Bearer ${session.access_token}`
+                                },
+
+                                body: JSON.stringify({
+                                    acao: "cancelar",
+                                    pedido_id:
+                                        pedido.id
+                                })
+                            }
+                        );
+
+
+                    const dados =
+                        await resposta.json();
+
+
+                    if (!resposta.ok) {
+
+                        throw new Error(
+                            dados.erro ||
+                            "Não foi possível cancelar o pedido."
+                        );
+                    }
+
+
+                    await carregarMeusPedidos(
+                        session.access_token
+                    );
+
+
+                } catch (erro) {
+
+                    console.error(
+                        "Erro ao cancelar pedido:",
+                        erro
+                    );
+
+                    alert(
+                        erro.message
+                    );
+
+                    botao.disabled = false;
+                    botao.textContent =
+                        "CANCELAR PEDIDO";
+                }
+
+            }
+        );
+
+    });
         async function verificarUsuario() {
 
             const {
