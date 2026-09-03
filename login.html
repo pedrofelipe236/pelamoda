@@ -121,7 +121,26 @@
             font-size: 12px;
             color: #665f58;
         }
+.btn-pagar-pedido {
+    width: 100%;
+    margin-top: 12px;
+    padding: 11px 14px;
 
+    border: 0;
+    border-radius: 7px;
+
+    background: #111;
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.btn-pagar-pedido:hover {
+    opacity: .88;
+}
         .btn-detalhes-pedido {
             margin-top: 12px;
             padding: 0;
@@ -587,45 +606,94 @@
                     meusPedidos
                         .map((pedido, indice) => {
 
-                            return `
-                                <div class="pedido-card">
+                            const aguardandoPagamento =
+    pedido.status === "aguardando_pagamento";
 
-                                    <div class="pedido-topo">
+const podePagar =
+    aguardandoPagamento &&
+    pedido.pagamento_url;
 
-                                        <strong>
-                                            Pedido #${pedido.numero_pedido}
-                                        </strong>
+return `
+    <div class="pedido-card">
 
-                                        <strong class="pedido-valor">
-                                            ${formatarValor(
-                                                pedido.valor_total
-                                            )}
-                                        </strong>
+        <div class="pedido-topo">
 
-                                    </div>
+            <strong>
+                Pedido #${pedido.numero_pedido}
+            </strong>
 
+            <strong class="pedido-valor">
+                ${formatarValor(
+                    pedido.valor_total
+                )}
+            </strong>
 
-                                    <div class="pedido-status">
-                                        ${formatarStatus(
-                                            pedido.status
-                                        )}
-                                    </div>
+        </div>
 
+        <div class="pedido-status">
+            ${formatarStatus(
+                pedido.status
+            )}
+        </div>
 
-                                    <button
-                                        type="button"
-                                        class="btn-detalhes-pedido"
-                                        data-indice="${indice}"
-                                    >
-                                        Ver detalhes
-                                    </button>
+        ${
+            podePagar
+                ? `
+                    <button
+                        type="button"
+                        class="btn-pagar-pedido"
+                        data-indice="${indice}"
+                    >
+                        PAGAR AGORA
+                    </button>
+                `
+                : ""
+        }
 
-                                </div>
-                            `;
+        <button
+            type="button"
+            class="btn-detalhes-pedido"
+            data-indice="${indice}"
+        >
+            Ver detalhes
+        </button>
+
+    </div>
+`;
 
                         })
                         .join("");
+lista
+    .querySelectorAll(
+        ".btn-pagar-pedido"
+    )
+    .forEach(botao => {
 
+        botao.addEventListener(
+            "click",
+            () => {
+
+                const indice =
+                    Number(
+                        botao.dataset.indice
+                    );
+
+                const pedido =
+                    meusPedidos[indice];
+
+                if (
+                    !pedido ||
+                    !pedido.pagamento_url
+                ) {
+                    return;
+                }
+
+                window.location.href =
+                    pedido.pagamento_url;
+            }
+        );
+
+    });
 
                 lista
                     .querySelectorAll(
