@@ -1992,25 +1992,26 @@ body {
 
     color: #665b51;
 }
+.product-info-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
 
 .product-info-list li {
     position: relative;
-
     padding: 7px 0 7px 28px;
-
     font-size: 15px;
     line-height: 1.6;
-
     color: #665b51;
+    list-style: none;
 }
 
 .product-info-list li::before {
     content: "🌵";
-
     position: absolute;
     left: 0;
     top: 4px;
-
     font-size: 15px;
     line-height: 1;
 }
