@@ -1273,7 +1273,25 @@ const produtosAtivos =
     // ======================================================
     // INICIALIZAÇÃO
     // ======================================================
+async function atualizarLinkMeusPedidos() {
 
+    const link =
+        document.getElementById("linkMeusPedidos");
+
+    if (!link) return;
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if (user) {
+        link.textContent = "Meus pedidos";
+        link.href = "login.html";
+    } else {
+        link.textContent = "Como comprar";
+        link.href = "#como-comprar";
+    }
+}
     document.addEventListener(
         "DOMContentLoaded",
         async () => {
@@ -1282,8 +1300,8 @@ const produtosAtivos =
 
             await carregarEstoqueAPI();
 
-            await carregarProdutoDinamico();
-            await carregarProdutosHome();
+            carregarProdutoDinamico();
+            carregarProdutosHome();
             renderizarCarrinho();
         }
     );
