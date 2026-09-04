@@ -247,7 +247,7 @@ export default async function handler(req, res) {
         // ======================================================
 
         const respostaProdutos = await fetch(
-            `${process.env.SUPABASE_URL}/rest/v1/produtos?select=id,nome,preco,ativo`,
+           `${process.env.SUPABASE_URL}/rest/v1/produtos?select=id,nome,preco,preco_promocional,ativo`,
             {
                 headers: {
                     apikey: process.env.SUPABASE_SECRET_KEY
@@ -369,8 +369,21 @@ export default async function handler(req, res) {
                 }
 
 
-                const precoReal =
-                    Number(produtoBanco.preco);
+                const precoNormal =
+    Number(produtoBanco.preco);
+
+const precoPromocional =
+    produtoBanco.preco_promocional !== null &&
+    produtoBanco.preco_promocional !== undefined
+        ? Number(produtoBanco.preco_promocional)
+        : null;
+
+const precoReal =
+    precoPromocional &&
+    precoPromocional > 0 &&
+    precoPromocional < precoNormal
+        ? precoPromocional
+        : precoNormal;
 
                 const quantidade =
                     Number(item.quantidade);
