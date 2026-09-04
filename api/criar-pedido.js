@@ -550,7 +550,31 @@ const precoReal =
 
             const cupomEncontrado =
                 cupons[0];
+const telefoneLimpo =
+    String(telefone || "")
+        .replace(/\D/g, "");
 
+const respostaUsoCupom = await fetch(
+    `${process.env.SUPABASE_URL}/rest/v1/pedidos?telefone=eq.${encodeURIComponent(telefone)}&cupom=eq.${encodeURIComponent(codigoCupom)}&select=id&limit=1`,
+    {
+        headers: {
+            apikey: process.env.SUPABASE_SECRET_KEY
+        }
+    }
+);
+
+const usosCupom =
+    await respostaUsoCupom.json();
+
+if (
+    respostaUsoCupom.ok &&
+    Array.isArray(usosCupom) &&
+    usosCupom.length > 0
+) {
+    return res.status(400).json({
+        erro: "Este cupom já foi utilizado por esta conta."
+    });
+}
             if (
                 cupomEncontrado.valido_ate &&
                 new Date(cupomEncontrado.valido_ate) <
