@@ -520,7 +520,77 @@ textarea {
     background: #fff;
     font-size: 15px;
 }
+.precos-em-massa {
+    background: #fff;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+}
 
+.precos-em-massa h2 {
+    margin: 0 0 15px;
+    font-size: 18px;
+}
+
+.precos-em-massa-campos {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.precos-em-massa-campos label {
+    display: grid;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.precos-em-massa-campos input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.remover-promocao-lote {
+    display: flex !important;
+    align-items: center;
+    grid-auto-flow: column;
+    justify-content: start;
+    padding-bottom: 10px;
+}
+
+.precos-em-massa-acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.precos-em-massa-acoes button {
+    border: 1px solid #111;
+    border-radius: 6px;
+    padding: 9px 12px;
+    cursor: pointer;
+    background: #fff;
+}
+
+.precos-em-massa-acoes .aplicar-precos-lote {
+    background: #111;
+    color: #fff;
+}
+
+#mensagemPrecosLote {
+    margin: 12px 0 0;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .precos-em-massa-campos {
+        grid-template-columns: 1fr;
+    }
+}
 .produto-admin {
     padding: 16px;
     margin-bottom: 12px;
@@ -744,7 +814,73 @@ textarea {
                 autocomplete="off"
             >
         </div>
+<div class="precos-em-massa">
 
+    <h2>Alterar preços em massa</h2>
+
+    <div class="precos-em-massa-campos">
+
+        <label>
+            Novo preço normal
+            <input
+                type="number"
+                id="precoNormalLote"
+                placeholder="Ex: 65,00"
+                min="0"
+                step="0.01"
+            >
+        </label>
+
+        <label>
+            Novo preço promocional
+            <input
+                type="number"
+                id="precoPromocionalLote"
+                placeholder="Ex: 49,90"
+                min="0"
+                step="0.01"
+            >
+        </label>
+
+        <label class="remover-promocao-lote">
+            <input
+                type="checkbox"
+                id="removerPromocaoLote"
+            >
+            Remover promoção
+        </label>
+
+    </div>
+
+    <div class="precos-em-massa-acoes">
+
+        <button
+            type="button"
+            onclick="selecionarProdutosVisiveis()"
+        >
+            Selecionar visíveis
+        </button>
+
+        <button
+            type="button"
+            onclick="desmarcarProdutos()"
+        >
+            Desmarcar
+        </button>
+
+        <button
+            type="button"
+            class="aplicar-precos-lote"
+            onclick="aplicarPrecosEmMassa()"
+        >
+            Aplicar aos selecionados
+        </button>
+
+    </div>
+
+    <p id="mensagemPrecosLote"></p>
+
+</div>
         <div id="listaEstoque">
             Carregando estoque...
         </div>
@@ -1379,8 +1515,17 @@ fotosExtrasAtuais.forEach(imagem => {
 produtoDiv.dataset.nome = (produto.nome || "").toLowerCase();
 
 produtoDiv.innerHTML = `
-    <div class="produto-admin-topo">
-        <div class="produto-admin-resumo">
+   <div class="produto-admin-topo">
+
+    <label>
+        <input
+            type="checkbox"
+            class="selecionar-produto-preco"
+            data-produto-id="${produto.id}"
+        >
+    </label>
+
+    <div class="produto-admin-resumo">
             <h2>${produto.nome}</h2>
 
             <div class="produto-preco">
@@ -2452,7 +2597,197 @@ function adicionarCorProduto() {
     `;
 
     container.appendChild(cor);
+}function selecionarProdutosVisiveis() {
+
+    document
+        .querySelectorAll(".produto-admin")
+        .forEach(card => {
+
+            if (card.style.display !== "none") {
+
+                const checkbox =
+                    card.querySelector(
+                        ".selecionar-produto-preco"
+                    );
+
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            }
+        });
 }
+
+
+function desmarcarProdutos() {
+
+    document
+        .querySelectorAll(
+            ".selecionar-produto-preco"
+        )
+        .forEach(checkbox => {
+            checkbox.checked = false;
+        });
+}
+
+
+async function aplicarPrecosEmMassa() {
+
+    const selecionados =
+        Array.from(
+            document.querySelectorAll(
+                ".selecionar-produto-preco:checked"
+            )
+        ).map(
+            checkbox =>
+                checkbox.dataset.produtoId
+        );
+
+    const precoNormal =
+        document
+            .getElementById("precoNormalLote")
+            .value
+            .trim();
+
+    const precoPromocional =
+        document
+            .getElementById("precoPromocionalLote")
+            .value
+            .trim();
+
+    const removerPromocao =
+        document
+            .getElementById("removerPromocaoLote")
+            .checked;
+
+    const mensagem =
+        document.getElementById(
+            "mensagemPrecosLote"
+        );
+
+
+    if (selecionados.length === 0) {
+        mensagem.textContent =
+            "Selecione pelo menos um produto.";
+        return;
+    }
+
+
+    const alterarPrecoNormal =
+        precoNormal !== "";
+
+    const alterarPrecoPromocional =
+        removerPromocao ||
+        precoPromocional !== "";
+
+
+    if (
+        !alterarPrecoNormal &&
+        !alterarPrecoPromocional
+    ) {
+        mensagem.textContent =
+            "Informe algum preço para alterar.";
+        return;
+    }
+
+
+    const senha =
+        sessionStorage.getItem(
+            "adminPassword"
+        ) ||
+        prompt(
+            "Digite a senha do administrador:"
+        );
+
+    if (!senha) return;
+
+
+    mensagem.textContent =
+        "Atualizando preços...";
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/editar-produto",
+                {
+                    method: "PATCH",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "x-admin-password":
+                            senha
+                    },
+
+                    body: JSON.stringify({
+
+                        acao:
+                            "alterar-precos-lote",
+
+                        produtos:
+                            selecionados,
+
+                        alterar_preco_normal:
+                            alterarPrecoNormal,
+
+                        preco:
+                            alterarPrecoNormal
+                                ? precoNormal
+                                : null,
+
+                        alterar_preco_promocional:
+                            alterarPrecoPromocional,
+
+                        preco_promocional:
+                            removerPromocao
+                                ? null
+                                : precoPromocional
+                    })
+                }
+            );
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro ||
+                "Erro ao atualizar preços."
+            );
+        }
+
+
+        mensagem.textContent =
+            `${selecionados.length} produto(s) atualizado(s) com sucesso.`;
+
+        document.getElementById(
+            "precoNormalLote"
+        ).value = "";
+
+        document.getElementById(
+            "precoPromocionalLote"
+        ).value = "";
+
+        document.getElementById(
+            "removerPromocaoLote"
+        ).checked = false;
+
+
+        await carregarEstoque();
+
+    }
+
+    catch (erro) {
+
+        mensagem.textContent =
+            erro.message;
+    }
+}
+
        document.addEventListener("DOMContentLoaded", async () => {
     adicionarCorProduto();
     carregarEstoque();

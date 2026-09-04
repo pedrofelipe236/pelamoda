@@ -99,7 +99,225 @@ export default async function handler(req, res) {
                 produto: dadosStatus[0]
             });
         }
+// =====================================
+// ALTERAR PREÇOS EM MASSA
+// =====================================
 
+if (req.body.acao === "alterar-precos-lote") {
+
+    const {
+        produtos,
+        alterar_preco_normal,
+        preco,
+        alterar_preco_promocional,
+        preco_promocional
+    } = req.body;
+
+
+    if (
+        !Array.isArray(produtos) ||
+        produtos.length === 0
+    ) {
+        return res.status(400).json({
+            erro: "Nenhum produto selecionado."
+        });
+    }
+
+
+    if (
+        !alterar_preco_normal &&
+        !alterar_preco_promocional
+    ) {
+        return res.status(400).json({
+            erro: "Nenhum preço informado para alteração."
+        });
+    }
+
+
+    let precoCentavos = null;
+
+    if (alterar_preco_normal) {
+
+        const precoNumero =
+            Number(preco);
+
+        if (
+            !Number.isFinite(precoNumero) ||
+            precoNumero <= 0
+        ) {
+            return res.status(400).json({
+                erro: "Preço normal inválido."
+            });
+        }
+
+        precoCentavos =
+            Math.round(precoNumero * 100);
+    }
+
+
+    let precoPromocionalCentavos = null;
+
+    if (
+        alterar_preco_promocional &&
+        preco_promocional !== null
+    ) {
+
+        const precoPromocionalNumero =
+            Number(preco_promocional);
+
+        if (
+            !Number.isFinite(precoPromocionalNumero) ||
+            precoPromocionalNumero <= 0
+        ) {
+            return res.status(400).json({
+                erro: "Preço promocional inválido."
+            });
+        }
+
+        precoPromocionalCentavos =
+            Math.round(
+                precoPromocionalNumero * 100
+            );
+    }
+
+
+    // Busca os preços atuais dos produtos selecionados
+    const idsFiltro =
+        produtos
+            .map(id => `"${String(id).replace(/"/g, "")}"`)
+            .join(",");
+
+
+    const respostaProdutosAtuais =
+        await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/produtos?id=in.(${encodeURIComponent(idsFiltro)})&select=id,preco,preco_promocional`,
+            {
+                headers: {
+                    apikey:
+                        process.env.SUPABASE_SECRET_KEY,
+
+                    Authorization:
+                        `Bearer ${process.env.SUPABASE_SECRET_KEY}`
+                }
+            }
+        );
+
+
+    const produtosAtuais =
+        await respostaProdutosAtuais.json();
+
+
+    if (!respostaProdutosAtuais.ok) {
+
+        console.error(
+            "Erro ao buscar produtos para lote:",
+            produtosAtuais
+        );
+
+        return res.status(500).json({
+            erro:
+                "Não foi possível consultar os produtos."
+        });
+    }
+
+
+    // Valida se o promocional fica abaixo do normal
+    if (
+        alterar_preco_promocional &&
+        precoPromocionalCentavos !== null
+    ) {
+
+        for (const produto of produtosAtuais) {
+
+            const precoNormalFinal =
+                alterar_preco_normal
+                    ? precoCentavos
+                    : Number(produto.preco);
+
+
+            if (
+                precoPromocionalCentavos >=
+                precoNormalFinal
+            ) {
+                return res.status(400).json({
+                    erro:
+                        "O preço promocional precisa ser menor que o preço normal."
+                });
+            }
+        }
+    }
+
+
+    const dadosAtualizacao = {};
+
+
+    if (alterar_preco_normal) {
+        dadosAtualizacao.preco =
+            precoCentavos;
+    }
+
+
+    if (alterar_preco_promocional) {
+        dadosAtualizacao.preco_promocional =
+            precoPromocionalCentavos;
+    }
+
+
+    // Atualiza um por um para evitar alterar produto fora da seleção
+    for (const produtoId of produtos) {
+
+        const respostaAtualizacao =
+            await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/produtos?id=eq.${encodeURIComponent(produtoId)}`,
+                {
+                    method: "PATCH",
+
+                    headers: {
+                        apikey:
+                            process.env.SUPABASE_SECRET_KEY,
+
+                        Authorization:
+                            `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=minimal"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            dadosAtualizacao
+                        )
+                }
+            );
+
+
+        if (!respostaAtualizacao.ok) {
+
+            const detalhe =
+                await respostaAtualizacao.text();
+
+            console.error(
+                "Erro ao atualizar preço em massa:",
+                produtoId,
+                detalhe
+            );
+
+            return res.status(500).json({
+                erro:
+                    "Houve um erro ao atualizar os preços."
+            });
+        }
+    }
+
+
+    return res.status(200).json({
+        sucesso: true,
+        quantidade: produtos.length
+    });
+}
 
         // =====================================
         // EDIÇÃO NORMAL DO PRODUTO
