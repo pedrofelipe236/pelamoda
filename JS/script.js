@@ -1330,11 +1330,19 @@ const produtosAtivos =
                             class="product-link"
                         >
                             <div class="product-image">
-                                <img
-                                    src="${produto.imagens?.[0] || ""}"
-                                    alt="${produto.nome}"
-                                >
-                            </div>
+
+    ${
+        temPromocao
+            ? `<span class="selo-promocao">PROMOÇÃO</span>`
+            : ""
+    }
+
+    <img
+        src="${produto.imagens?.[0] || ""}"
+        alt="${produto.nome}"
+    >
+</div>
+                                
 
                             <div class="product-info">
 
@@ -1365,10 +1373,7 @@ const produtosAtivos =
                 </span>
             </div>
 
-            <span class="selo-promocao">
-                PROMOÇÃO
-            </span>
-        `
+                    `
         : formatarPreco(produto.preco)
 }
 </div>

@@ -432,6 +432,7 @@
 
 .product-image {
     width: 100%;
+    position: relative;
     aspect-ratio: 4 / 5;
     overflow: hidden;
     background: #eee7dc;
@@ -2029,12 +2030,17 @@ body {
 }
 
 .selo-promocao {
-    display: inline-block;
-    margin-top: 6px;
-    padding: 3px 7px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+
+    padding: 5px 8px;
     border-radius: 5px;
+
     background: #111;
     color: #fff;
+
     font-size: 11px;
     font-weight: 700;
 }
