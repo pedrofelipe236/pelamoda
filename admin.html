@@ -1,3 +1,61 @@
+Código colado(5).html
+Arquivo
+sinto que eu ou tu tá perdido chat. pq não tem isso. 
+
+
+Código colado(2).css
+Arquivo
+
+Peguei o CSS atual e fiz a limpeza sem mudar o visual que já ficou bom.
+
+Removi:
+
+regras duplicadas antigas dos produtos no mobile;
+overrides antigos de .product-info, .price e .buy;
+um bloco duplicado inteiro de produtos no @media (max-width: 600px);
+corrigi também uma chave } que estava torta dentro da regra da logo no mobile.
+
+Mantive a grade principal que está funcionando hoje:
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    width: 100%;
+    align-items: start;
+}
+
+Ela é a que corrigiu aquele vazio no desktop.
+
+E mantive o bloco mobile final que hoje está mandando no layout dos produtos.
+
+Pode substituir o atual por este:
+
+Baixar style_limpo.css
+
+Guarda o antigo por enquanto como backup. Testa home no PC e celular; se estiver igual, aí esse passa a ser o CSS oficial.
+
+style_limpo.css
+Código
+até o momento tudo certo
+
+Boa. Então eu manteria esse style_limpo.css como base e não mexeria mais nele sem necessidade.
+
+Agora, como promoção, admin em massa e layout já estão funcionando, o próximo passo mais útil seria revisar o admin.html pra tirar blocos duplicados/antigos que foram se acumulando. Foi justamente isso que deixou a gente se perdendo antes.
+
+Mas eu faria com a mesma regra: sem mudar comportamento nem visual, só limpeza de código.
+
+Código colado(6).html
+Arquivo
+
+Peguei o admin.html atual e limpei só o que era seguro, sem mexer nas funções que já estão funcionando.
+
+O principal: não tinha mais função JS duplicada — carregarEstoque, editarProduto, cadastrarProduto e a edição em massa aparecem uma vez só. O que ainda tinha era CSS repetido para .produto-admin e .produto-preco, então consolidei essas regras e organizei um trecho onde duas funções estavam grudadas. A parte de preço promocional/PROMO está certinha no arquivo atual.
+
+Baixar admin_limpo.html
+
+Testa esse no lugar do atual. Se cadastro, editar produto, estoque, cupons e alteração em massa continuarem normais, pode assumir ele como o admin.html oficial. 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -42,8 +100,8 @@ textarea {
         .produto-admin {
             background: #fff;
             border-radius: 10px;
-            padding: 22px;
-            margin-bottom: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
         }
 
         .produto-admin h2 {
@@ -52,7 +110,7 @@ textarea {
         }
 
         .produto-preco {
-            margin-bottom: 20px;
+            margin-bottom: 3px;
             font-weight: bold;
         }
 
@@ -591,11 +649,6 @@ textarea {
         grid-template-columns: 1fr;
     }
 }
-.produto-admin {
-    padding: 16px;
-    margin-bottom: 12px;
-}
-
 .produto-admin-topo {
     display: flex;
     align-items: flex-start;
@@ -613,10 +666,6 @@ textarea {
 .produto-admin-resumo h2 {
     margin: 0 0 3px;
     font-size: 19px;
-}
-
-.produto-preco {
-    margin-bottom: 3px;
 }
 
 .produto-total-estoque {
@@ -2648,7 +2697,9 @@ function adicionarCorProduto() {
     `;
 
     container.appendChild(cor);
-}function selecionarProdutosVisiveis() {
+}
+
+function selecionarProdutosVisiveis() {
 
     document
         .querySelectorAll(".produto-admin")
