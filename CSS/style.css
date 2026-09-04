@@ -782,12 +782,6 @@
     white-space: nowrap;
 }
 
-.preco-antigo {
-    font-size: 11px;
-    margin-right: 0;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
 
 .preco-promocional {
     font-size: 17px;
@@ -2054,7 +2048,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-bottom: 5px;
+    margin-bottom: 0;
 }
 @media (max-width: 600px) {
 
