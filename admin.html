@@ -1528,19 +1528,40 @@ produtoDiv.innerHTML = `
             data-produto-id="${produto.id}"
         >
     </label>
+<div class="produto-admin-resumo">
+    <h2>${produto.nome}</h2>
 
-    <div class="produto-admin-resumo">
-            <h2>${produto.nome}</h2>
+    ${
+        produto.preco_promocional &&
+        Number(produto.preco_promocional) > 0 &&
+        Number(produto.preco_promocional) < Number(produto.preco)
+            ? `
+                <div class="produto-preco-admin">
+                    <span class="preco-normal-admin">
+                        R$ ${(Number(produto.preco) / 100).toFixed(2).replace(".", ",")}
+                    </span>
 
-            <div class="produto-preco">
-                R$ ${preco.toFixed(2).replace(".", ",")}
-            </div>
+                    <strong class="preco-promo-admin">
+                        R$ ${(Number(produto.preco_promocional) / 100).toFixed(2).replace(".", ",")}
+                    </strong>
 
-            <p class="produto-total-estoque">
-                ${totalEstoque} ${totalEstoque === 1 ? "unidade" : "unidades"} em estoque
-            </p>
-        </div>
-    </div>
+                    <span class="badge-promo-admin">
+                        PROMO
+                    </span>
+                </div>
+            `
+            : `
+                <div class="produto-preco">
+                    R$ ${preco.toFixed(2).replace(".", ",")}
+                </div>
+            `
+    }
+
+    <p class="produto-total-estoque">
+        ${totalEstoque} ${totalEstoque === 1 ? "unidade" : "unidades"} em estoque
+    </p>
+</div>
+    
 
     <div class="acoes-produto-admin">
         <button

@@ -2275,6 +2275,31 @@ html {
     flex-direction: column;
     gap: 5px;
 }
+.produto-preco-admin {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 3px;
+}
+
+.preco-normal-admin {
+    text-decoration: line-through;
+    opacity: 0.55;
+    font-size: 13px;
+}
+
+.preco-promo-admin {
+    font-size: 14px;
+}
+
+.badge-promo-admin {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: #111;
+    color: #fff;
+}
 
 @media (max-width: 600px) {
     .whatsapp-float {
