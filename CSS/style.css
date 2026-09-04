@@ -455,7 +455,7 @@
 
     .shirt.cream::after { color: #171513; }
 
-    .product-info { padding: 18px; }
+    .product-info { padding: 18px; min-height: 138px; }
     .product-info h3 { font-size: 17px; }
     .product-info p { color: #766c61; font-size: 13px; margin: 3px 0 12px; }
     .price { font-size: 19px; font-weight: 800; }
@@ -2030,7 +2030,7 @@ body {
 
 .selo-promocao {
     display: inline-block;
-    margin-left: 8px;
+    margin-top: 6px;
     padding: 3px 7px;
     border-radius: 5px;
     background: #111;
