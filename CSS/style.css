@@ -629,9 +629,9 @@
     font-size: 7px;
     letter-spacing: .8px;
     margin-top: 3px;
+}
 .nav-actions .icon-btn:not(.menu-btn):not(.account-btn) {
     display: none;
-}
 }
 .nav-actions {
     gap: 8px;
@@ -652,12 +652,6 @@
       .benefit { border-right: 0 !important; border-bottom: 1px dashed rgba(81,50,31,.3); padding: 16px 8px !important; }
       .benefit:last-child { border-bottom: 0; }
 
-      .products { padding: 35px 0 75px; }
-      .product-info { padding: 12px; }
-      .product-info h3 { font-size: 14px; }
-      .product-info p { font-size: 11px; }
-      .price { font-size: 16px; }
-      .buy { font-size: 10px; }
 
       .story-copy { padding: 50px 22px; }
       .story-copy h2 { font-size: 43px; }
@@ -837,70 +831,6 @@
     width: 100%;
     height: 100%;
     display: block;
-}
-.products {
-    width: 100%;
-    overflow-x: hidden;
-}
-
-.products .container {
-    width: 100%;
-    max-width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
-}
-
-.products-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    width: 100%;
-    max-width: 100%;
-}
-
-.product {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-}
-
-.product-link {
-    width: 100%;
-    min-width: 0;
-}
-
-.product-image {
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-}
-
-.product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.product-info {
-    padding: 12px 10px;
-}
-
-.product-info h3 {
-    font-size: 14px;
-}
-
-.product-info p {
-    font-size: 10px;
-}
-
-.price {
-    font-size: 17px;
-}
-
-.buy {
-    width: 100%;
-    font-size: 9px;
-    padding: 11px 5px;
 }
 .hero {
         min-height: 0;
