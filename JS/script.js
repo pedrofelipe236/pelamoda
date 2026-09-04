@@ -77,9 +77,16 @@ async function carregarEstoqueAPI() {
         }
 
         return {
-            ...produto,
-            preco: Number(produto.preco) / 100
-        };
+           ...produto,
+
+    preco:
+        Number(produto.preco) / 100,
+
+    preco_promocional:
+        produto.preco_promocional
+            ? Number(produto.preco_promocional) / 100
+            : null
+};
 
     } catch (erro) {
 
@@ -508,8 +515,17 @@ async function carregarEstoqueAPI() {
         paginaProduto.dataset.nome =
             produto.nome;
 
-        paginaProduto.dataset.preco =
-            produto.preco;
+       const temPromocao =
+    produto.preco_promocional &&
+    produto.preco_promocional < produto.preco;
+
+const precoVenda =
+    temPromocao
+        ? produto.preco_promocional
+        : produto.preco;
+
+paginaProduto.dataset.preco =
+    precoVenda;
 
         const titulo =
             document.querySelector(
@@ -599,9 +615,29 @@ metaDescricao.setAttribute(
             );
 
         if (preco) {
-            preco.textContent =
-                formatarPreco(produto.preco);
-        }
+
+    if (temPromocao) {
+
+        preco.innerHTML = `
+            <span class="preco-antigo">
+                ${formatarPreco(produto.preco)}
+            </span>
+
+            <span class="preco-promocional">
+                ${formatarPreco(produto.preco_promocional)}
+            </span>
+
+            <span class="selo-promocao">
+                PROMOÇÃO
+            </span>
+        `;
+
+    } else {
+
+        preco.textContent =
+            formatarPreco(produto.preco);
+    }
+}
 
         const descricao =
             document.querySelector(
@@ -1192,8 +1228,14 @@ const produtosAtivos =
                         produto.id,
                         {
                             ...produto,
-                            preco:
-                                Number(produto.preco) / 100
+
+    preco:
+        Number(produto.preco) / 100,
+
+    preco_promocional:
+        produto.preco_promocional
+            ? Number(produto.preco_promocional) / 100
+            : null
                         }
                     ]
                 );
@@ -1209,8 +1251,14 @@ const produtosAtivos =
                         produto.id,
                         {
                             ...produto,
-                            preco:
-                                Number(produto.preco) / 100
+
+    preco:
+        Number(produto.preco) / 100,
+
+    preco_promocional:
+        produto.preco_promocional
+            ? Number(produto.preco_promocional) / 100
+            : null
                         }
                     ]
                 );
@@ -1270,6 +1318,9 @@ const produtosAtivos =
 
                     card.className =
                         "product";
+                        const temPromocao =
+    produto.preco_promocional &&
+    produto.preco_promocional < produto.preco;
 
                     card.innerHTML = `
                         <a
@@ -1297,9 +1348,27 @@ const produtosAtivos =
                                     }
                                 </p>
 
-                                <div class="price">
-                                    ${formatarPreco(produto.preco)}
-                                </div>
+                               <div class="price">
+
+    ${
+        temPromocao
+            ? `
+                <span class="preco-antigo">
+                    ${formatarPreco(produto.preco)}
+                </span>
+
+                <span class="preco-promocional">
+                    ${formatarPreco(produto.preco_promocional)}
+                </span>
+
+                <span class="selo-promocao">
+                    PROMOÇÃO
+                </span>
+            `
+            : formatarPreco(produto.preco)
+    }
+
+</div>
 
                             </div>
                         </a>
