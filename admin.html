@@ -505,6 +505,116 @@ textarea {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+
+/* ===== ESTOQUE COMPACTO / BUSCA ===== */
+.admin-ferramentas {
+    margin: 0 0 16px;
+}
+
+#buscarProdutoAdmin {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cfcfcf;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 15px;
+}
+
+.produto-admin {
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.produto-admin-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.produto-admin-resumo {
+    min-width: 0;
+}
+
+.produto-admin-resumo h2 {
+    margin: 0 0 3px;
+    font-size: 19px;
+}
+
+.produto-preco {
+    margin-bottom: 3px;
+}
+
+.produto-total-estoque {
+    margin: 0;
+    color: #666;
+    font-size: 13px;
+}
+
+.produto-admin .acoes-produto-admin {
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.toggle-estoque {
+    border: 1px solid #111;
+    background: #111;
+    color: #fff;
+    padding: 9px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.produto-admin .cores-container {
+    display: none;
+    padding-top: 4px;
+}
+
+.produto-admin.estoque-aberto .cores-container {
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .admin {
+        width: min(100% - 20px, 1100px);
+        margin: 18px auto;
+    }
+
+    .produto-admin {
+        padding: 14px;
+        border-radius: 9px;
+    }
+
+    .produto-admin-topo {
+        align-items: flex-start;
+    }
+
+    .produto-admin-resumo h2 {
+        font-size: 17px;
+    }
+
+    .produto-admin .acoes-produto-admin {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+    }
+
+    .produto-admin .acoes-produto-admin button {
+        width: 100%;
+        padding: 9px 8px;
+        font-size: 13px;
+    }
+
+    .produto-admin .toggle-estoque {
+        grid-column: 1 / -1;
+    }
+
+    .produto-admin.estoque-aberto .estoque-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
     </style>
 </head>
 
@@ -614,6 +724,15 @@ textarea {
         <div class="admin-header">
             <h1>Estoque PêlaModa</h1>
             <p>Produtos, cores, tamanhos e quantidades.</p>
+        </div>
+
+        <div class="admin-ferramentas">
+            <input
+                type="search"
+                id="buscarProdutoAdmin"
+                placeholder="Buscar produto..."
+                autocomplete="off"
+            >
         </div>
 
         <div id="listaEstoque">
@@ -1236,33 +1355,54 @@ fotosExtrasAtuais.forEach(imagem => {
                         Number(produto.preco) / 100;
 
 
-                    produtoDiv.innerHTML = `
-    <h2>${produto.nome}</h2>
+                    const totalEstoque = Object.values(produto.estoque || {})
+    .reduce((total, tamanhos) => {
+        return total + Object.values(tamanhos || {})
+            .reduce((soma, quantidade) => soma + (Number(quantidade) || 0), 0);
+    }, 0);
 
-    <div class="produto-preco">
-        R$ ${preco.toFixed(2).replace(".", ",")}
+produtoDiv.dataset.nome = (produto.nome || "").toLowerCase();
+
+produtoDiv.innerHTML = `
+    <div class="produto-admin-topo">
+        <div class="produto-admin-resumo">
+            <h2>${produto.nome}</h2>
+
+            <div class="produto-preco">
+                R$ ${preco.toFixed(2).replace(".", ",")}
+            </div>
+
+            <p class="produto-total-estoque">
+                ${totalEstoque} ${totalEstoque === 1 ? "unidade" : "unidades"} em estoque
+            </p>
+        </div>
     </div>
 
     <div class="acoes-produto-admin">
+        <button
+            type="button"
+            class="editar-produto"
+            data-produto-id="${produto.id}"
+        >
+            Editar produto
+        </button>
 
-    <button
-        type="button"
-        class="editar-produto"
-        data-produto-id="${produto.id}"
-    >
-        Editar produto
-    </button>
+        <button
+            type="button"
+            class="alterar-status-produto"
+            data-produto-id="${produto.id}"
+            data-ativo="${produto.ativo}"
+        >
+            ${produto.ativo ? "Desativar" : "Ativar"}
+        </button>
 
-    <button
-        type="button"
-        class="alterar-status-produto"
-        data-produto-id="${produto.id}"
-        data-ativo="${produto.ativo}"
-    >
-        ${produto.ativo ? "Desativar" : "Ativar"}
-    </button>
-
-</div>
+        <button
+            type="button"
+            class="toggle-estoque"
+        >
+            Ver estoque ▼
+        </button>
+    </div>
 
     <div class="cores-container"></div>
 `;
@@ -1278,6 +1418,14 @@ produtoDiv
             produto.id,
             produto.ativo
         );
+    });
+
+produtoDiv
+    .querySelector(".toggle-estoque")
+    .addEventListener("click", event => {
+        const aberto = produtoDiv.classList.toggle("estoque-aberto");
+        event.currentTarget.textContent =
+            aberto ? "Fechar estoque ▲" : "Ver estoque ▼";
     });
 
                     const coresContainer =
@@ -2286,8 +2434,29 @@ function adicionarCorProduto() {
        document.addEventListener("DOMContentLoaded", async () => {
     adicionarCorProduto();
     carregarEstoque();
-     await carregarCupons();
-    
+    await carregarCupons();
+
+    const busca = document.getElementById("buscarProdutoAdmin");
+
+    if (busca) {
+        busca.addEventListener("input", () => {
+            const termo = busca.value
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .trim();
+
+            document.querySelectorAll(".produto-admin")
+                .forEach(card => {
+                    const nome = (card.dataset.nome || "")
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "");
+
+                    card.style.display =
+                        nome.includes(termo) ? "block" : "none";
+                });
+        });
+    }
 });
 
     </script>
