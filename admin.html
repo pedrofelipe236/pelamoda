@@ -687,7 +687,32 @@ textarea {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+.produto-preco-admin {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 3px;
+}
 
+.preco-normal-admin {
+    text-decoration: line-through;
+    opacity: 0.55;
+    font-size: 13px;
+}
+
+.preco-promo-admin {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.badge-promo-admin {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: #111;
+    color: #fff;
+}
     </style>
 </head>
 
@@ -1560,6 +1585,7 @@ produtoDiv.innerHTML = `
     <p class="produto-total-estoque">
         ${totalEstoque} ${totalEstoque === 1 ? "unidade" : "unidades"} em estoque
     </p>
+</div>
 </div>
     
 
