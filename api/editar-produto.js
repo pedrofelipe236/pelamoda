@@ -106,14 +106,15 @@ export default async function handler(req, res) {
         // =====================================
 
         const {
-            id,
-            nome,
-            preco,
-            categoria,
-            descricao,
-            cores,
-            imagensExtras = []
-        } = req.body;
+    id,
+    nome,
+    preco,
+    preco_promocional,
+    categoria,
+    descricao,
+    cores,
+    imagensExtras = []
+} = req.body;
 
 
         if (!id || !nome || !preco || !categoria) {
@@ -147,7 +148,36 @@ export default async function handler(req, res) {
 
         const precoCentavos =
             Math.round(precoNumero * 100);
+let precoPromocionalCentavos = null;
 
+if (
+    preco_promocional !== null &&
+    preco_promocional !== undefined &&
+    preco_promocional !== ""
+) {
+
+    const precoPromocionalNumero =
+        Number(preco_promocional);
+
+    if (
+        !Number.isFinite(precoPromocionalNumero) ||
+        precoPromocionalNumero <= 0
+    ) {
+        return res.status(400).json({
+            erro: "Preço promocional inválido."
+        });
+    }
+
+    if (precoPromocionalNumero >= precoNumero) {
+        return res.status(400).json({
+            erro:
+                "O preço promocional deve ser menor que o preço normal."
+        });
+    }
+
+    precoPromocionalCentavos =
+        Math.round(precoPromocionalNumero * 100);
+}
 
         // =====================================
         // CORES + ESTOQUE
@@ -270,6 +300,9 @@ export default async function handler(req, res) {
 
                         preco:
                             precoCentavos,
+                            
+                         preco_promocional:
+                            precoPromocionalCentavos,    
 
                         categoria,
 
