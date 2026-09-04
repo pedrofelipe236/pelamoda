@@ -2015,6 +2015,35 @@ body {
     font-size: 15px;
     line-height: 1;
 }
+
+.preco-antigo {
+    text-decoration: line-through;
+    opacity: 0.55;
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.preco-promocional {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.selo-promocao {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: #111;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+.linha-precos {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+}
 @media (max-width: 600px) {
 
     .frete-opcao {

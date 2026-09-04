@@ -618,19 +618,21 @@ metaDescricao.setAttribute(
 
     if (temPromocao) {
 
-        preco.innerHTML = `
-            <span class="preco-antigo">
-                ${formatarPreco(produto.preco)}
-            </span>
+       preco.innerHTML = `
+    <div class="linha-precos">
+        <span class="preco-antigo">
+            ${formatarPreco(produto.preco)}
+        </span>
 
-            <span class="preco-promocional">
-                ${formatarPreco(produto.preco_promocional)}
-            </span>
+        <span class="preco-promocional">
+            ${formatarPreco(produto.preco_promocional)}
+        </span>
+    </div>
 
-            <span class="selo-promocao">
-                PROMOÇÃO
-            </span>
-        `;
+    <span class="selo-promocao">
+        PROMOÇÃO
+    </span>
+`;
 
     } else {
 
@@ -1353,6 +1355,7 @@ const produtosAtivos =
     ${
         temPromocao
             ? `
+                <div class="linha-precos">
                 <span class="preco-antigo">
                     ${formatarPreco(produto.preco)}
                 </span>
@@ -1360,14 +1363,14 @@ const produtosAtivos =
                 <span class="preco-promocional">
                     ${formatarPreco(produto.preco_promocional)}
                 </span>
+            </div>
 
-                <span class="selo-promocao">
-                    PROMOÇÃO
-                </span>
-            `
-            : formatarPreco(produto.preco)
-    }
-
+            <span class="selo-promocao">
+                PROMOÇÃO
+            </span>
+        `
+        : formatarPreco(produto.preco)
+}
 </div>
 
                             </div>
