@@ -412,6 +412,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 18px;
     width: 100%;
+    align-items: start;
 }
 
   .product {
@@ -773,7 +774,27 @@
 /* CELULAR */
 
 @media (max-width: 600px) {
-    
+    .linha-precos {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.preco-antigo {
+    font-size: 11px;
+    margin-right: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.preco-promocional {
+    font-size: 17px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
    .benefit-grid {
     display: flex;
     gap: 12px;
