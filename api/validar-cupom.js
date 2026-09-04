@@ -262,17 +262,19 @@ const resposta =
         const valorProdutos =
             Number(valor_produtos || 0);
 
-        if (
-            valorProdutos <
-            Number(
-                cupomEncontrado.valor_minimo || 0
-            )
-        ) {
-            return res.status(400).json({
-                erro:
-                    "Valor mínimo do cupom não atingido"
-            });
-        }
+       if (
+    valorProdutos <
+    Math.round(
+        Number(
+            cupomEncontrado.valor_minimo || 0
+        ) * 100
+    )
+) {
+    return res.status(400).json({
+        erro:
+            "Valor mínimo do cupom não atingido"
+    });
+}
 
         let valorDesconto = 0;
 
