@@ -777,6 +777,10 @@
     flex-wrap: nowrap;
     white-space: nowrap;
 }
+.promo-slide img {
+    max-height: 320px;
+    object-fit: cover;
+}
 .products {
     padding-top: 25px;
 }
