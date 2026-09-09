@@ -619,10 +619,7 @@
       .nav {
     min-height: 62px;
 
-    .logo img {
-    width: 75px;
-    height: auto;
-}
+
 }
 
 .logo strong {
@@ -780,7 +777,10 @@
     flex-wrap: nowrap;
     white-space: nowrap;
 }
-
+.logo-pelamoda {
+    width: 60px !important;
+    height: 60px !important;
+}
 
 .preco-promocional {
     font-size: 17px;
