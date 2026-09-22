@@ -1553,6 +1553,12 @@ if (campoBusca) {
                     ? ""
                     : "none";
         });
+        if (termo) {
+    document.getElementById("listaProdutos")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
     });
 }
 console.log("CAMPO BUSCA:", document.getElementById("buscaProdutos"));
