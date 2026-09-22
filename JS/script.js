@@ -1530,4 +1530,28 @@ if (botaoMenu && menuDropdown) {
         link.onclick = null;
     }
 }
+const campoBusca = document.getElementById("buscaProdutos");
+
+if (campoBusca) {
+    campoBusca.addEventListener("input", function () {
+
+        const termo = this.value
+            .toLowerCase()
+            .trim();
+
+        const produtos =
+            document.querySelectorAll(".product");
+
+        produtos.forEach(produto => {
+
+            const nome =
+                produto.textContent.toLowerCase();
+
+            produto.style.display =
+                nome.includes(termo)
+                    ? ""
+                    : "none";
+        });
+    });
+}
 }

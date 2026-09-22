@@ -2237,7 +2237,48 @@ html {
     background: #111;
     color: #fff;
 }
+.busca-site {
+    width: min(700px, calc(100% - 40px));
+    height: 48px;
+    margin: 14px auto 18px;
+    display: flex;
+    background: #fff;
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+    overflow: hidden;
+}
 
+.busca-site input {
+    flex: 1;
+    min-width: 0;
+    padding: 0 16px;
+    border: 0;
+    outline: none;
+    font: inherit;
+    font-size: 15px;
+    background: transparent;
+}
+
+.busca-site input::placeholder {
+    color: #999;
+}
+
+.busca-site button {
+    width: 52px;
+    flex: 0 0 52px;
+    border: 0;
+    border-left: 1px solid #ddd;
+    background: #f3f3f3;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+
+.busca-site button svg {
+    width: 22px;
+    height: 22px;
+    fill: #222;
+}
 @media (max-width: 600px) {
     .whatsapp-float {
         right: 14px;
