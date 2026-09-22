@@ -2414,6 +2414,28 @@ html {
     display: block;
     margin-bottom: 4px;
 }
+@media (max-width: 600px) {
+    .busca-site {
+        width: calc(100% - 32px);
+        height: 46px;
+        margin: 12px auto 16px;
+    }
+
+    .busca-site input {
+        padding: 0 14px;
+        font-size: 14px;
+    }
+
+    .busca-site button {
+        width: 50px;
+        flex-basis: 50px;
+    }
+
+    .busca-site button svg {
+        width: 21px;
+        height: 21px;
+    }
+}
 }
 
 
