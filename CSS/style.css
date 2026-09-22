@@ -2414,6 +2414,11 @@ html {
     display: block;
     margin-bottom: 4px;
 }
+.linha-busca .logo {
+    position: static !important;
+    margin: 0 !important;
+    transform: none !important;
+}
 @media (max-width: 600px) {
     .busca-site {
         width: calc(100% - 32px);
@@ -2437,11 +2442,12 @@ html {
     }
 }
 .linha-busca {
-    width: min(760px, calc(100% - 40px));
+    width: min(850px, calc(100% - 40px));
     margin: 12px auto 18px;
     display: flex;
     align-items: center;
     gap: 16px;
+    justify-content: center;
 }
 
 .linha-busca .logo-busca {
