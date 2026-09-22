@@ -1530,6 +1530,7 @@ if (botaoMenu && menuDropdown) {
         link.onclick = null;
     }
 }
+}
 const campoBusca = document.getElementById("buscaProdutos");
 
 if (campoBusca) {
@@ -1554,4 +1555,5 @@ if (campoBusca) {
         });
     });
 }
-}
+console.log("CAMPO BUSCA:", document.getElementById("buscaProdutos"));
+
