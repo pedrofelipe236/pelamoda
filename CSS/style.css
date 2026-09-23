@@ -2441,9 +2441,9 @@ html {
         height: 21px;
     }
 }
-
+}
 .linha-busca {
-   width: min(760px, calc(100% - 40px));
+   width: min(850px, calc(100% - 40px));
     margin: 12px auto 18px;
     display: flex;
     align-items: center;
@@ -2462,7 +2462,7 @@ html {
     width: auto;
     margin: 0;
 }
-}
+
 
 
 
