@@ -1150,6 +1150,19 @@
     }
 
 }
+.produto-page .nav {
+    position: relative;
+    justify-content: center;
+}
+
+.produto-page .nav .logo {
+    margin: 0 auto;
+}
+
+.produto-page .nav .cart-header-btn {
+    position: absolute;
+    right: 16px;
+}
 /* =========================
    CARRINHO LATERAL
 ========================= */
