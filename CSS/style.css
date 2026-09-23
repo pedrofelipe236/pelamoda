@@ -1470,7 +1470,14 @@ body {
 }
 /* ===== CORREÇÃO FINAL DOS PRODUTOS NO CELULAR ===== */
 @media (max-width: 600px) {
+.linha-busca {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
 
+header .nav {
+    min-height: 64px;
+}
     .products .container {
         width: 100% !important;
         max-width: 100% !important;
