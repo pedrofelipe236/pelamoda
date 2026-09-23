@@ -2441,6 +2441,7 @@ html {
         height: 21px;
     }
 }
+
 .linha-busca {
     width: min(850px, calc(100% - 40px));
     margin: 12px auto 18px;
@@ -2459,21 +2460,6 @@ html {
 .linha-busca .busca-site {
     flex: 1;
     width: auto;
-    margin: 0;
-}
-.linha-busca {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-}
-
-.linha-busca .logo-busca {
-    flex-shrink: 0;
-}
-
-.linha-busca .busca-site {
-    width: min(700px, 70vw);
     margin: 0;
 }
 }
