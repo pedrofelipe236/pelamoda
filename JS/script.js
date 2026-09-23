@@ -1534,7 +1534,7 @@ if (botaoMenu && menuDropdown) {
 const campoBusca = document.getElementById("buscaProdutos");
 
 if (campoBusca) {
-    campoBusca.addEventListener("input", function () {
+    campoBusca.addEventListener("change", function () {
 
         const termo = this.value
             .toLowerCase()
@@ -1553,12 +1553,7 @@ if (campoBusca) {
                     ? ""
                     : "none";
         });
-        if (termo) {
-    document.getElementById("listaProdutos")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
-}
+    
     });
 }
 console.log("CAMPO BUSCA:", document.getElementById("buscaProdutos"));
