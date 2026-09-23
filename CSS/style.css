@@ -1156,7 +1156,9 @@
 }
 
 .produto-page .nav .logo {
-    margin: 0 auto;
+    margin: 0;
+    position: absolute;
+    left: 16px;
 }
 
 .produto-page .nav .cart-header-btn {
