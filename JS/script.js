@@ -1535,6 +1535,13 @@ const campoBusca = document.getElementById("buscaProdutos");
 
 if (campoBusca) {
     campoBusca.addEventListener("change", function () {
+        const btnBuscarProdutos = document.getElementById("btnBuscarProdutos");
+
+if (btnBuscarProdutos && campoBusca) {
+    btnBuscarProdutos.addEventListener("click", function () {
+        campoBusca.dispatchEvent(new Event("change"));
+    });
+}
 
         const termo = this.value
             .toLowerCase()
