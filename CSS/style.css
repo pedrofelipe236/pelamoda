@@ -786,9 +786,6 @@
     margin: 0 auto 10px;
     width: calc(100% - 120px);
 }
-.linha-busca .busca-site {
-    flex: 0 1 85%;
-}
 .promo-slide img {
     max-height: 320px;
     object-fit: cover;
@@ -2482,7 +2479,7 @@ html {
 }
 }
 .linha-busca {
-   width: min(850px, calc(100% - 40px));
+   width: min(700px, calc(100% - 120px));
     margin: 0px auto 6px;
     display: flex;
     align-items: center;
