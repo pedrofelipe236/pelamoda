@@ -2493,7 +2493,7 @@ html {
 }
 
 .linha-busca .busca-site {
-    flex: 1;
+    flex: 0 1 700px;
     width: auto;
     margin: 0;
 }
