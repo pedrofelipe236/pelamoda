@@ -2479,7 +2479,7 @@ html {
 }
 .linha-busca {
    width: min(850px, calc(100% - 40px));
-    margin: 12px auto 18px;
+    margin: 0px auto 6px;
     display: flex;
     align-items: center;
     gap: 16px;
