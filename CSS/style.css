@@ -601,9 +601,6 @@
     @media (max-width: 900px) {
       nav { display: none; }
       .menu-btn { display: grid; }
-      .nav {
-    min-height: 60px;
-}
       .hero-content { grid-template-columns: 1fr; }
       .hero-art {
         position: absolute;
@@ -785,6 +782,9 @@
     gap: 6px;
     flex-wrap: nowrap;
     white-space: nowrap;
+}
+.linha-busca {
+    margin: 0 auto 10px;
 }
 .promo-slide img {
     max-height: 320px;
