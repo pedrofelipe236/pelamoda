@@ -1128,10 +1128,13 @@
 @media (max-width: 800px) {
     .product-cart-button,
     .product-whatsapp-button {
+        width: 100%;
+        max-width: 100%;
         min-height: 48px;
         height: auto;
         font-size: 13px;
     }
+
     .product-page {
         padding: 30px 0 70px;
     }
