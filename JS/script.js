@@ -1540,6 +1540,11 @@ if (campoBusca) {
 if (btnBuscarProdutos && campoBusca) {
     btnBuscarProdutos.addEventListener("click", function () {
         campoBusca.dispatchEvent(new Event("change"));
+
+        document.getElementById("listaProdutos")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
     });
 }
 
