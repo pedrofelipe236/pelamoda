@@ -1123,7 +1123,11 @@
 /* CELULAR */
 
 @media (max-width: 800px) {
-
+.product-cart-button,
+.product-whatsapp-button {
+    height: 48px;
+    font-size: 13px;
+}
     .product-page {
         padding: 30px 0 70px;
     }
