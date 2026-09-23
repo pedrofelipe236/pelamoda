@@ -784,7 +784,7 @@
 }
 .linha-busca {
     margin: 0 auto 10px;
-    width: calc(100% - 70px);
+    width: calc(100% - 120px);
 }
 .promo-slide img {
     max-height: 320px;
