@@ -1126,11 +1126,12 @@
 /* CELULAR */
 
 @media (max-width: 800px) {
-.product-cart-button,
-.product-whatsapp-button {
-    height: 48px;
-    font-size: 13px;
-}
+    .product-cart-button,
+    .product-whatsapp-button {
+        min-height: 48px;
+        height: auto;
+        font-size: 13px;
+    }
     .product-page {
         padding: 30px 0 70px;
     }
@@ -1156,6 +1157,7 @@
 .produto-page .nav {
     position: relative;
     justify-content: center;
+    min-height: 70px;
 }
 
 .produto-page .nav .logo {
