@@ -622,9 +622,9 @@
 
     @media (max-width: 560px) {
       .container { width: min(100% - 28px, var(--max)); }
-      .nav {
-    min-height: 56px;
-
+     .nav {
+    min-height: 70px;
+    justify-content: space-between;
 
 }
 
