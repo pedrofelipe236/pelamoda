@@ -2461,6 +2461,21 @@ html {
     width: auto;
     margin: 0;
 }
+.linha-busca {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+}
+
+.linha-busca .logo-busca {
+    flex-shrink: 0;
+}
+
+.linha-busca .busca-site {
+    width: min(700px, 70vw);
+    margin: 0;
+}
 }
 
 
