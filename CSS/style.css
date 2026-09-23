@@ -49,12 +49,18 @@
     }
 
     .nav {
-      min-height: 82px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    position: relative;
+}
+
+.nav-actions {
+    position: absolute;
+    right: 0;
+}
 
 .logo {
     font-family: 'Xilosa', sans-serif;
