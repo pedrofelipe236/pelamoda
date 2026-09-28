@@ -2313,8 +2313,8 @@ html {
     width: 52px;
     flex: 0 0 52px;
     border: 0;
-    border-left: 1px solid #ddd;
-    background: #f3f3f3;
+    border-left: none;
+    background: transparent;
     cursor: pointer;
     display: grid;
     place-items: center;
