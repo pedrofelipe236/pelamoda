@@ -2286,10 +2286,12 @@ html {
     height: 48px;
     margin: 14px auto 18px;
     display: flex;
+    align-items: center;
     background: #fff;
     border: 1px solid #d8d8d8;
-    border-radius: 6px;
+    border-radius: 24px;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .busca-site input {
