@@ -627,6 +627,10 @@
     justify-content: center;
     position: relative;
 }
+.nav-actions {
+    position: absolute;
+    right: 0;
+}
 .logo strong {
     font-size: 22px;
     line-height: 1;
