@@ -971,10 +971,14 @@
 }
 
 .product-details h1 {
-    font-family: 'Xilosa', sans-serif !important;
-    font-weight: normal;
+    font-family: "Segoe UI", Arial, sans-serif !important;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    color: #171717;
+    margin-bottom: 10px;
 }
-
 .product-price {
     font-family: "Segoe UI", Arial, sans-serif;
     font-size: 30px;
