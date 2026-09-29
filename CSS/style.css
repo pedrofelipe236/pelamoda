@@ -1009,10 +1009,11 @@
 
 .product-option strong {
     display: block;
-
     margin-bottom: 10px;
-
-    font-size: 14px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
 }
 
 .option-buttons {
