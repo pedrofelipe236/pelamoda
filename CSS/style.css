@@ -413,32 +413,53 @@
       max-width: 600px;
     }
 
-   .products-grid {
+.products-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 18px;
     width: 100%;
-    align-items: start;
+    align-items: stretch;
 }
 
-  .product {
-    background: #fff;
-    border: 1px solid #e4ded6;
-    border-radius: 14px;
+.product {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    border: 1px solid rgba(17, 17, 15, 0.08);
+    border-radius: 18px;
     overflow: hidden;
-    transition: transform .25s ease, box-shadow .25s ease;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, .06);
+    position: relative;
+    box-shadow:
+        0 3px 10px rgba(45, 30, 18, 0.05),
+        0 10px 25px rgba(45, 30, 18, 0.04);
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        border-color .25s ease;
 }
 
-    .product:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(61,35,18,.12);
-    }
+.product:hover {
+    transform: translateY(-6px);
+    border-color: rgba(17, 17, 15, 0.12);
+    box-shadow:
+        0 8px 18px rgba(45, 30, 18, 0.08),
+        0 18px 40px rgba(45, 30, 18, 0.10);
+}
+
+.product-link {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    color: inherit;
+    text-decoration: none;
+}
 
 .product-image {
     width: 100%;
-    position: relative;
     aspect-ratio: 4 / 5;
+    position: relative;
     overflow: hidden;
     background: #eee7dc;
 }
@@ -446,50 +467,213 @@
 .product-image img {
     width: 100%;
     height: 100%;
+    display: block;
     object-fit: cover;
-    display: block;
+    transition: transform .45s cubic-bezier(.2, .7, .2, 1);
 }
+
 .product:hover .product-image img {
-    transform: scale(1.04);
+    transform: scale(1.045);
 }
 
-.product-link {
-    display: block;
-    color: inherit;
-    text-decoration: none;
+.product-info {
+    flex: 1;
+    padding: 18px 18px 16px;
 }
 
-    .shirt.cream::after { color: #171513; }
+.product-info h3 {
+    min-height: 43px;
+    margin: 0;
+    font-family: "DM Sans", sans-serif;
+    font-size: 17px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.25px;
+    color: #191714;
+}
 
-    .product-info { padding: 18px; }
-    .product-info h3 { font-size: 17px; }
-    .product-info p { color: #766c61; font-size: 13px; margin: 3px 0 12px; }
-    .price { font-size: 19px; font-weight: 800; }
-
-   .buy {
-    width: 100%;
-    margin-top: 13px;
-    min-height: 42px;
-
-    border: none;
-    border-radius: 8px;
-
-    background: #11110f;
-    color: #fff;
-
+.product-info p {
+    margin: 5px 0 13px;
+    font-family: "DM Sans", sans-serif;
     font-size: 12px;
+    line-height: 1.4;
+    font-weight: 400;
+    color: #81766b;
+}
+
+.product-info .price {
+    margin-top: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    font-family: "DM Sans", sans-serif;
+}
+
+.product-info .preco-atual,
+.product-info .preco-promocional {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.7px;
+    color: #171513;
+}
+
+.product-info .preco-antigo {
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 500;
+    color: #91877d;
+    text-decoration: line-through;
+}
+
+.product-info .linha-precos {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+}
+
+.product-info .installment {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: #f5ead2;
+    color: #67502e;
+    font-family: "DM Sans", sans-serif;
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.product .buy {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 15px;
+    border: 0;
+    border-radius: 10px;
+    background: #11110f;
+    color: #ffffff;
+    font-family: "DM Sans", sans-serif;
+    font-size: 11px;
     font-weight: 800;
-    letter-spacing: .5px;
+    letter-spacing: .4px;
     text-transform: uppercase;
-
     cursor: pointer;
-    transition: .2s ease;
+    transition:
+        background .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
 }
 
-    .buy:hover {
-    background: #2b2926;
+.product .buy:hover {
+    background: #282622;
     transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(17, 17, 15, .18);
 }
+
+.product .buy:active {
+    transform: translateY(0);
+}
+
+.product .selo-promocao {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #11110f;
+    color: #ffffff;
+    font-family: "DM Sans", sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .3px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+}
+
+@media (max-width: 600px) {
+    .products .container {
+        width: calc(100% - 24px);
+        max-width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .product {
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(45, 30, 18, 0.06);
+    }
+
+    .product:hover {
+        transform: none;
+    }
+
+    .product-info {
+        padding: 12px 10px 11px;
+    }
+
+    .product-info h3 {
+        min-height: 33px;
+        font-size: 13px;
+        line-height: 1.25;
+        letter-spacing: -0.15px;
+    }
+
+    .product-info p {
+        margin: 4px 0 9px;
+        font-size: 9px;
+        line-height: 1.3;
+    }
+
+    .product-info .price {
+        margin-top: 9px;
+        gap: 5px;
+    }
+
+    .product-info .preco-atual,
+    .product-info .preco-promocional {
+        font-size: 18px;
+        letter-spacing: -0.4px;
+    }
+
+    .product-info .preco-antigo {
+        font-size: 10px;
+    }
+
+    .product-info .linha-precos {
+        gap: 6px;
+    }
+
+    .product-info .installment {
+        padding: 4px 6px;
+        font-size: 8px;
+        border-radius: 5px;
+    }
+
+    .product .buy {
+        min-height: 44px;
+        margin-top: 10px;
+        border-radius: 9px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .5px;
+    }
+
+    .product .selo-promocao {
+        top: 8px;
+        left: 8px;
+        padding: 5px 7px;
+        font-size: 8px;
+    }
+}
+
 
     .center { text-align: center; margin-top: 34px; }
 
@@ -1515,78 +1699,13 @@ body {
 }
 /* ===== CORREÇÃO FINAL DOS PRODUTOS NO CELULAR ===== */
 @media (max-width: 600px) {
-.linha-busca {
-    margin-top: 0;
-    margin-bottom: 10px;
-}
-
-header .nav {
-    min-height: 44px;
-}
-    .products .container {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding-left: 12px !important;
-        padding-right: 12px !important;
+    .linha-busca {
+        margin-top: 0;
+        margin-bottom: 10px;
     }
 
-    .products-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 10px !important;
-
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-
-    .product {
-        width: 100% !important;
-        max-width: none !important;
-        min-width: 0 !important;
-    }
-
-    .product-image {
-        width: 100% !important;
-        aspect-ratio: 4 / 5;
-        overflow: hidden;
-    }
-.product {
-    display: flex;
-    flex-direction: column;
-}
-
-.product-info {
-    padding: 10px 8px;
-}
-
-.product-info h3 {
-    font-size: 13px;
-    line-height: 1.2;
-    margin-bottom: 4px;
-}
-
-.product-info p {
-    font-size: 9px;
-    line-height: 1.3;
-    margin-bottom: 6px;
-}
-
-.product-price,
-.price {
-    font-size: 17px;
-    margin-top: 6px;
-}
-
-.buy {
-    width: 100%;
-    font-size: 9px;
-    padding: 10px 5px;
-}
-    .product-image img {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover;
-        display: block;
+    header .nav {
+        min-height: 44px;
     }
 }
 /* ========================================
@@ -2607,318 +2726,5 @@ html {
     body.home-page .busca-site button svg {
         width: 18px;
         height: 18px;
-    }
-}
-/* =========================================================
-   NOVO VISUAL DOS CARDS - PÊLAMODA
-   ========================================================= */
-
-.product {
-    background: #ffffff;
-    border: 1px solid rgba(17, 17, 15, 0.08);
-    border-radius: 18px;
-    overflow: hidden;
-    position: relative;
-
-    box-shadow:
-        0 3px 10px rgba(45, 30, 18, 0.05),
-        0 10px 25px rgba(45, 30, 18, 0.04);
-
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease,
-        border-color .25s ease;
-}
-
-.product:hover {
-    transform: translateY(-6px);
-
-    border-color: rgba(17, 17, 15, 0.12);
-
-    box-shadow:
-        0 8px 18px rgba(45, 30, 18, 0.08),
-        0 18px 40px rgba(45, 30, 18, 0.10);
-}
-
-
-/* =========================
-   IMAGEM
-   ========================= */
-
-.product-image {
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    position: relative;
-    overflow: hidden;
-    background: #eee7dc;
-}
-
-.product-image img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-
-    transition: transform .45s cubic-bezier(.2,.7,.2,1);
-}
-
-.product:hover .product-image img {
-    transform: scale(1.045);
-}
-
-
-/* =========================
-   INFORMAÇÕES
-   ========================= */
-
-.product-info {
-    padding: 18px 18px 16px;
-}
-
-.product-info h3 {
-    margin: 0;
-
-    font-family: "DM Sans", sans-serif;
-    font-size: 17px;
-    line-height: 1.25;
-    font-weight: 700;
-    letter-spacing: -0.25px;
-
-    color: #191714;
-}
-
-.product-info p {
-    margin: 5px 0 13px;
-
-    font-family: "DM Sans", sans-serif;
-    font-size: 12px;
-    line-height: 1.4;
-    font-weight: 400;
-
-    color: #81766b;
-}
-
-
-/* =========================
-   PREÇO
-   ========================= */
-.product-info .price {
-    margin-top: 13px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    font-family: "DM Sans", sans-serif;
-}
-
-.product-info .preco-atual,
-.product-info .preco-promocional {
-    font-size: 24px;
-    line-height: 1;
-    font-weight: 700;
-    letter-spacing: -0.7px;
-    color: #171513;
-}
-
-.product-info .preco-antigo {
-    font-size: 13px;
-    line-height: 1;
-    font-weight: 500;
-    color: #91877d;
-    text-decoration: line-through;
-}
-
-.product-info .linha-precos {
-    display: flex;
-    align-items: baseline;
-    gap: 9px;
-}
-
-.product-info .installment {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 8px;
-    border-radius: 6px;
-    background: #f5ead2;
-    color: #67502e;
-    font-family: "DM Sans", sans-serif;
-    font-size: 10px;
-    line-height: 1.2;
-    font-weight: 600;
-    letter-spacing: 0;
-}
-
-
-
-/* =========================
-   BOTÃO COMPRAR
-   ========================= */
-
-.product .buy {
-    width: 100%;
-    min-height: 46px;
-
-    margin-top: 15px;
-
-    border: 0;
-    border-radius: 10px;
-
-    background: #11110f;
-    color: #ffffff;
-
-    font-family: "DM Sans", sans-serif;
-    font-size: 11px;
-    font-weight: 800;
-
-    letter-spacing: .4px;
-    text-transform: uppercase;
-
-    transition:
-        background .2s ease,
-        transform .2s ease,
-        box-shadow .2s ease;
-}
-
-.product .buy:hover {
-    background: #282622;
-
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 5px 12px rgba(17, 17, 15, .18);
-}
-
-.product .buy:active {
-    transform: translateY(0);
-}
-
-
-/* =========================
-   SELO DE PROMOÇÃO
-   ========================= */
-
-.product .selo-promocao {
-    top: 12px;
-    left: 12px;
-
-    padding: 7px 11px;
-
-    border-radius: 999px;
-
-    background: #11110f;
-    color: #fff;
-
-    font-family: "DM Sans", sans-serif;
-    font-size: 10px;
-    font-weight: 800;
-
-    letter-spacing: .3px;
-
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
-}
-
-
-/* =========================
-   MOBILE
-   ========================= */
-
-@media (max-width: 600px) {
-
-    .product {
-        border-radius: 14px;
-
-        box-shadow:
-            0 2px 8px rgba(45, 30, 18, 0.06);
-    }
-
-    .product:hover {
-        transform: none;
-    }
-
-    .product-info {
-    padding: 17px 18px 18px;
-}
-
-.product-info h3 {
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.25;
-    font-weight: 700;
-    letter-spacing: -0.2px;
-}
-
-.product-info p {
-    margin: 5px 0 0;
-    color: #8a8077;
-    font-size: 12px;
-    line-height: 1.3;
-}
-.product-info .price {
-    margin-top: 13px;
-    gap: 6px;
-}
-
-    /* =========================
-       PREÇO - MOBILE
-       ========================= */
-
-    .product-info .price {
-        margin-top: 9px;
-        gap: 5px;
-    }
-
-    .product-info .preco-atual,
-    .product-info .preco-promocional {
-        font-size: 18px;
-        line-height: 1;
-        letter-spacing: -0.4px;
-    }
-
-    .product-info .preco-antigo {
-        font-size: 10px;
-    }
-
-    .product-info .linha-precos {
-        gap: 6px;
-    }
-
-    .product-info .installment {
-        padding: 4px 6px;
-        font-size: 8px;
-        border-radius: 5px;
-    }
-
-
-    /* =========================
-       BOTÃO
-       ========================= */
-
-    .product .buy {
-    min-height: 44px;
-    margin-top: 14px;
-
-    border-radius: 9px;
-
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .7px;
-
-    transition:
-        background .2s ease,
-        transform .2s ease;
-}
-
-
-    /* =========================
-       SELO PROMOÇÃO
-       ========================= */
-
-    .product .selo-promocao {
-        top: 8px;
-        left: 8px;
-
-        padding: 5px 7px;
-
-        font-size: 8px;
     }
 }
