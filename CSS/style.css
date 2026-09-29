@@ -2546,6 +2546,68 @@ html {
         min-height: auto;
     }
 }
+@media (max-width: 600px) {
 
+    body.home-page .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: auto;
+        margin-bottom: 10px;
+    }
+
+    body.home-page .logo {
+        position: static !important;
+        transform: none !important;
+        margin: 0 !important;
+    }
+
+    body.home-page .nav-actions {
+        position: static;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    body.home-page .nav-actions .icon-btn,
+    body.home-page .nav-actions .cart-header-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    body.home-page .linha-busca {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    body.home-page .busca-site {
+        width: 100% !important;
+        height: 40px !important;
+        margin: 0 !important;
+        border-radius: 20px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+    }
+
+    body.home-page .busca-site input {
+        font-size: 13px;
+        padding-left: 14px;
+    }
+
+    body.home-page .busca-site button {
+        width: 42px;
+        height: 100%;
+        background: transparent;
+        border: none;
+        display: grid;
+        place-items: center;
+    }
+
+    body.home-page .busca-site button svg {
+        width: 18px;
+        height: 18px;
+    }
+}
 
 
