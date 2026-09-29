@@ -2850,18 +2850,41 @@ html {
         margin: 4px 0 9px;
     }
 
+
+    /* =========================
+       PREÇO - MOBILE
+       ========================= */
+
     .product-info .price {
-        font-size: 19px;
-        letter-spacing: -0.5px;
-        gap: 4px;
+        margin-top: 9px;
+        gap: 5px;
     }
 
-    .product-info .price::after {
-        padding: 5px 6px;
+    .product-info .preco-atual,
+    .product-info .preco-promocional {
+        font-size: 18px;
+        line-height: 1;
+        letter-spacing: -0.4px;
+    }
 
+    .product-info .preco-antigo {
+        font-size: 10px;
+    }
+
+    .product-info .linha-precos {
+        gap: 6px;
+    }
+
+    .product-info .installment {
+        padding: 4px 6px;
         font-size: 8px;
         border-radius: 5px;
     }
+
+
+    /* =========================
+       BOTÃO
+       ========================= */
 
     .product .buy {
         min-height: 38px;
@@ -2874,6 +2897,11 @@ html {
         letter-spacing: .25px;
     }
 
+
+    /* =========================
+       SELO PROMOÇÃO
+       ========================= */
+
     .product .selo-promocao {
         top: 8px;
         left: 8px;
@@ -2883,4 +2911,3 @@ html {
         font-size: 8px;
     }
 }
-
