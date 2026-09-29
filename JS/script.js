@@ -1362,8 +1362,8 @@ const produtosAtivos =
 
     ${
         temPromocao
-            ? `
-                <div class="linha-precos">
+        ? `
+            <div class="linha-precos">
                 <span class="preco-antigo">
                     ${formatarPreco(produto.preco)}
                 </span>
@@ -1373,9 +1373,21 @@ const produtosAtivos =
                 </span>
             </div>
 
-                    `
-        : formatarPreco(produto.preco)
-}
+            <span class="installment">
+                ou 2x de ${formatarPreco(produto.preco_promocional / 2)} sem juros
+            </span>
+        `
+        : `
+            <span class="preco-atual">
+                ${formatarPreco(produto.preco)}
+            </span>
+
+            <span class="installment">
+                ou 2x de ${formatarPreco(produto.preco / 2)} sem juros
+            </span>
+        `
+    }
+
 </div>
 
                             </div>

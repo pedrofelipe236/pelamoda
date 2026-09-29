@@ -2702,49 +2702,52 @@ html {
 /* =========================
    PREÇO
    ========================= */
-
 .product-info .price {
+    margin-top: 14px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
-
-    margin: 0;
-
+    gap: 6px;
     font-family: "DM Sans", sans-serif;
-    font-size: 25px;
-    line-height: 1;
-    font-weight: 700;
-    letter-spacing: -0.8px;
-
-    color: #191714;
 }
 
+.product-info .preco-atual,
+.product-info .preco-promocional {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.7px;
+    color: #171513;
+}
 
-/* parcela criada pelo CSS
-   não precisa alterar o HTML */
+.product-info .preco-antigo {
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 500;
+    color: #91877d;
+    text-decoration: line-through;
+}
 
-.product-info .price::after {
-    content: "ou 2x de R$ 32,50 sem juros";
+.product-info .linha-precos {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+}
 
+.product-info .installment {
     display: inline-flex;
     align-items: center;
-
-    padding: 6px 9px;
-
-    border-radius: 7px;
-
-    background: #f8e8b9;
-    color: #4f3a1d;
-
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: #f5ead2;
+    color: #67502e;
     font-family: "DM Sans", sans-serif;
-    font-size: 11px;
+    font-size: 10px;
     line-height: 1.2;
     font-weight: 600;
     letter-spacing: 0;
-
-    white-space: nowrap;
 }
+
 
 
 /* =========================
