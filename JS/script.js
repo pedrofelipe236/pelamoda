@@ -1265,42 +1265,6 @@ const produtosAtivos =
                     ]
                 );
 
-
-        function corParaCSS(nome) {
-            const nomeNormalizado = String(nome || "")
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .toLowerCase()
-                .trim();
-
-            const cores = {
-                "preto": "#111111",
-                "preta": "#111111",
-                "branco": "#ffffff",
-                "branca": "#ffffff",
-                "off white": "#f4f0e8",
-                "offwhite": "#f4f0e8",
-                "azul": "#4d82b8",
-                "azul marinho": "#18345a",
-                "azul claro": "#8db7d9",
-                "vermelho": "#c84b4b",
-                "verde": "#5f8b62",
-                "verde claro": "#9bbd8f",
-                "amarelo": "#e7c84a",
-                "rosa": "#d98aa8",
-                "roxo": "#8064a2",
-                "lilas": "#b7a0d0",
-                "laranja": "#dc8b45",
-                "marrom": "#795548",
-                "bege": "#d7c3a5",
-                "cinza": "#8d8d8d",
-                "cinza claro": "#c8c8c8",
-                "grafite": "#3d4146"
-            };
-
-            return cores[nomeNormalizado] || "#d8d2ca";
-        }
-
         function criarSecao(
             titulo,
             listaProdutos
@@ -1356,14 +1320,10 @@ const produtosAtivos =
 
                     card.className =
                         "product";
-                        const temPromocao =
-    produto.preco_promocional &&
-    produto.preco_promocional < produto.preco;
 
-                    const coresProduto =
-                        Array.isArray(produto.cores)
-                            ? produto.cores
-                            : [];
+                    const temPromocao =
+                        produto.preco_promocional &&
+                        produto.preco_promocional < produto.preco;
 
                     const seloMaisVendido =
                         produto.mais_vendido === true
@@ -1374,25 +1334,6 @@ const produtosAtivos =
                                     </svg>
                                     MAIS VENDIDO
                                 </span>
-                            `
-                            : "";
-
-                    const coresHTML =
-                        coresProduto.length > 0
-                            ? `
-                                <div class="product-colors" aria-label="Cores disponíveis">
-                                    ${coresProduto
-                                        .slice(0, 6)
-                                        .map(cor => `
-                                            <span
-                                                class="product-color"
-                                                title="${cor.nome || "Cor"}"
-                                                aria-label="${cor.nome || "Cor"}"
-                                                style="background:${corParaCSS(cor.nome)}"
-                                            ></span>
-                                        `)
-                                        .join("")}
-                                </div>
                             `
                             : "";
 
@@ -1416,6 +1357,7 @@ const produtosAtivos =
         alt="${produto.nome}"
     >
 </div>
+                                
 
                             <div class="product-info">
 
@@ -1431,53 +1373,35 @@ const produtosAtivos =
                                     }
                                 </p>
 
-                                ${coresHTML}
-
                                <div class="price">
 
     ${
         temPromocao
             ? `
                 <div class="linha-precos">
-                    <span class="preco-antigo">
-                        ${formatarPreco(produto.preco)}
-                    </span>
-
-                    <span class="preco-promocional">
-                        ${formatarPreco(produto.preco_promocional)}
-                    </span>
-                </div>
-              `
-            : `
-                <span class="preco-atual">
+                <span class="preco-antigo">
                     ${formatarPreco(produto.preco)}
                 </span>
-              `
-    }
-</div>
 
-                                <span class="installment">
-                                    ou 2x de ${formatarPreco((temPromocao ? produto.preco_promocional : produto.preco) / 2)} sem juros
-                                </span>
+                <span class="preco-promocional">
+                    ${formatarPreco(produto.preco_promocional)}
+                </span>
+            </div>
+
+                    `
+        : formatarPreco(produto.preco)
+}
+</div>
 
                             </div>
                         </a>
 
-                        <div class="product-actions">
-                            <button
-                                class="buy"
-                                type="button"
-                                aria-label="Comprar ${produto.nome}"
-                                onclick="window.location.href='produto.html?id=${id}'"
-                            >
-                                <svg class="buy-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <circle cx="9" cy="20" r="1"/>
-                                    <circle cx="18" cy="20" r="1"/>
-                                    <path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 1.9-1.5L21 8H6"/>
-                                </svg>
-                                <span>COMPRAR</span>
-                            </button>
-                        </div>
+                        <button
+                            class="buy"
+                            onclick="window.location.href='produto.html?id=${id}'"
+                        >
+                            COMPRAR
+                        </button>
                     `;
 
                     grid.appendChild(
