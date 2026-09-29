@@ -2537,7 +2537,12 @@ html {
     width: auto;
     margin: 0;
 }
-
+@media (max-width: 600px) {
+    body.home-page header {
+        padding: 10px 16px 12px;
+        background: #11110f;
+    }
+}
 
 
 
