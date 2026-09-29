@@ -1160,7 +1160,12 @@
     .product-details {
         padding-top: 0;
     }
-
+.product-details {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
     .product-details h1 {
         font-size: 48px;
     }
