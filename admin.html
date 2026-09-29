@@ -197,6 +197,28 @@ textarea {
     resize: vertical;
 }
 
+.campo-mais-vendido {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.mais-vendido-opcao {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.mais-vendido-opcao input {
+    width: 18px;
+    height: 18px;
+    accent-color: #111;
+}
+
 .cadastrar-produto {
     padding: 14px;
     border: 0;
@@ -704,6 +726,18 @@ textarea {
     background: #111;
     color: #fff;
 }
+
+.badge-mais-vendido-admin {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #f5ead2;
+    color: #67502e;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .2px;
+}
     </style>
 </head>
 
@@ -745,6 +779,17 @@ textarea {
         min="0"
         step="0.01"
     >
+</label>
+
+<label class="campo-mais-vendido">
+    <span>Produto em destaque</span>
+    <span class="mais-vendido-opcao">
+        <input
+            type="checkbox"
+            id="novoProdutoMaisVendido"
+        >
+        <span>Marcar como MAIS VENDIDO</span>
+    </span>
 </label>
      
 
@@ -1351,6 +1396,14 @@ async function editarProduto(produtoId) {
         document.getElementById("novoProdutoDescricao").value =
             produto.descricao || "";
 
+        const campoMaisVendido =
+            document.getElementById("novoProdutoMaisVendido");
+
+        if (campoMaisVendido) {
+            campoMaisVendido.checked =
+                produto.mais_vendido === true;
+        }
+
         // Limpa cores existentes
         const container =
             document.getElementById("novasCores");
@@ -1576,6 +1629,12 @@ produtoDiv.innerHTML = `
     <p class="produto-total-estoque">
         ${totalEstoque} ${totalEstoque === 1 ? "unidade" : "unidades"} em estoque
     </p>
+
+    ${
+        produto.mais_vendido === true
+            ? `<span class="badge-mais-vendido-admin">★ MAIS VENDIDO</span>`
+            : ""
+    }
 </div>
 </div>
     
@@ -2074,6 +2133,9 @@ async function cadastrarProduto() {
     const descricao =
         document.getElementById("novoProdutoDescricao").value.trim();
 
+    const maisVendido =
+        document.getElementById("novoProdutoMaisVendido")?.checked === true;
+
     const mensagem =
         document.getElementById("mensagemProduto");
 
@@ -2476,7 +2538,8 @@ const resposta =
                 categoria,
                 descricao,
                 cores,
-                imagensExtras
+                imagensExtras,
+                mais_vendido: maisVendido
             })
         }
     );
@@ -2539,6 +2602,13 @@ dadosProdutoEditando = null;
         document.getElementById(
     "novoProdutoPrecoPromocional"
 ).value = "";
+
+        const campoMaisVendido =
+            document.getElementById("novoProdutoMaisVendido");
+
+        if (campoMaisVendido) {
+            campoMaisVendido.checked = false;
+        }
 
         document.getElementById(
             "novoProdutoDescricao"
