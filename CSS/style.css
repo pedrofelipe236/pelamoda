@@ -908,6 +908,7 @@
 
 .product-main-image {
     width: 100%;
+    height: auto;
     overflow: hidden;
     border-radius: 14px;
     background: #eee7dc;
