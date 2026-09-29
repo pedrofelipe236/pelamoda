@@ -331,7 +331,8 @@ if (req.body.acao === "alterar-precos-lote") {
     categoria,
     descricao,
     cores,
-    imagensExtras = []
+    imagensExtras = [],
+     mais_vendido = false
 } = req.body;
 
 
@@ -531,7 +532,8 @@ if (
                             coresProduto,
 
                         imagens:
-                            imagensProduto
+                            imagensProduto,
+                             mais_vendido: mais_vendido === true
                     })
                 }
             );
