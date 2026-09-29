@@ -1090,16 +1090,14 @@
 .product-cart-button,
 .product-whatsapp-button {
     width: 100%;
-
-    height: 54px;
-
-    border-radius: 7px;
-
-    font-weight: 800;
-
-    text-transform: uppercase;
-
-    margin-bottom: 12px;
+    height: 48px;
+    border-radius: 5px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    margin-bottom: 10px;
 }
 
 .product-cart-button {
