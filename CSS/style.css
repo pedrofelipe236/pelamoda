@@ -1090,7 +1090,8 @@
 
 .product-cart-button,
 .product-whatsapp-button {
-    width: 100%;
+    width: 380px;
+    max-width: 100%;
     height: 48px;
     border-radius: 5px;
     font-family: "Segoe UI", Arial, sans-serif;
