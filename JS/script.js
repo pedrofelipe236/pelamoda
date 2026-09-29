@@ -1456,6 +1456,10 @@ const produtosAtivos =
     }
 </div>
 
+                                <span class="installment">
+                                    ou 2x de ${formatarPreco((temPromocao ? produto.preco_promocional : produto.preco) / 2)} sem juros
+                                </span>
+
                             </div>
                         </a>
 
