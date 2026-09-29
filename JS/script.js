@@ -1362,30 +1362,32 @@ const produtosAtivos =
 
     ${
         temPromocao
-        ? `
-            <div class="linha-precos">
-                <span class="preco-antigo">
+            ? `
+                <div class="linha-precos">
+
+                    <span class="preco-antigo">
+                        ${formatarPreco(produto.preco)}
+                    </span>
+
+                    <span class="preco-promocional">
+                        ${formatarPreco(produto.preco_promocional)}
+                    </span>
+
+                </div>
+
+                <span class="installment">
+                    em até 2x de ${formatarPreco(produto.preco_promocional / 2)} sem juros
+                </span>
+            `
+            : `
+                <span class="preco-atual">
                     ${formatarPreco(produto.preco)}
                 </span>
 
-                <span class="preco-promocional">
-                    ${formatarPreco(produto.preco_promocional)}
+                <span class="installment">
+                    em até 2x de ${formatarPreco(produto.preco / 2)} sem juros
                 </span>
-            </div>
-
-            <span class="installment">
-                ou 2x de ${formatarPreco(produto.preco_promocional / 2)} sem juros
-            </span>
-        `
-        : `
-            <span class="preco-atual">
-                ${formatarPreco(produto.preco)}
-            </span>
-
-            <span class="installment">
-                ou 2x de ${formatarPreco(produto.preco / 2)} sem juros
-            </span>
-        `
+            `
     }
 
 </div>
