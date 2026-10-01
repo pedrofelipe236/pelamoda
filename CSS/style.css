@@ -2907,4 +2907,136 @@ html {
         top: 34px;
     }
 }
+/* =========================================================
+   FUNDO NORDESTINO — SEÇÃO DE PRODUTOS
+   ========================================================= */
 
+.products {
+    position: relative;
+    overflow: hidden;
+    background: var(--creme);
+}
+
+/* textura discreta de xilogravura */
+.products::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 12% 18%,
+            rgba(154, 84, 48, .07) 0 2px,
+            transparent 3px
+        ),
+        radial-gradient(
+            circle at 85% 78%,
+            rgba(154, 84, 48, .06) 0 2px,
+            transparent 3px
+        ),
+        repeating-linear-gradient(
+            135deg,
+            transparent 0 28px,
+            rgba(110, 76, 53, .025) 28px 29px
+        );
+
+    opacity: .8;
+}
+
+/* elementos decorativos */
+.products::after {
+    content: "";
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    right: -210px;
+    top: -170px;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            transparent 0 72px,
+            rgba(185, 102, 55, .12) 73px 75px,
+            transparent 76px
+        ),
+        radial-gradient(
+            circle at 50% 50%,
+            transparent 0 125px,
+            rgba(185, 102, 55, .07) 126px 128px,
+            transparent 129px
+        );
+
+    border-radius: 50%;
+    opacity: .9;
+}
+
+/* garante que o conteúdo fique acima da decoração */
+.products .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* mandacaru decorativo à esquerda */
+.products {
+    --mandacaru-cor: rgba(81, 104, 67, .13);
+}
+
+.products .container::before {
+    content: "";
+    position: absolute;
+    left: -65px;
+    bottom: 20px;
+
+    width: 34px;
+    height: 145px;
+
+    border-radius: 20px 20px 4px 4px;
+    background: var(--mandacaru-cor);
+
+    box-shadow:
+        45px 38px 0 -8px var(--mandacaru-cor),
+        -28px 72px 0 -8px var(--mandacaru-cor);
+
+    opacity: .9;
+}
+
+/* pequena linha ornamental */
+.products .container::after {
+    content: "✦  •  ✦  •  ✦";
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+
+    font-size: 17px;
+    letter-spacing: 5px;
+    color: rgba(150, 82, 46, .16);
+
+    pointer-events: none;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+
+    .products::after {
+        width: 300px;
+        height: 300px;
+        right: -150px;
+        top: -100px;
+    }
+
+    .products .container::before {
+        left: -45px;
+        bottom: 10px;
+        transform: scale(.7);
+        transform-origin: bottom left;
+    }
+
+    .products .container::after {
+        right: 4px;
+        bottom: 5px;
+        font-size: 12px;
+        letter-spacing: 3px;
+    }
+}
