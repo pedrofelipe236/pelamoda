@@ -2886,25 +2886,6 @@ html {
     min-width: 0;
 }
 
-.product-details::after {
-    content: "";
-    position: absolute;
-    top: 18px;
-    right: -18px;
-    width: 170px;
-    height: 300px;
-    pointer-events: none;
-    opacity: .34;
-    background:
-        radial-gradient(circle at 73% 20%, transparent 0 34px, #dfc6a7 35px 37px, transparent 38px),
-        linear-gradient(90deg, transparent 0 48%, #dfc6a7 49% 50%, transparent 51%),
-        linear-gradient(63deg, transparent 0 48%, #dfc6a7 49% 50%, transparent 51%),
-        linear-gradient(-63deg, transparent 0 48%, #dfc6a7 49% 50%, transparent 51%);
-    background-size: 100% 100%, 78px 72px, 78px 72px, 78px 72px;
-    background-position: center, 74% 15%, 74% 15%, 74% 15%;
-    background-repeat: no-repeat;
-    z-index: 0;
-}
 
 .product-details > * {
     position: relative;
@@ -3065,6 +3046,11 @@ html {
     background: #d6b995;
 }
 
+.color-option[data-cor*="Rosa"],
+.color-option[data-cor*="rosa"] {
+    background: #e7aebc;
+}
+
 /* Para os botões de tamanho */
 .size-option {
     min-width: 48px;
@@ -3214,9 +3200,6 @@ html {
         padding-top: 0;
     }
 
-    .product-details::after {
-        display: none;
-    }
 }
 
 @media (max-width: 640px) {
