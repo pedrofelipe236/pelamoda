@@ -1457,8 +1457,7 @@ async function atualizarLinkMeusPedidos() {
         "DOMContentLoaded",
         async () => {
             await atualizarLinkMeusPedidos();
-            inicializarCarrossel();
-
+            
             await carregarEstoqueAPI();
 
             carregarProdutoDinamico();
