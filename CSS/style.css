@@ -866,99 +866,6 @@
     height: auto;
     object-fit: contain;
 }
-/* =========================
-   CARROSSEL PROMOCIONAL
-========================= */
-
-.promos {
-    padding: 45px 0;
-    background: var(--creme-2);
-}
-.promos .container {
-    width: min(100% - 40px, 1400px);
-    margin-inline: auto;
-}
-.promo-carousel {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    border-radius: 12px;
-}
-
-.promo-track {
-    display: flex;
-    transition: transform 0.5s ease;
-}
-
-.promo-slide {
-    min-width: 100%;
-    display: block;
-}
-
-.promo-slide img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.promo-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-
-    width: 46px;
-    height: 46px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: rgba(17, 17, 15, 0.8);
-    color: white;
-
-    font-size: 32px;
-    line-height: 1;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    z-index: 5;
-}
-
-.promo-prev {
-    left: 18px;
-}
-
-.promo-next {
-    right: 18px;
-}
-
-.promo-dots {
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-
-    display: flex;
-    gap: 8px;
-}
-
-.promo-dot {
-    width: 10px;
-    height: 10px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: rgba(255,255,255,.55);
-
-    padding: 0;
-}
-
-.promo-dot.active {
-    background: white;
-    transform: scale(1.2);
-}
 
 /* CELULAR */
 
@@ -973,10 +880,6 @@
 .linha-busca {
     margin: 0 auto 10px;
     width: calc(100% - 120px);
-}
-.promo-slide img {
-    max-height: 320px;
-    object-fit: cover;
 }
 .products {
     padding-top: 25px;
@@ -1046,27 +949,6 @@
         width: 100%;
         height: auto;
         object-fit: contain;
-    }
-    .promos {
-        padding: 15px 0;
-    }
-
-    .promo-carousel {
-        border-radius: 8px;
-    }
-
-    .promo-arrow {
-        width: 36px;
-        height: 36px;
-        font-size: 25px;
-    }
-
-    .promo-prev {
-        left: 8px;
-    }
-
-    .promo-next {
-        right: 8px;
     }
 
 }

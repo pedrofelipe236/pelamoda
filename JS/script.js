@@ -188,111 +188,7 @@ async function carregarEstoqueAPI() {
         );
     }
 
-
-    // ======================================================
-    // CARROSSEL PROMOCIONAL
-    // ======================================================
-
-    function inicializarCarrossel() {
-
-        const promoTrack =
-            document.querySelector(".promo-track");
-
-        const promoSlides =
-            document.querySelectorAll(".promo-slide");
-
-        const promoDots =
-            document.querySelectorAll(".promo-dot");
-
-        const promoPrev =
-            document.querySelector(".promo-prev");
-
-        const promoNext =
-            document.querySelector(".promo-next");
-
-        if (
-            !promoTrack ||
-            promoSlides.length === 0 ||
-            !promoPrev ||
-            !promoNext
-        ) {
-            return;
-        }
-
-        let promoIndex = 0;
-        let promoTimer;
-
-        function mostrarPromo(index) {
-
-            if (index >= promoSlides.length) {
-                promoIndex = 0;
-            } else if (index < 0) {
-                promoIndex = promoSlides.length - 1;
-            } else {
-                promoIndex = index;
-            }
-
-            promoTrack.style.transform =
-                `translateX(-${promoIndex * 100}%)`;
-
-            promoDots.forEach(
-                dot => dot.classList.remove("active")
-            );
-
-            if (promoDots[promoIndex]) {
-                promoDots[promoIndex]
-                    .classList.add("active");
-            }
-        }
-
-        function proximaPromo() {
-            mostrarPromo(promoIndex + 1);
-        }
-
-        function iniciarAutomatico() {
-
-            clearInterval(promoTimer);
-
-            promoTimer = setInterval(
-                proximaPromo,
-                5000
-            );
-        }
-
-        promoNext.addEventListener(
-            "click",
-            () => {
-                proximaPromo();
-                iniciarAutomatico();
-            }
-        );
-
-        promoPrev.addEventListener(
-            "click",
-            () => {
-                mostrarPromo(promoIndex - 1);
-                iniciarAutomatico();
-            }
-        );
-
-        promoDots.forEach(
-            (dot, index) => {
-
-                dot.addEventListener(
-                    "click",
-                    () => {
-                        mostrarPromo(index);
-                        iniciarAutomatico();
-                    }
-                );
-            }
-        );
-
-        mostrarPromo(0);
-        iniciarAutomatico();
-    }
-
-
+    
     // ======================================================
     // GALERIA / COR / TAMANHO
     // ======================================================
@@ -1359,6 +1255,7 @@ const produtosAtivos =
                         const temPromocao =
     produto.preco_promocional &&
     produto.preco_promocional < produto.preco;
+    
 
                     const coresProduto =
                         Array.isArray(produto.cores)
