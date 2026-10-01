@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Produto | PêlaModa</title>
-
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 
@@ -14,14 +13,15 @@
 <header>
     <div class="container nav">
 
-        <a href="index.html" class="logo">
-    <img
-        src="imagens/logo.png"
-        alt="Pêla Moda"
-        class="logo-pelamoda"
-        style="width:65px; height:65px; object-fit:contain;"
-    >
-</a>
+        <a href="index.html" class="logo" aria-label="PêlaModa - início">
+            <img
+                src="imagens/logo.png"
+                alt="Pêla Moda"
+                class="logo-pelamoda"
+                width="65"
+                height="65"
+            >
+        </a>
 
         <nav>
             <a href="index.html">Início</a>
@@ -29,201 +29,162 @@
             <a href="index.html#sobre">Sobre</a>
             <a href="index.html#contato">Contato</a>
         </nav>
-<button class="cart-header-btn" onclick="abrirCarrinho()" aria-label="Abrir carrinho">
-    <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M7 8V6a5 5 0 0 1 10 0v2h3l-1 14H5L4 8h3Zm2 0h6V6a3 3 0 0 0-6 0v2Zm-2.85 2 .72 10h10.26l.72-10H17v2h-2v-2H9v2H7v-2h-.85Z"/>
-    </svg>
 
-    <span id="cartCount">0</span>
-</button>
+        <button class="cart-header-btn" onclick="abrirCarrinho()" aria-label="Abrir carrinho">
+            <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 8V6a5 5 0 0 1 10 0v2h3l-1 14H5L4 8h3Zm2 0h6V6a3 3 0 0 0-6 0v2Zm-2.85 2 .72 10h10.26l.72-10H17v2h-2v-2H9v2H7v-2h-.85Z"/>
+            </svg>
+            <span id="cartCount">0</span>
+        </button>
     </div>
 </header>
 
-
 <main>
+    <section class="product-page">
 
-<section class="product-page">
-<div
-       id="produtoAtual"
-    data-nome=""
-    data-preco=""
+        <!-- Mantido para o JavaScript do produto -->
+        <div
+            id="produtoAtual"
+            data-nome=""
+            data-preco=""
+            aria-hidden="true"
+        ></div>
 
-></div>
-     <div class="container product-page-grid">
+        <div class="container product-page-container">
 
-    <!-- GALERIA -->
-
-    <div class="product-gallery">
-
-        <div class="product-main-image">
-            <img
-                id="imagemPrincipal"
-                alt="Produto PêlaModa"
-            >
-        </div>
-
-        <div class="product-thumbnails">
-        </div>
-
-    </div> <!-- FECHA product-gallery -->
-
-
-    <!-- INFORMAÇÕES -->
-
-    <div class="product-details">
-
-            <span class="product-category">
-                PÊLAMODA
-            </span>
-
-            <h1></h1>
-
-            <div class="product-price">
-
+            <div class="product-breadcrumb" aria-label="Navegação estrutural">
+                <a href="index.html">Início</a>
+                <span>›</span>
+                <a href="index.html#produtos">Produtos</a>
+                <span>›</span>
+                <strong>Produto</strong>
             </div>
 
-            
-            <!-- CORES -->
+            <div class="product-page-grid">
 
-         <div class="product-option">
+                <!-- GALERIA -->
+                <div class="product-gallery">
 
-    <strong>Cor</strong>
+                    <div class="product-main-image">
+                        <img
+                            id="imagemPrincipal"
+                            alt="Produto PêlaModa"
+                        >
+                    </div>
 
-    <div
-        class="option-buttons"
-        id="opcoesCores"
-    >
-    </div>
-
-</div>
-
-
-            <!-- TAMANHOS -->
-
-            <div class="product-option">
-
-    <strong>Tamanho</strong>
-
-    <div
-        class="option-buttons"
-        id="opcoesTamanhos"
-    >
-    </div>
-
-</div>
-
-            <!-- QUANTIDADE -->
-
-            <div class="product-option">
-
-                <strong>Quantidade</strong>
-
-                <div class="quantity">
-
-                    <button onclick="alterarQuantidade(-1)">
-                        −
-                    </button>
-
-                    <span id="quantidade">
-                        1
-                    </span>
-
-                    <button onclick="alterarQuantidade(1)">
-                        +
-                    </button>
+                    <div class="product-thumbnails" aria-label="Fotos do produto">
+                    </div>
 
                 </div>
 
+                <!-- INFORMAÇÕES -->
+                <div class="product-details">
+
+                    <span class="product-category">PÊLAMODA</span>
+
+                    <h1></h1>
+
+                    <!-- Reservado para avaliações reais futuras -->
+                    <div class="product-rating" aria-label="Avaliações do produto"></div>
+
+                    <div class="product-price"></div>
+
+                    <p class="product-description"></p>
+
+                    <!-- CORES -->
+                    <div class="product-option">
+                        <strong>Cor</strong>
+                        <div class="option-buttons" id="opcoesCores"></div>
+                    </div>
+
+                    <!-- TAMANHOS -->
+                    <div class="product-option">
+                        <strong>Tamanho</strong>
+                        <div class="option-buttons" id="opcoesTamanhos"></div>
+                    </div>
+
+                    <!-- QUANTIDADE -->
+                    <div class="product-option">
+                        <strong>Quantidade</strong>
+
+                        <div class="quantity">
+                            <button type="button" onclick="alterarQuantidade(-1)" aria-label="Diminuir quantidade">
+                                −
+                            </button>
+
+                            <span id="quantidade">1</span>
+
+                            <button type="button" onclick="alterarQuantidade(1)" aria-label="Aumentar quantidade">
+                                +
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- BOTÕES -->
+                    <button
+                        type="button"
+                        class="product-cart-button"
+                        onclick="adicionarCarrinho()"
+                    >
+                        Adicionar ao carrinho
+                    </button>
+
+                    <button
+                        type="button"
+                        class="product-whatsapp-button"
+                        onclick="comprarProdutoWhatsApp()"
+                    >
+                        Comprar pelo WhatsApp
+                    </button>
+
+                    <p class="product-installment">
+                        ou até 2x sem juros
+                    </p>
+
+                    <p class="product-help">
+                        Precisa de ajuda com tamanho ou cor?
+                        Fale com a gente pelo WhatsApp.
+                    </p>
+
+                    <!-- INFORMAÇÕES COMPLEMENTARES -->
+                    <div class="product-info-sections">
+
+                        <section class="product-info-section">
+                            <h2>DETALHES DO PRODUTO</h2>
+                            <ul class="product-info-list">
+                                <li>Modelagem unissex</li>
+                                <li>Estampa em serigrafia</li>
+                                <li>Produzida em Pernambuco</li>
+                                <li>Disponível em diferentes cores e tamanhos</li>
+                            </ul>
+                        </section>
+
+                        <section class="product-info-section">
+                            <h2>POR QUE PÊLAMODA?</h2>
+                            <ul class="product-info-list">
+                                <li>Design autoral inspirado na cultura nordestina</li>
+                                <li>Produção local</li>
+                                <li>Compra segura pelo site</li>
+                                <li>Atendimento direto pelo WhatsApp</li>
+                            </ul>
+                        </section>
+
+                    </div>
+
+                </div>
             </div>
-
-
-            <!-- BOTÕES -->
-
-            <button
-                class="product-cart-button"
-                onclick="adicionarCarrinho()"
-            >
-                Adicionar ao carrinho
-            </button>
-
-            <button
-                class="product-whatsapp-button"
-                onclick="comprarProdutoWhatsApp()"
-            >
-                Comprar pelo WhatsApp
-            </button>
-            <div class="product-info-sections">
-
-    <!-- DESCRIÇÃO -->
-
-    <section class="product-info-section">
-
-        <h2>DESCRIÇÃO</h2>
-
-        <p class="product-description">
-        </p>
-
-    </section>
-
-
-    <!-- DETALHES -->
-
-    <section class="product-info-section">
-
-        <h2>DETALHES DO PRODUTO</h2>
-
-        <ul class="product-info-list">
-            <li>Modelagem unissex</li>
-            <li>Estampa em serigrafia</li>
-            <li>Produzida em Pernambuco</li>
-            <li>Disponível em diferentes cores e tamanhos</li>
-        </ul>
-
-    </section>
-
-
-    <!-- DIFERENCIAIS -->
-
-    <section class="product-info-section">
-
-        <h2>POR QUE PÊLAMODA?</h2>
-
-        <ul class="product-info-list">
-            <li>Design autoral inspirado na cultura nordestina</li>
-            <li>Produção local</li>
-            <li>Compra segura pelo site</li>
-            <li>Atendimento direto pelo WhatsApp</li>
-        </ul>
-
-    </section>
-
-</div>
-
-            <p class="product-help">
-                Precisa de ajuda com tamanho ou cor?
-                Fale com a gente pelo WhatsApp.
-            </p>
-
         </div>
-
-    </div>
-
-</section>
-
+    </section>
 </main>
 
 <!-- CARRINHO LATERAL -->
-
 <div class="cart-overlay" id="cartOverlay" onclick="fecharCarrinho()"></div>
 
 <aside class="cart-drawer" id="cartDrawer">
 
     <div class="cart-header">
         <h2>Seu carrinho</h2>
-
-        <button onclick="fecharCarrinho()" aria-label="Fechar carrinho">
-            ×
-        </button>
+        <button type="button" onclick="fecharCarrinho()" aria-label="Fechar carrinho">×</button>
     </div>
 
     <div class="cart-items" id="cartItems">
@@ -235,23 +196,22 @@
     </div>
 
     <div class="cart-footer">
-
         <div class="cart-subtotal">
             <span>Subtotal</span>
             <strong id="cartSubtotal">R$ 0,00</strong>
         </div>
 
-        <button class="cart-checkout" onclick="window.location.href='checkout.html'">
+        <button type="button" class="cart-checkout" onclick="window.location.href='checkout.html'">
             Finalizar pedido
         </button>
 
-        <button class="cart-continue" onclick="fecharCarrinho()">
+        <button type="button" class="cart-continue" onclick="fecharCarrinho()">
             Continuar comprando
         </button>
-
     </div>
 
 </aside>
+
 <script src="JS/produtos.js"></script>
 <script src="JS/script.js"></script>
 

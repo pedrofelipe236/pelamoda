@@ -3258,3 +3258,59 @@ html {
         height: 50px;
     }
 }
+
+/* =========================================================
+   COMPLEMENTO DO HTML NOVO
+========================================================= */
+
+.product-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 26px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+    color: #8a8178;
+}
+
+.product-breadcrumb a {
+    color: #8a8178;
+    text-decoration: none;
+}
+
+.product-breadcrumb a:hover {
+    color: #b9571d;
+}
+
+.product-breadcrumb span {
+    color: #b9afa3;
+}
+
+.product-breadcrumb strong {
+    color: #514940;
+    font-weight: 600;
+}
+
+.product-rating:empty {
+    display: none;
+}
+
+.product-installment {
+    margin: 7px 0 0;
+    color: #71685f;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    .product-breadcrumb {
+        margin-bottom: 18px;
+        font-size: 11px;
+    }
+
+    .product-installment {
+        margin-top: 6px;
+    }
+}
