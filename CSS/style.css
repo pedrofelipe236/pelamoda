@@ -3157,3 +3157,21 @@ html {
 .hero .carousel-arrow {
     display: none !important;
 }
+.product-installment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin: 8px 0 12px;
+    color: #71685f;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.installment-icon {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+}
