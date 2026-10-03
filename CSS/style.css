@@ -3328,3 +3328,15 @@ html {
         transition: none !important;
     }
 }
+.hero {
+    width: 100% !important;
+    max-width: none !important;
+    overflow: visible !important;
+}
+
+.hero-banner {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
