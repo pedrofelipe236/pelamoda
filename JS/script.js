@@ -1557,3 +1557,40 @@ if (btnBuscarProdutos && campoBusca) {
 }
 console.log("CAMPO BUSCA:", document.getElementById("buscaProdutos"));
 
+/* =========================================
+   PÊLAMODA — PASSARINHO NO SCROLL
+========================================= */
+
+const pmPassaro = document.getElementById("pmPassaro");
+
+if (pmPassaro) {
+
+    let ultimoScroll = window.scrollY;
+    let voando = false;
+
+    window.addEventListener("scroll", () => {
+
+        const scrollAtual = window.scrollY;
+
+        // Só dispara quando o usuário estiver descendo
+        if (scrollAtual > ultimoScroll && !voando) {
+
+            voando = true;
+
+            // Reinicia a animação
+            pmPassaro.style.animation = "none";
+
+            void pmPassaro.offsetWidth;
+
+            pmPassaro.style.animation =
+                "pmPassaroVoo 4s ease-in-out forwards";
+
+            // Quando terminar o voo, libera para o próximo
+            setTimeout(() => {
+                voando = false;
+            }, 4200);
+        }
+
+        ultimoScroll = scrollAtual;
+    });
+}

@@ -3295,9 +3295,6 @@ html {
 }
 
 /* Voo: DIREITA → ESQUERDA */
-.pm-passaro {
-    animation: pmPassaroVoo 4s ease-in-out forwards;
-}
 
 @keyframes pmPassaroVoo {
 
