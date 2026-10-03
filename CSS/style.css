@@ -3340,3 +3340,6 @@ html {
     height: auto !important;
     object-fit: contain !important;
 }
+.hero {
+    overflow: visible !important;
+}
