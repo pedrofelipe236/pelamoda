@@ -3094,7 +3094,8 @@ async function aplicarPrecosEmMassa() {
     }
 }
 
-
+let pedidosPagosConhecidos = new Set();
+let primeiraVerificacaoPedidos = true;
 
 async function carregarPedidosAdmin() {
 
@@ -3366,7 +3367,40 @@ async function verificarNovasVendas() {
         const pedidos = Array.isArray(dados.pedidos)
             ? dados.pedidos
             : [];
+const novosPedidosPagos = pedidos.filter(pedido =>
+    (
+        pedido.status === "pago" ||
+        pedido.status === "pago_estoque_pendente"
+    ) &&
+    !pedidosPagosConhecidos.has(String(pedido.id))
+);
 
+if (primeiraVerificacaoPedidos) {
+
+    pedidos
+        .filter(pedido =>
+            pedido.status === "pago" ||
+            pedido.status === "pago_estoque_pendente"
+        )
+        .forEach(pedido => {
+            pedidosPagosConhecidos.add(
+                String(pedido.id)
+            );
+        });
+
+    primeiraVerificacaoPedidos = false;
+
+} else {
+
+    novosPedidosPagos.forEach(pedido => {
+
+        pedidosPagosConhecidos.add(
+            String(pedido.id)
+        );
+
+        mostrarAvisoNovaVenda(pedido);
+    });
+}
         const pedidosPagos = pedidos.filter(
             pedido =>
                 pedido.status === "pago" ||
@@ -3511,7 +3545,51 @@ function mostrarAvisoNovaVenda(pedido) {
             : "Endereço não informado"
     );
 }
+function mostrarAvisoNovaVenda(pedido) {
 
+    const aviso = document.createElement("div");
+
+    aviso.style.position = "fixed";
+    aviso.style.top = "20px";
+    aviso.style.right = "20px";
+    aviso.style.zIndex = "99999";
+    aviso.style.background = "#2e6b36";
+    aviso.style.color = "#fff";
+    aviso.style.padding = "18px 22px";
+    aviso.style.borderRadius = "12px";
+    aviso.style.boxShadow = "0 10px 30px rgba(0,0,0,.20)";
+    aviso.style.fontFamily = "Arial, sans-serif";
+    aviso.style.fontSize = "14px";
+    aviso.style.fontWeight = "700";
+    aviso.style.maxWidth = "320px";
+
+    aviso.innerHTML = `
+        🛒 NOVA VENDA!
+        <br><br>
+        Pedido #${escaparHtml(pedido.numero_pedido || "—")}
+        <br>
+        ${escaparHtml(pedido.nome_cliente || "Cliente")}
+        <br>
+        ${formatarValorAdmin(pedido.valor_total)}
+    `;
+
+    document.body.appendChild(aviso);
+
+    setTimeout(() => {
+        aviso.remove();
+    }, 10000);
+
+    if (
+        "Notification" in window &&
+        Notification.permission === "granted"
+    ) {
+        new Notification("Nova venda - PêlaModa", {
+            body:
+                `Pedido #${pedido.numero_pedido} — ` +
+                `${formatarValorAdmin(pedido.valor_total)}`
+        });
+    }
+}
 
        document.addEventListener("DOMContentLoaded", async () => {
     adicionarCorProduto();
