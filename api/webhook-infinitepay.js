@@ -193,6 +193,8 @@ export default async function handler(req, res) {
         const confirmacao =
             await respostaConfirmacao.json();
 
+const pagamentoJaProcessado =
+    confirmacao?.ja_processado === true;
 
         if (
             !respostaConfirmacao.ok ||
@@ -245,7 +247,7 @@ export default async function handler(req, res) {
         // ENVIA AVISO PARA O TELEGRAM
         // ======================================================
 
-        if (pedido) {
+        if (pedido && !pagamentoJaProcessado) {
 
             const valor =
                 (
