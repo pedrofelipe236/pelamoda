@@ -738,6 +738,162 @@ textarea {
     font-weight: 800;
     letter-spacing: .2px;
 }
+    
+
+/* ======================================================
+   PEDIDOS - ADMIN
+   ====================================================== */
+
+.pedidos-admin {
+    margin: 30px auto;
+    max-width: 1100px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #eee7df;
+    border-radius: 16px;
+    box-sizing: border-box;
+}
+
+.pedidos-admin-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.pedidos-admin-cabecalho h2 {
+    margin: 0 0 5px;
+}
+
+.pedidos-admin-cabecalho p {
+    margin: 0;
+    color: #71685f;
+    font-size: 13px;
+}
+
+.btn-atualizar-pedidos {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    background: #111;
+    color: #fff;
+    font-weight: 700;
+}
+
+.pedidos-admin-status {
+    display: none;
+    margin-bottom: 15px;
+    padding: 11px 13px;
+    border-radius: 10px;
+    background: #f7f1e8;
+    color: #5e554c;
+    font-size: 13px;
+}
+
+.pedidos-admin-status.ativo {
+    display: block;
+}
+
+.pedidos-admin-lista {
+    display: grid;
+    gap: 12px;
+}
+
+.pedido-admin-card {
+    border: 1px solid #eee7df;
+    border-radius: 13px;
+    padding: 15px;
+    background: #fffdfa;
+}
+
+.pedido-admin-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.pedido-admin-numero {
+    margin: 0 0 4px;
+    font-size: 15px;
+}
+
+.pedido-admin-cliente {
+    margin: 0;
+    color: #665f58;
+    font-size: 13px;
+}
+
+.pedido-admin-valor {
+    font-size: 16px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.pedido-admin-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.pedido-admin-tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: #f1ece5;
+    color: #5f574f;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.pedido-admin-tag.pago {
+    background: #eaf5ea;
+    color: #2e6b36;
+}
+
+.pedido-admin-tag.pendente {
+    background: #fff0dc;
+    color: #8a5a1f;
+}
+
+.pedido-admin-detalhes {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eee7df;
+    color: #665f58;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.pedido-admin-itens {
+    margin: 0 0 6px;
+}
+
+.pedido-admin-itens strong {
+    color: #2e2925;
+}
+
+@media (max-width: 700px) {
+    .pedidos-admin {
+        padding: 18px;
+        margin: 20px 12px;
+    }
+
+    .pedidos-admin-cabecalho,
+    .pedido-admin-topo {
+        flex-direction: column;
+    }
+
+    .btn-atualizar-pedidos {
+        width: 100%;
+    }
+}
+
     </style>
 </head>
 
@@ -961,6 +1117,39 @@ textarea {
     id="mensagemAdmin"
     class="mensagem-admin"
 ></div>
+
+
+        <section class="pedidos-admin">
+
+            <div class="pedidos-admin-cabecalho">
+                <div>
+                    <h2>Pedidos / Vendas</h2>
+                    <p>Veja as compras registradas no site.</p>
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-atualizar-pedidos"
+                    id="btnAtualizarPedidos"
+                >
+                    Atualizar pedidos
+                </button>
+            </div>
+
+            <div
+                id="pedidosAdminStatus"
+                class="pedidos-admin-status"
+            ></div>
+
+            <div
+                id="listaPedidosAdmin"
+                class="pedidos-admin-lista"
+            >
+                Carregando pedidos...
+            </div>
+
+        </section>
+
     </main>
 
 <section class="admin-cupons">
@@ -2902,10 +3091,288 @@ async function aplicarPrecosEmMassa() {
     }
 }
 
+
+
+async function carregarPedidosAdmin() {
+
+    const lista =
+        document.getElementById("listaPedidosAdmin");
+
+    const status =
+        document.getElementById("pedidosAdminStatus");
+
+    const botao =
+        document.getElementById("btnAtualizarPedidos");
+
+    if (!lista) return;
+
+    let senha =
+        sessionStorage.getItem("adminPassword") ||
+        sessionStorage.getItem("senhaAdmin");
+
+    if (!senha) {
+        senha = prompt("Digite a senha do administrador:");
+
+        if (!senha) {
+            lista.innerHTML = "Acesso cancelado.";
+            return;
+        }
+    }
+
+    if (botao) {
+        botao.disabled = true;
+        botao.textContent = "Atualizando...";
+    }
+
+    try {
+        const resposta = await fetch(
+    "/api/buscar-pedido?modo=admin&limite=50",
+            {
+                headers: {
+                    "x-admin-password": senha
+                }
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (resposta.status === 401) {
+            sessionStorage.removeItem("adminPassword");
+            sessionStorage.removeItem("senhaAdmin");
+            throw new Error("Senha incorreta.");
+        }
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro ||
+                "Não foi possível carregar os pedidos."
+            );
+        }
+
+        sessionStorage.setItem("adminPassword", senha);
+
+        const pedidos = Array.isArray(dados.pedidos)
+            ? dados.pedidos
+            : [];
+
+        if (!pedidos.length) {
+            lista.innerHTML = `
+                <div class="pedido-admin-card">
+                    Nenhum pedido encontrado.
+                </div>
+            `;
+
+            if (status) {
+                status.textContent = "Nenhuma venda registrada ainda.";
+                status.classList.add("ativo");
+            }
+
+            return;
+        }
+
+        const pedidosPagos = pedidos.filter(pedido =>
+            pedido.status === "pago" ||
+            pedido.status === "pago_estoque_pendente"
+        ).length;
+
+        if (status) {
+            status.textContent =
+                `${pedidosPagos} venda(s) paga(s) encontrada(s).`;
+            status.classList.add("ativo");
+        }
+
+        lista.innerHTML = pedidos.map(pedido => {
+
+            const itens = Array.isArray(pedido.itens)
+                ? pedido.itens
+                : [];
+
+            const itensTexto = itens.length
+                ? itens.map(item => {
+                    const nome = escaparHtml(item.nome || "Produto");
+                    const cor = escaparHtml(item.cor || "");
+                    const tamanho = escaparHtml(item.tamanho || "");
+                    const quantidade = Number(item.quantidade || 0);
+
+                    return `${nome} — ${cor} — ${tamanho} — ${quantidade}x`;
+                }).join("<br>")
+                : "Nenhum item informado.";
+
+            const valor = formatarValorAdmin(pedido.valor_total);
+            const data = formatarDataAdmin(
+                pedido.pago_em || pedido.criado_em
+            );
+
+            const statusClass =
+                pedido.status === "pago"
+                    ? "pago"
+                    : "pendente";
+
+            const statusTexto =
+                pedido.status === "pago"
+                    ? "PAGO"
+                    : pedido.status === "pago_estoque_pendente"
+                        ? "PAGO / ESTOQUE PENDENTE"
+                        : String(pedido.status || "").replaceAll("_", " ").toUpperCase();
+
+            return `
+                <article class="pedido-admin-card">
+
+                    <div class="pedido-admin-topo">
+                        <div>
+                            <p class="pedido-admin-numero">
+                                <strong>Pedido #${escaparHtml(pedido.numero_pedido || "—")}</strong>
+                            </p>
+
+                            <p class="pedido-admin-cliente">
+                                ${escaparHtml(pedido.nome_cliente || "Cliente não informado")}
+                            </p>
+                        </div>
+
+                        <div class="pedido-admin-valor">
+                            ${valor}
+                        </div>
+                    </div>
+
+                    <div class="pedido-admin-meta">
+                        <span class="pedido-admin-tag ${statusClass}">
+                            ${statusTexto}
+                        </span>
+
+                        <span class="pedido-admin-tag">
+                            ${escaparHtml(pedido.forma_pagamento || "Pagamento não informado")}
+                        </span>
+
+                        ${
+                            pedido.parcelas
+                                ? `<span class="pedido-admin-tag">${Number(pedido.parcelas)}x</span>`
+                                : ""
+                        }
+
+                        <span class="pedido-admin-tag">
+                            ${data}
+                        </span>
+                    </div>
+
+                    <div class="pedido-admin-detalhes">
+                        <p class="pedido-admin-itens">
+                            <strong>Produtos:</strong><br>
+                            ${itensTexto}
+                        </p>
+
+                        <p>
+                            <strong>Entrega:</strong>
+                            ${formatarEntregaAdmin(pedido)}
+                        </p>
+
+                        <p>
+                            <strong>WhatsApp:</strong>
+                            ${escaparHtml(pedido.telefone || "Não informado")}
+                        </p>
+                    </div>
+
+                </article>
+            `;
+        }).join("");
+
+    } catch (erro) {
+        console.error("Erro ao carregar pedidos:", erro);
+
+        lista.innerHTML = `
+            <div class="pedido-admin-card">
+                ${escaparHtml(erro.message)}
+            </div>
+        `;
+
+        if (status) {
+            status.textContent = "Não foi possível carregar os pedidos.";
+            status.classList.add("ativo");
+        }
+
+    } finally {
+        if (botao) {
+            botao.disabled = false;
+            botao.textContent = "Atualizar pedidos";
+        }
+    }
+}
+
+function escaparHtml(valor) {
+    return String(valor ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function formatarValorAdmin(valorCentavos) {
+    return (
+        Number(valorCentavos || 0) / 100
+    ).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+}
+
+function formatarDataAdmin(data) {
+    if (!data) return "Data não informada";
+
+    const dataObj = new Date(data);
+
+    if (Number.isNaN(dataObj.getTime())) {
+        return "Data inválida";
+    }
+
+    return dataObj.toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short"
+    });
+}
+
+function formatarEntregaAdmin(pedido) {
+    if (pedido.tipo_entrega === "retirada") {
+        return "Retirada";
+    }
+
+    const partes = [
+        pedido.endereco,
+        pedido.numero,
+        pedido.complemento,
+        pedido.bairro,
+        pedido.cidade,
+        pedido.estado
+    ].filter(Boolean);
+
+    if (pedido.cep) {
+        partes.push(`CEP ${pedido.cep}`);
+    }
+
+    return escaparHtml(
+        partes.length
+            ? partes.join(", ")
+            : "Endereço não informado"
+    );
+}
+
+
        document.addEventListener("DOMContentLoaded", async () => {
     adicionarCorProduto();
     carregarEstoque();
     await carregarCupons();
+    await carregarPedidosAdmin();
+
+
+
+    const btnAtualizarPedidos =
+        document.getElementById("btnAtualizarPedidos");
+
+    if (btnAtualizarPedidos) {
+        btnAtualizarPedidos.addEventListener(
+            "click",
+            carregarPedidosAdmin
+        );
+    }
 
     const busca = document.getElementById("buscarProdutoAdmin");
 

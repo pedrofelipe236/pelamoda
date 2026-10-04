@@ -1,156 +1,328 @@
 export default async function handler(req, res) {
 
-    if (
-    req.method !== "GET" &&
-    req.method !== "PATCH"
-) {
-    return res.status(405).json({
-        erro: "Método não permitido"
-    });
-}
+    // ======================================================
+    // GET
+    // ======================================================
 
-    try {
-// ==========================================
-// CANCELAR PEDIDO
-// ==========================================
+    if (req.method === "GET") {
 
-if (req.method === "PATCH") {
+        try {
 
-    const authHeader =
-        req.headers.authorization;
-
-    if (!authHeader?.startsWith("Bearer ")) {
-        return res.status(401).json({
-            erro: "Usuário não autenticado"
-        });
-    }
-
-    const accessToken =
-        authHeader.substring(7);
-
-    const {
-        pedido_id,
-        acao
-    } = req.body || {};
-
-    if (
-        acao !== "cancelar" ||
-        !pedido_id
-    ) {
-        return res.status(400).json({
-            erro: "Solicitação inválida"
-        });
-    }
+            const modo = req.query?.modo;
 
 
-    // DESCOBRE O USUÁRIO LOGADO
+            // ==================================================
+            // ADMIN - LISTAR PEDIDOS
+            // ==================================================
 
-    const respostaUsuario = await fetch(
-        `${process.env.SUPABASE_URL}/auth/v1/user`,
-        {
-            headers: {
-                apikey:
-                    process.env.SUPABASE_SECRET_KEY,
+            if (modo === "admin") {
 
-                Authorization:
-                    `Bearer ${accessToken}`
+                const senhaAdmin =
+                    req.headers["x-admin-password"];
+
+                if (
+                    !senhaAdmin ||
+                    senhaAdmin !== process.env.ADMIN_PASSWORD
+                ) {
+                    return res.status(401).json({
+                        erro: "Não autorizado"
+                    });
+                }
+
+
+                const limite = Math.min(
+                    Math.max(
+                        Number(req.query?.limite) || 50,
+                        1
+                    ),
+                    100
+                );
+
+
+                const url =
+                    `${process.env.SUPABASE_URL}/rest/v1/pedidos` +
+                    `?select=` +
+                    `id,` +
+                    `numero_pedido,` +
+                    `order_nsu,` +
+                    `nome_cliente,` +
+                    `telefone,` +
+                    `email,` +
+                    `itens,` +
+                    `tipo_entrega,` +
+                    `cep,` +
+                    `endereco,` +
+                    `numero,` +
+                    `complemento,` +
+                    `bairro,` +
+                    `cidade,` +
+                    `estado,` +
+                    `valor_produtos,` +
+                    `valor_frete,` +
+                    `valor_total,` +
+                    `status,` +
+                    `forma_pagamento,` +
+                    `parcelas,` +
+                    `receipt_url,` +
+                    `criado_em,` +
+                    `pago_em,` +
+                    `cupom,` +
+                    `valor_desconto` +
+                    `&order=criado_em.desc` +
+                    `&limit=${limite}`;
+
+
+                const resposta =
+                    await fetch(url, {
+                        headers: {
+                            apikey:
+                                process.env.SUPABASE_SECRET_KEY,
+
+                            Authorization:
+                                `Bearer ${process.env.SUPABASE_SECRET_KEY}`
+                        }
+                    });
+
+
+                const dados =
+                    await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    console.error(
+                        "Erro Supabase ao buscar pedidos:",
+                        dados
+                    );
+
+                    return res.status(500).json({
+                        erro: "Erro ao buscar pedidos"
+                    });
+                }
+
+
+                return res.status(200).json({
+                    sucesso: true,
+                    pedidos:
+                        Array.isArray(dados)
+                            ? dados
+                            : []
+                });
             }
+
+
+            // ==================================================
+            // CLIENTE - MEUS PEDIDOS
+            // ==================================================
+
+            if (modo === "meus-pedidos") {
+
+                const authHeader =
+                    req.headers.authorization;
+
+
+                if (
+                    !authHeader ||
+                    !authHeader.startsWith("Bearer ")
+                ) {
+                    return res.status(401).json({
+                        erro: "Não autorizado"
+                    });
+                }
+
+
+                const accessToken =
+                    authHeader.substring(7);
+
+
+                const respostaUsuario =
+                    await fetch(
+                        `${process.env.SUPABASE_URL}/auth/v1/user`,
+                        {
+                            headers: {
+
+                                apikey:
+                                    process.env.SUPABASE_SECRET_KEY,
+
+                                Authorization:
+                                    `Bearer ${accessToken}`
+                            }
+                        }
+                    );
+
+
+                if (!respostaUsuario.ok) {
+
+                    return res.status(401).json({
+                        erro: "Sessão do usuário inválida"
+                    });
+                }
+
+
+                const usuario =
+                    await respostaUsuario.json();
+
+
+                const url =
+                    `${process.env.SUPABASE_URL}/rest/v1/pedidos` +
+                    `?usuario_id=eq.${encodeURIComponent(usuario.id)}` +
+                    `&select=` +
+                    `id,` +
+                    `numero_pedido,` +
+                    `order_nsu,` +
+                    `status,` +
+                    `valor_total,` +
+                    `itens,` +
+                    `tipo_entrega,` +
+                    `endereco,` +
+                    `numero,` +
+                    `complemento,` +
+                    `bairro,` +
+                    `cidade,` +
+                    `estado,` +
+                    `cep,` +
+                    `pagamento_url` +
+                    `&order=criado_em.desc`;
+
+
+                const resposta =
+                    await fetch(url, {
+                        headers: {
+
+                            apikey:
+                                process.env.SUPABASE_SECRET_KEY,
+
+                            Authorization:
+                                `Bearer ${process.env.SUPABASE_SECRET_KEY}`
+                        }
+                    });
+
+
+                const dados =
+                    await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    console.error(
+                        "Erro Supabase ao buscar pedidos do usuário:",
+                        dados
+                    );
+
+                    return res.status(500).json({
+                        erro: "Erro ao buscar pedidos"
+                    });
+                }
+
+
+                return res.status(200).json({
+                    sucesso: true,
+                    pedidos:
+                        Array.isArray(dados)
+                            ? dados
+                            : []
+                });
+            }
+
+
+            // ==================================================
+            // BUSCA NORMAL PELO order_nsu
+            // ==================================================
+
+            const order_nsu =
+                req.query?.order_nsu;
+
+
+            if (!order_nsu) {
+
+                return res.status(400).json({
+                    erro: "Pedido não informado"
+                });
+            }
+
+
+            const url =
+                `${process.env.SUPABASE_URL}/rest/v1/pedidos` +
+                `?order_nsu=eq.${encodeURIComponent(order_nsu)}` +
+                `&select=numero_pedido,status,pagamento_url`;
+
+
+            const resposta =
+                await fetch(url, {
+                    headers: {
+
+                        apikey:
+                            process.env.SUPABASE_SECRET_KEY,
+
+                        Authorization:
+                            `Bearer ${process.env.SUPABASE_SECRET_KEY}`
+                    }
+                });
+
+
+            const dados =
+                await resposta.json();
+
+
+            if (!resposta.ok) {
+
+                return res.status(500).json({
+                    erro: "Erro ao buscar pedido"
+                });
+            }
+
+
+            if (!dados.length) {
+
+                return res.status(404).json({
+                    erro: "Pedido não encontrado"
+                });
+            }
+
+
+            return res.status(200).json({
+                numero_pedido:
+                    dados[0].numero_pedido,
+
+                status:
+                    dados[0].status,
+
+                pagamento_url:
+                    dados[0].pagamento_url || null
+            });
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao buscar pedido:",
+                erro
+            );
+
+            return res.status(500).json({
+                erro: "Erro interno ao buscar pedido"
+            });
         }
-    );
-
-    if (!respostaUsuario.ok) {
-        return res.status(401).json({
-            erro: "Sessão inválida"
-        });
-    }
-
-    const usuario =
-        await respostaUsuario.json();
-
-    if (!usuario?.id) {
-        return res.status(401).json({
-            erro: "Usuário não encontrado"
-        });
     }
 
 
-    // CANCELA SOMENTE:
-    // - pedido do próprio usuário
-    // - que ainda esteja aguardando pagamento
+    // ======================================================
+    // PATCH - CANCELAR PEDIDO
+    // ======================================================
 
-    const respostaCancelar = await fetch(
-        `${process.env.SUPABASE_URL}/rest/v1/pedidos?id=eq.${encodeURIComponent(pedido_id)}&usuario_id=eq.${encodeURIComponent(usuario.id)}&status=eq.aguardando_pagamento`,
-        {
-            method: "PATCH",
+    if (req.method === "PATCH") {
 
-            headers: {
-                "Content-Type":
-                    "application/json",
-
-                apikey:
-                    process.env.SUPABASE_SECRET_KEY,
-
-                Prefer:
-                    "return=representation"
-            },
-
-            body: JSON.stringify({
-                status: "cancelado"
-            })
-        }
-    );
-
-    const pedidosAtualizados =
-        await respostaCancelar.json();
-
-    if (!respostaCancelar.ok) {
-
-        console.error(
-            "Erro ao cancelar pedido:",
-            pedidosAtualizados
-        );
-
-        return res.status(500).json({
-            erro:
-                "Não foi possível cancelar o pedido"
-        });
-    }
-
-
-    if (
-        !Array.isArray(pedidosAtualizados) ||
-        pedidosAtualizados.length === 0
-    ) {
-        return res.status(409).json({
-            erro:
-                "Este pedido não pode mais ser cancelado"
-        });
-    }
-
-
-    return res.status(200).json({
-        sucesso: true,
-        status: "cancelado"
-    });
-}
-        const {
-            order_nsu,
-            modo
-        } = req.query;
-
-
-        // ==========================================
-        // MEUS PEDIDOS
-        // ==========================================
-
-        if (modo === "meus-pedidos") {
+        try {
 
             const authHeader =
                 req.headers.authorization;
 
-            if (!authHeader?.startsWith("Bearer ")) {
+
+            if (
+                !authHeader ||
+                !authHeader.startsWith("Bearer ")
+            ) {
                 return res.status(401).json({
-                    erro: "Usuário não autenticado"
+                    erro: "Não autorizado"
                 });
             }
 
@@ -159,27 +331,26 @@ if (req.method === "PATCH") {
                 authHeader.substring(7);
 
 
-            // Descobre quem é o usuário pelo token
+            const respostaUsuario =
+                await fetch(
+                    `${process.env.SUPABASE_URL}/auth/v1/user`,
+                    {
+                        headers: {
 
-            const respostaUsuario = await fetch(
-                `${process.env.SUPABASE_URL}/auth/v1/user`,
-                {
-                    method: "GET",
+                            apikey:
+                                process.env.SUPABASE_SECRET_KEY,
 
-                    headers: {
-                        apikey:
-                            process.env.SUPABASE_SECRET_KEY,
-
-                        Authorization:
-                            `Bearer ${accessToken}`
+                            Authorization:
+                                `Bearer ${accessToken}`
+                        }
                     }
-                }
-            );
+                );
 
 
             if (!respostaUsuario.ok) {
+
                 return res.status(401).json({
-                    erro: "Sessão inválida"
+                    erro: "Sessão do usuário inválida"
                 });
             }
 
@@ -188,108 +359,133 @@ if (req.method === "PATCH") {
                 await respostaUsuario.json();
 
 
-            if (!usuario?.id) {
-                return res.status(401).json({
-                    erro: "Usuário não encontrado"
+            const {
+                order_nsu
+            } = req.body || {};
+
+
+            if (!order_nsu) {
+
+                return res.status(400).json({
+                    erro: "Pedido não informado"
                 });
             }
 
 
-            // Busca somente os pedidos desse usuário
+            const buscaUrl =
+                `${process.env.SUPABASE_URL}/rest/v1/pedidos` +
+                `?order_nsu=eq.${encodeURIComponent(order_nsu)}` +
+                `&usuario_id=eq.${encodeURIComponent(usuario.id)}` +
+                `&select=id,status`;
 
-            const respostaPedidos = await fetch(
-                `${process.env.SUPABASE_URL}/rest/v1/pedidos?usuario_id=eq.${encodeURIComponent(usuario.id)}&select=id,numero_pedido,order_nsu,status,valor_total,itens,tipo_entrega,endereco,numero,complemento,bairro,cidade,estado,cep,pagamento_url`,
-                {
+
+            const respostaBusca =
+                await fetch(buscaUrl, {
                     headers: {
+
                         apikey:
-                            process.env.SUPABASE_SECRET_KEY
+                            process.env.SUPABASE_SECRET_KEY,
+
+                        Authorization:
+                            `Bearer ${process.env.SUPABASE_SECRET_KEY}`
                     }
-                }
-            );
+                });
 
 
             const pedidos =
-                await respostaPedidos.json();
+                await respostaBusca.json();
 
 
-            if (!respostaPedidos.ok) {
+            if (
+                !respostaBusca.ok ||
+                !pedidos.length
+            ) {
+                return res.status(404).json({
+                    erro: "Pedido não encontrado"
+                });
+            }
 
-                console.error(
-                    "Erro Supabase:",
-                    pedidos
+
+            const pedido =
+                pedidos[0];
+
+
+            if (
+                pedido.status !==
+                "aguardando_pagamento"
+            ) {
+                return res.status(400).json({
+                    erro:
+                        "Este pedido não pode mais ser cancelado"
+                });
+            }
+
+
+            const respostaCancelamento =
+                await fetch(
+                    `${process.env.SUPABASE_URL}/rest/v1/pedidos?id=eq.${pedido.id}`,
+                    {
+                        method: "PATCH",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            apikey:
+                                process.env.SUPABASE_SECRET_KEY,
+
+                            Authorization:
+                                `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+
+                            Prefer:
+                                "return=representation"
+                        },
+
+                        body: JSON.stringify({
+                            status: "cancelado"
+                        })
+                    }
                 );
 
+
+            const dadosCancelamento =
+                await respostaCancelamento.json();
+
+
+            if (!respostaCancelamento.ok) {
+
                 return res.status(500).json({
-                    erro: "Erro ao buscar pedidos"
+                    erro: "Não foi possível cancelar o pedido"
                 });
             }
 
 
             return res.status(200).json({
-                pedidos
+                sucesso: true,
+                pedido:
+                    dadosCancelamento[0]
             });
-        }
 
+        } catch (erro) {
 
+            console.error(
+                "Erro ao cancelar pedido:",
+                erro
+            );
 
-        // ==========================================
-        // BUSCA ANTIGA POR ORDER_NSU
-        // ==========================================
-
-        if (!order_nsu) {
-            return res.status(400).json({
-                erro: "Pedido não informado"
-            });
-        }
-
-
-        const resposta = await fetch(
-            `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}&select=numero_pedido,status`,
-            {
-                headers: {
-                    apikey:
-                        process.env.SUPABASE_SECRET_KEY
-                }
-            }
-        );
-
-
-        const dados =
-            await resposta.json();
-
-
-        if (!resposta.ok) {
             return res.status(500).json({
-                erro: "Erro ao buscar pedido"
+                erro: "Erro interno ao cancelar pedido"
             });
         }
-
-
-        if (!dados.length) {
-            return res.status(404).json({
-                erro: "Pedido não encontrado"
-            });
-        }
-
-
-        return res.status(200).json({
-            numero_pedido:
-                dados[0].numero_pedido,
-
-            status:
-                dados[0].status
-        });
-
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao buscar pedido:",
-            erro
-        );
-
-        return res.status(500).json({
-            erro: "Erro interno"
-        });
     }
+
+
+    // ======================================================
+    // MÉTODO NÃO PERMITIDO
+    // ======================================================
+
+    return res.status(405).json({
+        erro: "Método não permitido"
+    });
 }
