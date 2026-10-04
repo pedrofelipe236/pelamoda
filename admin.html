@@ -807,7 +807,10 @@ textarea {
     padding: 15px;
     background: #fffdfa;
 }
-
+.pedido-admin-card:has(.pedido-admin-tag.pago) {
+    border: 2px solid #2e6b36;
+    background: #fbfffb;
+}
 .pedido-admin-topo {
     display: flex;
     align-items: flex-start;
@@ -3177,7 +3180,7 @@ async function carregarPedidosAdmin() {
 
         if (status) {
             status.textContent =
-                `${pedidosPagos} venda(s) paga(s) encontrada(s).`;
+                `${pedidos.length} pedido(s) encontrado(s).`
             status.classList.add("ativo");
         }
 
