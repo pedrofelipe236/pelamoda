@@ -3337,7 +3337,161 @@ function formatarEntregaAdmin(pedido) {
     if (pedido.tipo_entrega === "retirada") {
         return "Retirada";
     }
+let pedidosPagosConhecidos = new Set();
+let primeiraVerificacaoPedidos = true;
 
+async function verificarNovasVendas() {
+
+    const senha =
+        sessionStorage.getItem("adminPassword") ||
+        sessionStorage.getItem("senhaAdmin");
+
+    if (!senha) return;
+
+    try {
+
+        const resposta = await fetch(
+            "/api/buscar-pedido?modo=admin&limite=50",
+            {
+                headers: {
+                    "x-admin-password": senha
+                }
+            }
+        );
+
+        if (!resposta.ok) return;
+
+        const dados = await resposta.json();
+
+        const pedidos = Array.isArray(dados.pedidos)
+            ? dados.pedidos
+            : [];
+
+        const pedidosPagos = pedidos.filter(
+            pedido =>
+                pedido.status === "pago" ||
+                pedido.status === "pago_estoque_pendente"
+        );
+
+        const novosPedidos = pedidosPagos.filter(
+            pedido =>
+                !pedidosPagosConhecidos.has(String(pedido.id))
+        );
+
+        // Na primeira consulta apenas registra os pedidos existentes.
+        // Assim não toca o alerta quando você abre o Admin.
+        if (primeiraVerificacaoPedidos) {
+
+            pedidosPagos.forEach(pedido => {
+                pedidosPagosConhecidos.add(
+                    String(pedido.id)
+                );
+            });
+
+            primeiraVerificacaoPedidos = false;
+            return;
+        }
+
+        if (!novosPedidos.length) {
+            return;
+        }
+
+        novosPedidos.forEach(pedido => {
+
+            pedidosPagosConhecidos.add(
+                String(pedido.id)
+            );
+
+            mostrarAvisoNovaVenda(pedido);
+
+        });
+
+        await carregarPedidosAdmin();
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao verificar novas vendas:",
+            erro
+        );
+    }
+}
+
+
+function mostrarAvisoNovaVenda(pedido) {
+
+    let aviso =
+        document.getElementById("avisoNovaVenda");
+
+    if (!aviso) {
+
+        aviso =
+            document.createElement("div");
+
+        aviso.id = "avisoNovaVenda";
+
+        aviso.style.position = "fixed";
+        aviso.style.top = "20px";
+        aviso.style.right = "20px";
+        aviso.style.zIndex = "99999";
+        aviso.style.background = "#2e6b36";
+        aviso.style.color = "#ffffff";
+        aviso.style.padding = "16px 20px";
+        aviso.style.borderRadius = "12px";
+        aviso.style.boxShadow =
+            "0 10px 30px rgba(0,0,0,.18)";
+        aviso.style.fontFamily =
+            "Arial, sans-serif";
+        aviso.style.fontSize = "14px";
+        aviso.style.fontWeight = "700";
+        aviso.style.maxWidth = "320px";
+
+        document.body.appendChild(aviso);
+    }
+
+    aviso.innerHTML = `
+        🛒 Nova venda!
+        <br>
+        Pedido #${escaparHtml(
+            pedido.numero_pedido || "—"
+        )}
+        <br>
+        ${escaparHtml(
+            pedido.nome_cliente || "Cliente"
+        )}
+        — ${formatarValorAdmin(
+            pedido.valor_total
+        )}
+    `;
+
+    clearTimeout(
+        window.timerAvisoNovaVenda
+    );
+
+    window.timerAvisoNovaVenda =
+        setTimeout(() => {
+
+            aviso.remove();
+
+        }, 8000);
+
+
+    // Tenta mostrar notificação do navegador
+    if (
+        "Notification" in window &&
+        Notification.permission === "granted"
+    ) {
+
+        new Notification(
+            "Nova venda - PêlaModa",
+            {
+                body:
+                    `Pedido #${pedido.numero_pedido} — ` +
+                    `${formatarValorAdmin(pedido.valor_total)}`
+            }
+        );
+    }
+}
     const partes = [
         pedido.endereco,
         pedido.numero,
@@ -3364,7 +3518,19 @@ function formatarEntregaAdmin(pedido) {
     carregarEstoque();
     await carregarCupons();
     await carregarPedidosAdmin();
+verificarNovasVendas();
 
+setInterval(
+    verificarNovasVendas,
+    30000
+);
+
+if (
+    "Notification" in window &&
+    Notification.permission === "default"
+) {
+    Notification.requestPermission();
+}
 
 
     const btnAtualizarPedidos =
