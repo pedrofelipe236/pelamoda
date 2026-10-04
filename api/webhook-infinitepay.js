@@ -1,149 +1,304 @@
-export default async function handler(req, res) {
+async function enviarTelegram(mensagem) {
 
-    if (req.method !== "POST") {
-        return res.status(405).json({
-            success: false,
-            message: "Método não permitido"
-        });
+    const token =
+        process.env.TELEGRAM_BOT_TOKEN;
+
+    const chatId =
+        process.env.TELEGRAM_CHAT_ID;
+
+    if (!token || !chatId) {
+
+        console.error(
+            "Telegram não configurado."
+        );
+
+        return;
     }
 
     try {
 
-        const pagamento = req.body;
+        const resposta =
+            await fetch(
+                `https://api.telegram.org/bot${token}/sendMessage`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: mensagem
+                    })
+                }
+            );
+
+        const dados =
+            await resposta.json();
+
+        if (!resposta.ok) {
+
+            console.error(
+                "Erro ao enviar Telegram:",
+                dados
+            );
+
+            return;
+        }
+
+        console.log(
+            "Notificação enviada para o Telegram."
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro Telegram:",
+            erro
+        );
+    }
+}
+
+
+export default async function handler(req, res) {
+
+    if (req.method !== "POST") {
+
+        return res.status(405).json({
+            erro: "Método não permitido"
+        });
+    }
+
+
+    try {
 
         const {
             order_nsu,
             transaction_nsu,
             invoice_slug,
-            receipt_url,
-            items
-        } = pagamento;
+            receipt_url
+        } = req.body;
 
-        if (!order_nsu || !transaction_nsu || !invoice_slug) {
+
+        if (
+            !order_nsu ||
+            !transaction_nsu ||
+            !invoice_slug
+        ) {
+
             return res.status(400).json({
-                success: false,
-                message: "Dados do pagamento incompletos"
+                erro:
+                    "Dados do pagamento incompletos"
             });
         }
 
-        /* CONFIRMA O PAGAMENTO DIRETAMENTE NA INFINITEPAY */
 
-        const respostaVerificacao = await fetch(
-            "https://api.checkout.infinitepay.io/payment_check",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    handle: "pedrofelipe236",
-                    order_nsu,
-                    transaction_nsu,
-                    slug: invoice_slug
-                })
-            }
-        );
+        // ======================================================
+        // CONFERE O PAGAMENTO DIRETAMENTE NA INFINITEPAY
+        // ======================================================
+
+        const respostaVerificacao =
+            await fetch(
+                "https://api.checkout.infinitepay.io/payment_check",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        handle:
+                            "pedrofelipe236",
+
+                        order_nsu,
+
+                        transaction_nsu,
+
+                        slug:
+                            invoice_slug
+                    })
+                }
+            );
+
 
         const verificacao =
             await respostaVerificacao.json();
 
-        console.log(
-            "Verificação InfinitePay:",
-            verificacao
-        );
 
         if (
             !respostaVerificacao.ok ||
             !verificacao.success ||
             !verificacao.paid
         ) {
+
             return res.status(400).json({
-                success: false,
-                message: "Pagamento não confirmado"
+
+                erro:
+                    "Pagamento não confirmado"
             });
         }
 
-        /* CONFIRMA PEDIDO E BAIXA O ESTOQUE */
 
-        const respostaSupabase = await fetch(
-            `${process.env.SUPABASE_URL}/rest/v1/rpc/confirmar_pagamento`,
-            {
-                method: "POST",
+        // ======================================================
+        // CONFIRMA PAGAMENTO + BAIXA ESTOQUE
+        // ======================================================
 
-                headers: {
-                    "Content-Type": "application/json",
-                    "apikey": process.env.SUPABASE_SECRET_KEY
-                },
+        const respostaConfirmacao =
+            await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/rpc/confirmar_pagamento`,
+                {
+                    method: "POST",
 
-                body: JSON.stringify({
-                    p_order_nsu:
-                        order_nsu,
+                    headers: {
 
-                    p_transaction_nsu:
-                        transaction_nsu,
+                        "Content-Type":
+                            "application/json",
 
-                    p_forma_pagamento:
-                        verificacao.capture_method || null,
+                        apikey:
+                            process.env.SUPABASE_SECRET_KEY,
 
-                    p_parcelas:
-                        verificacao.installments || null,
+                        Authorization:
+                            `Bearer ${process.env.SUPABASE_SECRET_KEY}`
+                    },
 
-                    p_receipt_url:
-                        receipt_url || null
-                })
-            }
-        );
+                    body: JSON.stringify({
 
-        const resultadoPedido =
-            await respostaSupabase.json();
+                        p_order_nsu:
+                            order_nsu,
 
-        if (!respostaSupabase.ok) {
+                        p_transaction_nsu:
+                            transaction_nsu,
 
-            console.error(
-                "Erro ao confirmar pedido:",
-                resultadoPedido
+                        p_forma_pagamento:
+                            verificacao.capture_method ||
+                            null,
+
+                        p_parcelas:
+                            verificacao.installments ||
+                            null,
+
+                        p_receipt_url:
+                            receipt_url ||
+                            null
+                    })
+                }
             );
 
-            return res.status(500).json({
-                success: false,
-                message: "Erro ao confirmar pedido"
-            });
-        }
 
-        console.log(
-            "Resultado do pedido:",
-            resultadoPedido
-        );
+        const confirmacao =
+            await respostaConfirmacao.json();
 
-        if (!resultadoPedido.success) {
+
+        if (
+            !respostaConfirmacao.ok ||
+            confirmacao?.success !== true
+        ) {
 
             console.error(
-                "Problema no estoque:",
-                resultadoPedido
+                "Erro ao confirmar pagamento:",
+                confirmacao
             );
 
             return res.status(409).json({
-                success: false,
-                message:
-                    resultadoPedido.erro ||
-                    "Problema ao processar estoque"
+                erro:
+                    "Pagamento confirmado, mas houve erro ao processar o pedido."
             });
         }
 
-        console.log(
-            "PAGAMENTO + ESTOQUE CONFIRMADOS:",
-            resultadoPedido.numero_pedido
-        );
+
+        // ======================================================
+        // BUSCA DADOS DO PEDIDO
+        // ======================================================
+
+        const respostaPedido =
+            await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}&select=numero_pedido,nome_cliente,valor_total,forma_pagamento,parcelas`,
+                {
+                    headers: {
+
+                        apikey:
+                            process.env.SUPABASE_SECRET_KEY,
+
+                        Authorization:
+                            `Bearer ${process.env.SUPABASE_SECRET_KEY}`
+                    }
+                }
+            );
+
+
+        const pedidos =
+            await respostaPedido.json();
+
+
+        const pedido =
+            Array.isArray(pedidos)
+                ? pedidos[0]
+                : null;
+
+
+        // ======================================================
+        // ENVIA AVISO PARA O TELEGRAM
+        // ======================================================
+
+        if (pedido) {
+
+            const valor =
+                (
+                    Number(
+                        pedido.valor_total || 0
+                    ) / 100
+                ).toLocaleString(
+                    "pt-BR",
+                    {
+                        style: "currency",
+                        currency: "BRL"
+                    }
+                );
+
+
+            const mensagem =
+
+                `🛒 NOVA VENDA PÊLAMODA\n\n` +
+
+                `Pedido: #${pedido.numero_pedido}\n` +
+
+                `Cliente: ${pedido.nome_cliente || "Não informado"}\n` +
+
+                `Valor: ${valor}\n` +
+
+                `Pagamento: ${pedido.forma_pagamento || "Não informado"}\n` +
+
+                `Parcelas: ${pedido.parcelas || 1}x\n\n` +
+
+                `✅ Pagamento confirmado`;
+
+
+            await enviarTelegram(
+                mensagem
+            );
+        }
+
 
         console.log(
-            "Itens recebidos:",
-            items
+            "PAGAMENTO + ESTOQUE CONFIRMADOS"
         );
+
 
         return res.status(200).json({
+
             success: true,
-            message: null
+
+            numero_pedido:
+                confirmacao.numero_pedido ||
+                pedido?.numero_pedido ||
+                null
         });
+
 
     } catch (erro) {
 
@@ -153,8 +308,8 @@ export default async function handler(req, res) {
         );
 
         return res.status(500).json({
-            success: false,
-            message: "Erro interno"
+            erro:
+                "Erro interno no webhook"
         });
     }
 }
