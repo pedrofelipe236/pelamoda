@@ -3344,3 +3344,7 @@ html {
 .color-dot[data-cor="Vinho"] {
     background: #722f37 !important;
 }
+.color-option[data-cor*="Vinho"],
+.color-option[data-cor*="vinho"] {
+    background: #6b1f2a;
+}
