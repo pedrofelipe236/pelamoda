@@ -3341,3 +3341,6 @@ html {
 .hero {
     overflow: visible !important;
 }
+.color-dot[data-cor="Vinho"] {
+    background: #722f37 !important;
+}
