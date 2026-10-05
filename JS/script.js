@@ -1180,6 +1180,7 @@ const produtosAtivos =
                 "azul marinho": "#18345a",
                 "azul claro": "#8db7d9",
                 "vermelho": "#c84b4b",
+                "vinho": "#722333",
                 "verde": "#5f8b62",
                 "verde claro": "#9bbd8f",
                 "amarelo": "#e7c84a",
