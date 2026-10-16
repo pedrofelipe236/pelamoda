@@ -3338,8 +3338,6 @@ function formatarEntregaAdmin(pedido) {
     if (pedido.tipo_entrega === "retirada") {
         return "Retirada";
     }
-let pedidosPagosConhecidos = new Set();
-let primeiraVerificacaoPedidos = true;
 
 async function verificarNovasVendas() {
 
