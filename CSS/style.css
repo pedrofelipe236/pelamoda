@@ -3348,3 +3348,52 @@ html {
 .color-option[data-cor*="vinho"] {
     background: #6b1f2a;
 }
+/* Corrige o alinhamento dos preços na página do produto */
+.product-details .product-price {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    line-height: 1.2;
+}
+
+.product-details .product-price .linha-precos {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+}
+
+.product-details .product-price .preco-antigo {
+    position: static;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.2;
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.product-details .product-price .preco-promocional {
+    position: static;
+    font-size: 23px;
+    line-height: 1.2;
+    font-weight: 800;
+    white-space: nowrap;
+    color: #b9571d;
+}
+
+.product-details .product-price .selo-promocao {
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 8px;
+    margin: 0;
+    border-radius: 5px;
+    background: #111;
+    color: #fff;
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 700;
+    white-space: nowrap;
+}
