@@ -3333,197 +3333,11 @@ function formatarDataAdmin(data) {
         timeStyle: "short"
     });
 }
-
 function formatarEntregaAdmin(pedido) {
     if (pedido.tipo_entrega === "retirada") {
         return "Retirada";
     }
 
-async function verificarNovasVendas() {
-
-    const senha =
-        sessionStorage.getItem("adminPassword") ||
-        sessionStorage.getItem("senhaAdmin");
-
-    if (!senha) return;
-
-    try {
-
-        const resposta = await fetch(
-            "/api/buscar-pedido?modo=admin&limite=50",
-            {
-                headers: {
-                    "x-admin-password": senha
-                }
-            }
-        );
-
-        if (!resposta.ok) return;
-
-        const dados = await resposta.json();
-
-        const pedidos = Array.isArray(dados.pedidos)
-            ? dados.pedidos
-            : [];
-const novosPedidosPagos = pedidos.filter(pedido =>
-    (
-        pedido.status === "pago" ||
-        pedido.status === "pago_estoque_pendente"
-    ) &&
-    !pedidosPagosConhecidos.has(String(pedido.id))
-);
-
-if (primeiraVerificacaoPedidos) {
-
-    pedidos
-        .filter(pedido =>
-            pedido.status === "pago" ||
-            pedido.status === "pago_estoque_pendente"
-        )
-        .forEach(pedido => {
-            pedidosPagosConhecidos.add(
-                String(pedido.id)
-            );
-        });
-
-    primeiraVerificacaoPedidos = false;
-
-} else {
-
-    novosPedidosPagos.forEach(pedido => {
-
-        pedidosPagosConhecidos.add(
-            String(pedido.id)
-        );
-
-        mostrarAvisoNovaVenda(pedido);
-    });
-}
-        const pedidosPagos = pedidos.filter(
-            pedido =>
-                pedido.status === "pago" ||
-                pedido.status === "pago_estoque_pendente"
-        );
-
-        const novosPedidos = pedidosPagos.filter(
-            pedido =>
-                !pedidosPagosConhecidos.has(String(pedido.id))
-        );
-
-        // Na primeira consulta apenas registra os pedidos existentes.
-        // Assim não toca o alerta quando você abre o Admin.
-        if (primeiraVerificacaoPedidos) {
-
-            pedidosPagos.forEach(pedido => {
-                pedidosPagosConhecidos.add(
-                    String(pedido.id)
-                );
-            });
-
-            primeiraVerificacaoPedidos = false;
-            return;
-        }
-
-        if (!novosPedidos.length) {
-            return;
-        }
-
-        novosPedidos.forEach(pedido => {
-
-            pedidosPagosConhecidos.add(
-                String(pedido.id)
-            );
-
-            mostrarAvisoNovaVenda(pedido);
-
-        });
-
-        await carregarPedidosAdmin();
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao verificar novas vendas:",
-            erro
-        );
-    }
-}
-
-
-function mostrarAvisoNovaVenda(pedido) {
-
-    let aviso =
-        document.getElementById("avisoNovaVenda");
-
-    if (!aviso) {
-
-        aviso =
-            document.createElement("div");
-
-        aviso.id = "avisoNovaVenda";
-
-        aviso.style.position = "fixed";
-        aviso.style.top = "20px";
-        aviso.style.right = "20px";
-        aviso.style.zIndex = "99999";
-        aviso.style.background = "#2e6b36";
-        aviso.style.color = "#ffffff";
-        aviso.style.padding = "16px 20px";
-        aviso.style.borderRadius = "12px";
-        aviso.style.boxShadow =
-            "0 10px 30px rgba(0,0,0,.18)";
-        aviso.style.fontFamily =
-            "Arial, sans-serif";
-        aviso.style.fontSize = "14px";
-        aviso.style.fontWeight = "700";
-        aviso.style.maxWidth = "320px";
-
-        document.body.appendChild(aviso);
-    }
-
-    aviso.innerHTML = `
-        🛒 Nova venda!
-        <br>
-        Pedido #${escaparHtml(
-            pedido.numero_pedido || "—"
-        )}
-        <br>
-        ${escaparHtml(
-            pedido.nome_cliente || "Cliente"
-        )}
-        — ${formatarValorAdmin(
-            pedido.valor_total
-        )}
-    `;
-
-    clearTimeout(
-        window.timerAvisoNovaVenda
-    );
-
-    window.timerAvisoNovaVenda =
-        setTimeout(() => {
-
-            aviso.remove();
-
-        }, 8000);
-
-
-    // Tenta mostrar notificação do navegador
-    if (
-        "Notification" in window &&
-        Notification.permission === "granted"
-    ) {
-
-        new Notification(
-            "Nova venda - PêlaModa",
-            {
-                body:
-                    `Pedido #${pedido.numero_pedido} — ` +
-                    `${formatarValorAdmin(pedido.valor_total)}`
-            }
-        );
-    }
-}
     const partes = [
         pedido.endereco,
         pedido.numero,
@@ -3543,39 +3357,111 @@ function mostrarAvisoNovaVenda(pedido) {
             : "Endereço não informado"
     );
 }
+
+
+async function verificarNovasVendas() {
+    const senha =
+        sessionStorage.getItem("adminPassword") ||
+        sessionStorage.getItem("senhaAdmin");
+
+    if (!senha) return;
+
+    try {
+        const resposta = await fetch(
+            "/api/buscar-pedido?modo=admin&limite=50",
+            {
+                headers: {
+                    "x-admin-password": senha
+                }
+            }
+        );
+
+        if (!resposta.ok) return;
+
+        const dados = await resposta.json();
+
+        const pedidos = Array.isArray(dados.pedidos)
+            ? dados.pedidos
+            : [];
+
+        const pedidosPagos = pedidos.filter(pedido =>
+            pedido.status === "pago" ||
+            pedido.status === "pago_estoque_pendente"
+        );
+
+        // Na primeira consulta, apenas registra as vendas existentes.
+        if (primeiraVerificacaoPedidos) {
+            pedidosPagos.forEach(pedido => {
+                pedidosPagosConhecidos.add(String(pedido.id));
+            });
+
+            primeiraVerificacaoPedidos = false;
+            return;
+        }
+
+        const novosPedidos = pedidosPagos.filter(
+            pedido =>
+                !pedidosPagosConhecidos.has(String(pedido.id))
+        );
+
+        if (!novosPedidos.length) return;
+
+        novosPedidos.forEach(pedido => {
+            pedidosPagosConhecidos.add(String(pedido.id));
+            mostrarAvisoNovaVenda(pedido);
+        });
+
+        await carregarPedidosAdmin();
+
+    } catch (erro) {
+        console.error(
+            "Erro ao verificar novas vendas:",
+            erro
+        );
+    }
+}
+
+
 function mostrarAvisoNovaVenda(pedido) {
+    let aviso = document.getElementById("avisoNovaVenda");
 
-    const aviso = document.createElement("div");
+    if (!aviso) {
+        aviso = document.createElement("div");
+        aviso.id = "avisoNovaVenda";
 
-    aviso.style.position = "fixed";
-    aviso.style.top = "20px";
-    aviso.style.right = "20px";
-    aviso.style.zIndex = "99999";
-    aviso.style.background = "#2e6b36";
-    aviso.style.color = "#fff";
-    aviso.style.padding = "18px 22px";
-    aviso.style.borderRadius = "12px";
-    aviso.style.boxShadow = "0 10px 30px rgba(0,0,0,.20)";
-    aviso.style.fontFamily = "Arial, sans-serif";
-    aviso.style.fontSize = "14px";
-    aviso.style.fontWeight = "700";
-    aviso.style.maxWidth = "320px";
+        Object.assign(aviso.style, {
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            zIndex: "99999",
+            background: "#2e6b36",
+            color: "#fff",
+            padding: "16px 20px",
+            borderRadius: "12px",
+            boxShadow: "0 10px 30px rgba(0,0,0,.18)",
+            fontFamily: "Arial, sans-serif",
+            fontSize: "14px",
+            fontWeight: "700",
+            maxWidth: "320px"
+        });
+
+        document.body.appendChild(aviso);
+    }
 
     aviso.innerHTML = `
-        🛒 NOVA VENDA!
-        <br><br>
+        🛒 Nova venda!
+        <br>
         Pedido #${escaparHtml(pedido.numero_pedido || "—")}
         <br>
         ${escaparHtml(pedido.nome_cliente || "Cliente")}
-        <br>
-        ${formatarValorAdmin(pedido.valor_total)}
+        — ${formatarValorAdmin(pedido.valor_total)}
     `;
 
-    document.body.appendChild(aviso);
+    clearTimeout(window.timerAvisoNovaVenda);
 
-    setTimeout(() => {
+    window.timerAvisoNovaVenda = setTimeout(() => {
         aviso.remove();
-    }, 10000);
+    }, 8000);
 
     if (
         "Notification" in window &&
