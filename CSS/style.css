@@ -3429,3 +3429,18 @@ html {
         margin-top: 0;
     }
 }
+/* Banner principal ocupando toda a largura da tela */
+.hero {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.hero-banner {
+    display: block;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    margin: 0 !important;
+}
