@@ -1984,7 +1984,7 @@
 /* TESTE BANNER MOBILE */
 .hero img {
     width: 100% !important;
-    max-width: 1400px !important;
+    max-width: none !important;
     height: auto !important;
     object-fit: contain !important;
     object-position: center !important;
