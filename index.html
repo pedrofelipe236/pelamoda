@@ -27,6 +27,153 @@
 
 </head>
 <body class="home-page">
+    
+<!-- BARRA BLACK NOVEMBER -->
+<div class="bf-countdown-bar">
+    <span class="bf-badge">BLACK NOVEMBER</span>
+
+    <strong class="bf-message">O MAIOR DESCONTO DO ANO ACABA EM</strong>
+
+    <div class="bf-timer">
+        <div class="bf-unit">
+            <strong id="bf-days">00</strong>
+            <small>dias</small>
+        </div>
+        <div class="bf-unit">
+            <strong id="bf-hours">00</strong>
+            <small>horas</small>
+        </div>
+        <div class="bf-unit">
+            <strong id="bf-minutes">00</strong>
+            <small>min</small>
+        </div>
+        <div class="bf-unit">
+            <strong id="bf-seconds">00</strong>
+            <small>seg</small>
+        </div>
+    </div>
+</div>
+
+<style>
+.bf-countdown-bar {
+    width: 100%;
+    min-height: 52px;
+    padding: 7px 16px;
+    background: #080808;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    font-family: "DM Sans", sans-serif;
+}
+
+.bf-badge {
+    background: #f4510b;
+    color: white;
+    padding: 7px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.bf-message {
+    font-size: 14px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.bf-timer {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.bf-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+}
+
+.bf-unit strong {
+    color: #ff5717;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.bf-unit small {
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 3px;
+}
+
+@media (max-width: 600px) {
+    .bf-countdown-bar {
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        padding: 9px 8px;
+    }
+
+    .bf-message {
+        font-size: 10px;
+    }
+
+    .bf-badge {
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+
+    .bf-timer {
+        gap: 12px;
+    }
+
+    .bf-unit strong {
+        font-size: 21px;
+    }
+}
+</style>
+
+<script>
+(function () {
+    const fimCampanha = new Date("2026-11-30T23:59:59-03:00").getTime();
+
+    function atualizarContador() {
+        const agora = Date.now();
+        const restante = fimCampanha - agora;
+
+        if (restante <= 0) {
+            document.querySelector(".bf-message").textContent =
+                "A CAMPANHA TERMINOU!";
+            document.querySelector(".bf-timer").style.display = "none";
+            return;
+        }
+
+        const dias = Math.floor(restante / 86400000);
+        const horas = Math.floor((restante % 86400000) / 3600000);
+        const minutos = Math.floor((restante % 3600000) / 60000);
+        const segundos = Math.floor((restante % 60000) / 1000);
+
+        document.getElementById("bf-days").textContent =
+            String(dias).padStart(2, "0");
+
+        document.getElementById("bf-hours").textContent =
+            String(horas).padStart(2, "0");
+
+        document.getElementById("bf-minutes").textContent =
+            String(minutos).padStart(2, "0");
+
+        document.getElementById("bf-seconds").textContent =
+            String(segundos).padStart(2, "0");
+    }
+
+    atualizarContador();
+    setInterval(atualizarContador, 1000);
+})();
+</script>
+
   <header>
     <script>
   window.va = window.va || function () {
