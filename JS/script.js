@@ -188,7 +188,111 @@ async function carregarEstoqueAPI() {
         );
     }
 
-    
+
+    // ======================================================
+    // CARROSSEL PROMOCIONAL
+    // ======================================================
+
+    function inicializarCarrossel() {
+
+        const promoTrack =
+            document.querySelector(".promo-track");
+
+        const promoSlides =
+            document.querySelectorAll(".promo-slide");
+
+        const promoDots =
+            document.querySelectorAll(".promo-dot");
+
+        const promoPrev =
+            document.querySelector(".promo-prev");
+
+        const promoNext =
+            document.querySelector(".promo-next");
+
+        if (
+            !promoTrack ||
+            promoSlides.length === 0 ||
+            !promoPrev ||
+            !promoNext
+        ) {
+            return;
+        }
+
+        let promoIndex = 0;
+        let promoTimer;
+
+        function mostrarPromo(index) {
+
+            if (index >= promoSlides.length) {
+                promoIndex = 0;
+            } else if (index < 0) {
+                promoIndex = promoSlides.length - 1;
+            } else {
+                promoIndex = index;
+            }
+
+            promoTrack.style.transform =
+                `translateX(-${promoIndex * 100}%)`;
+
+            promoDots.forEach(
+                dot => dot.classList.remove("active")
+            );
+
+            if (promoDots[promoIndex]) {
+                promoDots[promoIndex]
+                    .classList.add("active");
+            }
+        }
+
+        function proximaPromo() {
+            mostrarPromo(promoIndex + 1);
+        }
+
+        function iniciarAutomatico() {
+
+            clearInterval(promoTimer);
+
+            promoTimer = setInterval(
+                proximaPromo,
+                5000
+            );
+        }
+
+        promoNext.addEventListener(
+            "click",
+            () => {
+                proximaPromo();
+                iniciarAutomatico();
+            }
+        );
+
+        promoPrev.addEventListener(
+            "click",
+            () => {
+                mostrarPromo(promoIndex - 1);
+                iniciarAutomatico();
+            }
+        );
+
+        promoDots.forEach(
+            (dot, index) => {
+
+                dot.addEventListener(
+                    "click",
+                    () => {
+                        mostrarPromo(index);
+                        iniciarAutomatico();
+                    }
+                );
+            }
+        );
+
+        mostrarPromo(0);
+        iniciarAutomatico();
+    }
+
+
     // ======================================================
     // GALERIA / COR / TAMANHO
     // ======================================================
@@ -683,6 +787,115 @@ metaDescricao.setAttribute(
 
 
     // ======================================================
+    // BLACK NOVEMBER - DESCONTO AUTOMÁTICO POR QUANTIDADE
+    // Pacotes de até 4 T-shirts: 2 por R$ 99,90; 3 por R$ 150;
+    // 4 por R$ 189,90. Croppeds não participam.
+    // Para mais de 4, formam-se novos pacotes de até 4.
+    // ======================================================
+    function calcularDescontoBlackNovember(itens) {
+        const inicioCampanha = Date.parse("2026-11-01T00:00:00-03:00");
+        const fimCampanha = Date.parse("2026-11-27T23:59:59-03:00");
+        if (Date.now() < inicioCampanha || Date.now() > fimCampanha) {
+            return { quantidadeElegivel: 0, descontoCentavos: 0 };
+        }
+
+        const unidades = [];
+
+        (itens || []).forEach(item => {
+            if (item.categoria === "cropped") return;
+
+            const quantidade = Math.max(0, Math.floor(Number(item.quantidade) || 0));
+            const precoCentavos = Math.max(0, Math.round(Number(item.preco) * 100));
+
+            for (let i = 0; i < quantidade; i++) {
+                unidades.push(precoCentavos);
+            }
+        });
+
+        let descontoCentavos = 0;
+        const quantidadeElegivel = unidades.length;
+        const precosPacote = { 2: 9990, 3: 15000, 4: 18990 };
+
+        for (let i = 0; i < unidades.length; i += 4) {
+            const pacote = unidades.slice(i, i + 4);
+            const precoPacote = precosPacote[pacote.length];
+            if (!precoPacote) continue;
+
+            const subtotalPacote = pacote.reduce((total, preco) => total + preco, 0);
+            descontoCentavos += Math.max(0, subtotalPacote - precoPacote);
+        }
+
+        return { quantidadeElegivel, descontoCentavos };
+    }
+
+    async function completarCategoriasCarrinho() {
+        if (!carrinho.length) return;
+
+        try {
+            const resposta = await fetch("/api/produtos");
+            if (!resposta.ok) throw new Error("Não foi possível carregar as categorias dos produtos.");
+
+            const catalogo = await resposta.json();
+            const porId = new Map(catalogo.map(produto => [String(produto.id), produto]));
+            let alterou = false;
+
+            carrinho.forEach(item => {
+                const produto = porId.get(String(item.produtoId));
+                if (produto && produto.categoria && item.categoria !== produto.categoria) {
+                    item.categoria = produto.categoria;
+                    alterou = true;
+                }
+            });
+
+            if (alterou) salvarCarrinho();
+        } catch (erro) {
+            console.error("Erro ao completar categorias do carrinho:", erro);
+        }
+    }
+
+    function atualizarResumoBlackNovemberCarrinho() {
+        const subtotalElemento = document.getElementById("cartSubtotal");
+        if (!subtotalElemento) return;
+
+        const resultado = calcularDescontoBlackNovember(carrinho);
+        let linhaDesconto = document.getElementById("cartBlackNovember");
+        let linhaTotal = document.getElementById("cartTotalBlackNovember");
+
+        if (resultado.descontoCentavos > 0) {
+            if (!linhaDesconto) {
+                linhaDesconto = document.createElement("div");
+                linhaDesconto.id = "cartBlackNovember";
+                linhaDesconto.style.cssText = "display:flex;justify-content:space-between;gap:12px;margin-top:8px;color:#198754;font-size:13px;";
+                subtotalElemento.parentElement.insertAdjacentElement("afterend", linhaDesconto);
+            }
+
+            linhaDesconto.innerHTML = `
+                <span>Desconto Black November (${resultado.quantidadeElegivel} T-shirts)</span>
+                <strong>- ${formatarPreco(resultado.descontoCentavos / 100)}</strong>
+            `;
+
+            if (!linhaTotal) {
+                linhaTotal = document.createElement("div");
+                linhaTotal.id = "cartTotalBlackNovember";
+                linhaTotal.style.cssText = "display:flex;justify-content:space-between;gap:12px;margin-top:8px;padding-top:8px;border-top:1px solid #eee;font-weight:800;";
+                linhaDesconto.insertAdjacentElement("afterend", linhaTotal);
+            }
+
+            const subtotal = carrinho.reduce(
+                (total, produto) => total + Number(produto.preco) * Number(produto.quantidade),
+                0
+            );
+            linhaTotal.innerHTML = `
+                <span>Total com desconto</span>
+                <strong>${formatarPreco(Math.max(0, subtotal - resultado.descontoCentavos / 100))}</strong>
+            `;
+        } else {
+            linhaDesconto?.remove();
+            linhaTotal?.remove();
+        }
+    }
+
+    // ======================================================
     // CARRINHO
     // ======================================================
 
@@ -792,6 +1005,7 @@ metaDescricao.setAttribute(
                     obterIdProdutoAtual(),
                 nome: nomeProduto,
                 preco: precoProduto,
+                categoria: produtoAtualDados?.categoria || "tshirt",
                 cor: corSelecionada,
                 tamanho: tamanhoSelecionado,
                 quantidade: quantidadeProduto,
@@ -952,6 +1166,7 @@ metaDescricao.setAttribute(
             subtotalElemento.textContent =
                 "R$ 0,00";
 
+            atualizarResumoBlackNovemberCarrinho();
             return;
         }
 
@@ -1028,6 +1243,8 @@ metaDescricao.setAttribute(
 
         subtotalElemento.textContent =
             formatarPreco(subtotal);
+
+        atualizarResumoBlackNovemberCarrinho();
     }
 
     function finalizarCarrinhoWhatsApp() {
@@ -1161,43 +1378,6 @@ const produtosAtivos =
                     ]
                 );
 
-
-        function corParaCSS(nome) {
-            const nomeNormalizado = String(nome || "")
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .toLowerCase()
-                .trim();
-
-            const cores = {
-                "preto": "#111111",
-                "preta": "#111111",
-                "branco": "#ffffff",
-                "branca": "#ffffff",
-                "off white": "#f4f0e8",
-                "offwhite": "#f4f0e8",
-                "azul": "#4d82b8",
-                "azul marinho": "#18345a",
-                "azul claro": "#8db7d9",
-                "vermelho": "#c84b4b",
-                "vinho": "#722333",
-                "verde": "#5f8b62",
-                "verde claro": "#9bbd8f",
-                "amarelo": "#e7c84a",
-                "rosa": "#d98aa8",
-                "roxo": "#8064a2",
-                "lilas": "#b7a0d0",
-                "laranja": "#dc8b45",
-                "marrom": "#795548",
-                "bege": "#d7c3a5",
-                "cinza": "#8d8d8d",
-                "cinza claro": "#c8c8c8",
-                "grafite": "#3d4146"
-            };
-
-            return cores[nomeNormalizado] || "#d8d2ca";
-        }
-
         function criarSecao(
             titulo,
             listaProdutos
@@ -1256,43 +1436,6 @@ const produtosAtivos =
                         const temPromocao =
     produto.preco_promocional &&
     produto.preco_promocional < produto.preco;
-    
-
-                    const coresProduto =
-                        Array.isArray(produto.cores)
-                            ? produto.cores
-                            : [];
-
-                    const seloMaisVendido =
-                        produto.mais_vendido === true
-                            ? `
-                                <span class="product-bestseller">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M12 3l2.2 5.1 5.5.5-4.2 3.6 1.3 5.3L12 14.6 7.2 17.5l1.3-5.3-4.2-3.6 5.5-.5L12 3z"/>
-                                    </svg>
-                                    MAIS VENDIDO
-                                </span>
-                            `
-                            : "";
-
-                    const coresHTML =
-                        coresProduto.length > 0
-                            ? `
-                                <div class="product-colors" aria-label="Cores disponíveis">
-                                    ${coresProduto
-                                        .slice(0, 6)
-                                        .map(cor => `
-                                            <span
-                                                class="product-color"
-                                                title="${cor.nome || "Cor"}"
-                                                aria-label="${cor.nome || "Cor"}"
-                                                style="background:${corParaCSS(cor.nome)}"
-                                            ></span>
-                                        `)
-                                        .join("")}
-                                </div>
-                            `
-                            : "";
 
                     card.innerHTML = `
                         <a
@@ -1300,8 +1443,6 @@ const produtosAtivos =
                             class="product-link"
                         >
                             <div class="product-image">
-
-    ${seloMaisVendido}
 
     ${
         temPromocao
@@ -1314,6 +1455,7 @@ const produtosAtivos =
         alt="${produto.nome}"
     >
 </div>
+                                
 
                             <div class="product-info">
 
@@ -1329,53 +1471,35 @@ const produtosAtivos =
                                     }
                                 </p>
 
-                                ${coresHTML}
-
                                <div class="price">
 
     ${
         temPromocao
             ? `
                 <div class="linha-precos">
-                    <span class="preco-antigo">
-                        ${formatarPreco(produto.preco)}
-                    </span>
-
-                    <span class="preco-promocional">
-                        ${formatarPreco(produto.preco_promocional)}
-                    </span>
-                </div>
-              `
-            : `
-                <span class="preco-atual">
+                <span class="preco-antigo">
                     ${formatarPreco(produto.preco)}
                 </span>
-              `
-    }
-</div>
 
-                                <span class="installment">
-                                    ou 2x de ${formatarPreco((temPromocao ? produto.preco_promocional : produto.preco) / 2)} sem juros
-                                </span>
+                <span class="preco-promocional">
+                    ${formatarPreco(produto.preco_promocional)}
+                </span>
+            </div>
+
+                    `
+        : formatarPreco(produto.preco)
+}
+</div>
 
                             </div>
                         </a>
 
-                        <div class="product-actions">
-                            <button
-                                class="buy"
-                                type="button"
-                                aria-label="Comprar ${produto.nome}"
-                                onclick="window.location.href='produto.html?id=${id}'"
-                            >
-                                <svg class="buy-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <circle cx="9" cy="20" r="1"/>
-                                    <circle cx="18" cy="20" r="1"/>
-                                    <path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 1.9-1.5L21 8H6"/>
-                                </svg>
-                                <span>COMPRAR</span>
-                            </button>
-                        </div>
+                        <button
+                            class="buy"
+                            onclick="window.location.href='produto.html?id=${id}'"
+                        >
+                            COMPRAR
+                        </button>
                     `;
 
                     grid.appendChild(
@@ -1458,8 +1582,10 @@ async function atualizarLinkMeusPedidos() {
         "DOMContentLoaded",
         async () => {
             await atualizarLinkMeusPedidos();
-            
+            inicializarCarrossel();
+
             await carregarEstoqueAPI();
+            await completarCategoriasCarrinho();
 
             carregarProdutoDinamico();
             carregarProdutosHome();
@@ -1558,40 +1684,3 @@ if (btnBuscarProdutos && campoBusca) {
 }
 console.log("CAMPO BUSCA:", document.getElementById("buscaProdutos"));
 
-/* =========================================
-   PÊLAMODA — PASSARINHO NO SCROLL
-========================================= */
-
-const pmPassaro = document.getElementById("pmPassaro");
-
-if (pmPassaro) {
-
-    let ultimoScroll = window.scrollY;
-    let voando = false;
-
-    window.addEventListener("scroll", () => {
-
-        const scrollAtual = window.scrollY;
-
-        // Só dispara quando o usuário estiver descendo
-        if (scrollAtual > ultimoScroll && !voando) {
-
-            voando = true;
-
-            // Reinicia a animação
-            pmPassaro.style.animation = "none";
-
-            void pmPassaro.offsetWidth;
-
-            pmPassaro.style.animation =
-                "pmPassaroVoo 4s ease-in-out forwards";
-
-            // Quando terminar o voo, libera para o próximo
-            setTimeout(() => {
-                voando = false;
-            }, 4200);
-        }
-
-        ultimoScroll = scrollAtual;
-    });
-}

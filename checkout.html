@@ -31,28 +31,7 @@
             <section class="checkout-box">
 
                 <h2>1. SEUS DADOS</h2>
-<div id="checkout-login" class="checkout-login">
-    <div class="checkout-login-texto">
-        <strong>Acompanhe seu pedido</strong>
 
-        <span>
-            Entre com Google para salvar este pedido
-            na sua conta e acompanhar o andamento.
-        </span>
-    </div>
-
-    <button
-        type="button"
-        id="btn-login-checkout"
-        class="checkout-login-btn"
-    >
-        Entrar com Google
-    </button>
-
-    <small>
-        Ou continue a compra sem entrar.
-    </small>
-</div>
                 <div class="checkout-fields">
 
                     <div class="checkout-field full">
@@ -289,6 +268,7 @@
 
                 </div>
 
+                <div id="blacknovember-checkout-aviso" hidden></div>
 
                 <div class="checkout-cupom">
     <label for="cupom">Cupom de desconto</label>
@@ -329,7 +309,7 @@
         id="linha-desconto"
         style="display: none;"
     >
-        <span>Desconto</span>
+        <span id="checkout-desconto-label">Desconto</span>
         <strong id="checkout-desconto">
             - R$ 0,00
         </strong>
@@ -375,14 +355,17 @@ const supabaseClient =
         SUPABASE_KEY
         
     );
-    async function prepararUsuarioCheckout() {
-
+    async function preencherDadosUsuario() {
     const {
         data: { user }
     } = await supabaseClient.auth.getUser();
 
-    const areaLogin =
-        document.getElementById("checkout-login");
+    if (!user) return;
+
+    const nome =
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name ||
+        "";
 
     const campoNome =
         document.getElementById("nome");
@@ -390,97 +373,64 @@ const supabaseClient =
     const campoEmail =
         document.getElementById("email");
 
-
-    // CLIENTE NÃO LOGADO
-
-    if (!user) {
-
-        const botaoLogin =
-            document.getElementById(
-                "btn-login-checkout"
-            );
-
-        botaoLogin?.addEventListener(
-            "click",
-            async () => {
-
-                const { error } =
-                    await supabaseClient.auth
-                        .signInWithOAuth({
-                            provider: "google",
-
-                            options: {
-                                redirectTo:
-                                    `${window.location.origin}/checkout.html`
-                            }
-                        });
-
-                if (error) {
-                    console.error(
-                        "Erro no login:",
-                        error
-                    );
-
-                    alert(
-                        "Não foi possível entrar com Google."
-                    );
-                }
-            }
-        );
-
-        return;
-    }
-
-
-    // CLIENTE LOGADO
-
-    const nome =
-        user.user_metadata?.full_name ||
-        user.user_metadata?.name ||
-        "";
-
-
     if (campoNome && !campoNome.value) {
         campoNome.value = nome;
     }
 
-
     if (campoEmail && !campoEmail.value) {
-        campoEmail.value =
-            user.email || "";
-    }
-
-
-    if (areaLogin) {
-
-        const primeiroNome =
-            nome.split(" ")[0] || "Cliente";
-
-        areaLogin.innerHTML = `
-            <div class="checkout-login-logado">
-
-                <strong>
-                    ✓ Olá, ${primeiroNome}!
-                </strong>
-
-                <span>
-                    Este pedido ficará salvo
-                    em Meus Pedidos.
-                </span>
-
-            </div>
-        `;
+        campoEmail.value = user.email || "";
     }
 }
 
-prepararUsuarioCheckout();
-
+preencherDadosUsuario();
     // ========================================
     // VARIÁVEIS PRINCIPAIS
     // ========================================
 
     const carrinhoCheckout =
         JSON.parse(localStorage.getItem("pelamodaCarrinho")) || [];
+
+    // Black November: os pacotes podem misturar estampas e cores,
+    // mas somente T-shirts entram na contagem. Croppeds ficam fora.
+    function calcularDescontoBlackNovember(itens) {
+        const inicioCampanha = Date.parse("2026-11-01T00:00:00-03:00");
+        const fimCampanha = Date.parse("2026-11-27T23:59:59-03:00");
+        if (Date.now() < inicioCampanha || Date.now() > fimCampanha) {
+            return { quantidadeElegivel: 0, descontoCentavos: 0 };
+        }
+
+        const unidades = [];
+
+        (itens || []).forEach(item => {
+            if (item.categoria === "cropped") return;
+
+            const quantidade = Math.max(0, Math.floor(Number(item.quantidade) || 0));
+            const precoCentavos = Math.max(0, Math.round(Number(item.preco) * 100));
+
+            for (let i = 0; i < quantidade; i++) {
+                unidades.push(precoCentavos);
+            }
+        });
+
+        let descontoCentavos = 0;
+        const quantidadeElegivel = unidades.length;
+        const precosPacote = { 2: 9990, 3: 15000, 4: 18990 };
+
+        for (let i = 0; i < unidades.length; i += 4) {
+            const pacote = unidades.slice(i, i + 4);
+            const precoPacote = precosPacote[pacote.length];
+            if (!precoPacote) continue;
+
+            const subtotalPacote = pacote.reduce((total, preco) => total + preco, 0);
+            descontoCentavos += Math.max(0, subtotalPacote - precoPacote);
+        }
+
+        return { quantidadeElegivel, descontoCentavos };
+    }
+
+    let descontoBlackNovember = 0;
+    let quantidadeTshirtsBlackNovember = 0;
+    let blackNovemberAtivo = false;
 
     const checkoutItems =
         document.getElementById("checkout-items");
@@ -496,6 +446,10 @@ prepararUsuarioCheckout();
 
     const resultadoFrete =
         document.getElementById("resultado-frete");
+
+    function formatarPreco(valor) {
+        return `R$ ${Number(valor).toFixed(2).replace(".", ",")}`;
+    }
 
     let valorFrete = 0;
 
@@ -958,10 +912,35 @@ async function calcularFreteSuperFrete() {
 
 
         checkoutSubtotal.textContent =
-            `R$ ${subtotal
-                .toFixed(2)
-                .replace(".", ",")}`;
+            `R$ ${subtotal.toFixed(2).replace(".", ",")}`;
 
+        const promo = calcularDescontoBlackNovember(carrinhoCheckout);
+        descontoBlackNovember = promo.descontoCentavos / 100;
+        quantidadeTshirtsBlackNovember = promo.quantidadeElegivel;
+        blackNovemberAtivo = descontoBlackNovember > 0;
+
+        // Ao entrar no checkout, o desconto por quantidade já vem aplicado.
+        if (!cupomAplicado) {
+            valorDesconto = descontoBlackNovember;
+        }
+
+        const avisoBlackNovember =
+            document.getElementById("blacknovember-checkout-aviso");
+        const areaCupom = document.querySelector(".checkout-cupom");
+
+        if (blackNovemberAtivo) {
+            avisoBlackNovember.hidden = false;
+            avisoBlackNovember.style.cssText =
+                "margin:14px 0;padding:13px 15px;border:1px solid #f4c7ad;border-radius:10px;background:#fff7f1;color:#8f350e;font-size:13px;line-height:1.5;";
+            avisoBlackNovember.innerHTML =
+                `<strong>BLACK NOVEMBER ATIVADA!</strong><br>` +
+                `Você ganhou ${formatarPreco(descontoBlackNovember)} de desconto em ` +
+                `${quantidadeTshirtsBlackNovember} T-shirt(s). A oferta já está aplicada ao total.`;
+            if (areaCupom) areaCupom.style.display = "none";
+        } else {
+            avisoBlackNovember.hidden = true;
+            if (areaCupom) areaCupom.style.display = "";
+        }
 
         atualizarTotalCheckout();
 
@@ -984,19 +963,25 @@ async function calcularFreteSuperFrete() {
         });
 
 
-       const total =
-    subtotal - valorDesconto + valorFrete;
-
+        const total = subtotal - valorDesconto + valorFrete;
 
         checkoutTotal.textContent =
-            `R$ ${total
-                .toFixed(2)
-                .replace(".", ",")}`;
+            `R$ ${Math.max(0, total).toFixed(2).replace(".", ",")}`;
 
+        if (valorDesconto > 0) {
+            linhaDesconto.style.display = "flex";
+            checkoutDesconto.textContent =
+                `- R$ ${valorDesconto.toFixed(2).replace(".", ",")}`;
+            document.getElementById("checkout-desconto-label").textContent =
+                blackNovemberAtivo ? "Desconto Black November" : "Cupom de desconto";
+        } else {
+            linhaDesconto.style.display = "none";
+        }
     }
-    // CÓDIGO DO CUPOM AQUI
+
+    // O desconto automático substitui cupons durante a campanha.
     let cupomAplicado = "";
-let valorDesconto = 0;
+    let valorDesconto = 0;
 
 const inputCupom =
     document.getElementById("cupom");
@@ -1016,6 +1001,13 @@ const checkoutDesconto =
     botaoAplicarCupom?.addEventListener(
     "click",
     async () => {
+if (blackNovemberAtivo) {
+    mensagemCupom.textContent =
+        "A oferta Black November não acumula com outros cupons.";
+    mensagemCupom.style.color = "#b42318";
+    return;
+}
+
 if (cupomAplicado) {
 
     cupomAplicado = "";
@@ -1294,14 +1286,14 @@ cupom: cupomAplicado,
     Math.round(valorFrete * 100),
         
     valor_total:
-        Math.round(
-            (
+        Math.max(0,
+            Math.round(
                 carrinhoCheckout.reduce(
                     (total, item) =>
                         total + item.preco * item.quantidade,
                     0
-                ) + valorFrete
-            ) * 100
+                ) * 100
+            ) - Math.round(valorDesconto * 100) + Math.round(valorFrete * 100)
         )
 };
 const {
@@ -1403,8 +1395,29 @@ try {
     // INICIALIZAÇÃO
     // ========================================
 
-    carregarResumoCheckout();
-    atualizarTotalCheckout();
+    async function completarCategoriasDoCarrinho() {
+        try {
+            const resposta = await fetch("/api/produtos");
+            if (!resposta.ok) throw new Error("Não foi possível consultar as categorias.");
+
+            const catalogo = await resposta.json();
+            const porId = new Map(catalogo.map(produto => [String(produto.id), produto]));
+
+            carrinhoCheckout.forEach(item => {
+                const produto = porId.get(String(item.produtoId));
+                if (produto?.categoria) item.categoria = produto.categoria;
+            });
+        } catch (erro) {
+            console.error("Erro ao carregar categorias do carrinho:", erro);
+            // Mantém a categoria que já estiver salva no carrinho.
+        }
+    }
+
+    (async () => {
+        await completarCategoriasDoCarrinho();
+        carregarResumoCheckout();
+        atualizarTotalCheckout();
+    })();
 
 </script>
 </body>

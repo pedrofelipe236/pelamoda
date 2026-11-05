@@ -20,13 +20,10 @@ export default async function handler(req, res) {
             });
         }
 
-
-        // ======================================================
-        // BUSCA O PEDIDO REAL NO SUPABASE
-        // ======================================================
-
+        // Busca o pedido real no Supabase.
         const respostaPedido = await fetch(
-`${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}&select=order_nsu,itens,valor_produtos,valor_desconto,valor_frete,valor_total,cupom,status`,            {
+            `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}&select=order_nsu,itens,valor_produtos,valor_desconto,valor_frete,valor_total,cupom,status`,
+            {
                 headers: {
                     "apikey": process.env.SUPABASE_SECRET_KEY
                 }
@@ -36,76 +33,57 @@ export default async function handler(req, res) {
         const pedidos = await respostaPedido.json();
 
         if (!respostaPedido.ok) {
-
-            console.error(
-                "Erro ao buscar pedido:",
-                pedidos
-            );
-
+            console.error("Erro ao buscar pedido:", pedidos);
             return res.status(500).json({
                 erro: "Erro ao consultar pedido"
             });
         }
 
-
-        if (
-            !Array.isArray(pedidos) ||
-            pedidos.length === 0
-        ) {
+        if (!Array.isArray(pedidos) || pedidos.length === 0) {
             return res.status(404).json({
                 erro: "Pedido não encontrado"
             });
         }
 
-
         const pedido = pedidos[0];
 
-
-        // ======================================================
-        // MONTA OS ITENS COM OS PREÇOS SALVOS NO BACKEND
-        // ======================================================
-
-        let itemsPagamento;
-
-const valorDesconto =
-    Number(pedido.valor_desconto || 0);
-
-if (valorDesconto > 0) {
-
-    const valorProdutosComDesconto =
-        Number(pedido.valor_produtos) -
-        valorDesconto;
-
-    itemsPagamento = [
-        {
-            quantity: 1,
-            price: valorProdutosComDesconto,
-            description:
-                `Produtos - Cupom ${pedido.cupom}`
+        if (pedido.status !== "aguardando_pagamento") {
+            return res.status(409).json({
+                erro: "Este pedido não está aguardando pagamento."
+            });
         }
-    ];
 
-} else {
+        // Usa exclusivamente os valores registrados pelo backend.
+        let itemsPagamento;
+        const valorDesconto = Number(pedido.valor_desconto || 0);
 
-    itemsPagamento =
-        pedido.itens.map(item => ({
-            quantity: Number(item.quantidade),
-            price: Number(item.preco),
-            description:
-                `${item.nome} - ${item.cor} - ${item.tamanho}`
-        }));
-}
+        if (valorDesconto > 0) {
+            const valorProdutosComDesconto =
+                Number(pedido.valor_produtos) - valorDesconto;
 
+            const descricaoDesconto =
+                pedido.cupom === "BLACKNOVEMBER"
+                    ? "Produtos - Black November"
+                    : pedido.cupom
+                        ? `Produtos - Cupom ${pedido.cupom}`
+                        : "Produtos com desconto";
 
-        // ======================================================
-        // ADICIONA FRETE SALVO NO PEDIDO
-        // ======================================================
+            itemsPagamento = [{
+                quantity: 1,
+                price: valorProdutosComDesconto,
+                description: descricaoDesconto
+            }];
+        } else {
+            itemsPagamento = pedido.itens.map(item => ({
+                quantity: Number(item.quantidade),
+                price: Number(item.preco),
+                description: `${item.nome} - ${item.cor} - ${item.tamanho}`
+            }));
+        }
 
-        const valorFrete =
-            Number(pedido.valor_frete || 0);
-
+        // Adiciona o frete salvo no pedido.
+        const valorFrete = Number(pedido.valor_frete || 0);
         if (valorFrete > 0) {
-
             itemsPagamento.push({
                 quantity: 1,
                 price: valorFrete,
@@ -113,98 +91,76 @@ if (valorDesconto > 0) {
             });
         }
 
+        const totalItensPagamento = itemsPagamento.reduce(
+            (total, item) => total + Number(item.price) * Number(item.quantity),
+            0
+        );
 
-        // ======================================================
-        // CRIA CHECKOUT NA INFINITEPAY
-        // ======================================================
+        if (totalItensPagamento !== Number(pedido.valor_total)) {
+            console.error("Divergência entre itens da InfinitePay e total do pedido:", {
+                totalItensPagamento,
+                valorTotalPedido: pedido.valor_total,
+                order_nsu
+            });
+            return res.status(409).json({
+                erro: "O total do pedido está divergente. Refaça o pedido."
+            });
+        }
 
+        // Cria o checkout na InfinitePay.
         const resposta = await fetch(
             "https://api.checkout.infinitepay.io/links",
             {
                 method: "POST",
-
                 headers: {
                     "Content-Type": "application/json"
                 },
-
                 body: JSON.stringify({
-
                     handle: "pedrofelipe236",
-
                     order_nsu,
-
                     redirect_url: "https://pelamoda.com.br/pagamento-concluido.html",
-
-                    webhook_url:
-                        "https://pelamoda.com.br/api/webhook-infinitepay",
-
+                    webhook_url: "https://pelamoda.com.br/api/webhook-infinitepay",
                     customer,
-
                     address,
-
                     items: itemsPagamento
                 })
             }
         );
 
-
         const dados = await resposta.json();
 
-
         if (!resposta.ok) {
+            console.error("Erro InfinitePay:", dados);
+            return res.status(resposta.status).json(dados);
+        }
 
-            console.error(
-                "Erro InfinitePay:",
-                dados
+        // Salva o link de pagamento no pedido.
+        if (dados.url) {
+            const respostaSalvarUrl = await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": process.env.SUPABASE_SECRET_KEY,
+                        "Prefer": "return=minimal"
+                    },
+                    body: JSON.stringify({
+                        pagamento_url: dados.url
+                    })
+                }
             );
 
-            return res.status(
-                resposta.status
-            ).json(dados);
+            if (!respostaSalvarUrl.ok) {
+                const erroSalvar = await respostaSalvarUrl.text();
+                console.error("Erro ao salvar pagamento_url:", erroSalvar);
+            }
         }
-
-// SALVA O LINK DE PAGAMENTO NO PEDIDO
-if (dados.url) {
-
-    const respostaSalvarUrl = await fetch(
-        `${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}`,
-        {
-            method: "PATCH",
-
-            headers: {
-                "Content-Type": "application/json",
-                "apikey": process.env.SUPABASE_SECRET_KEY,
-                "Prefer": "return=minimal"
-            },
-
-            body: JSON.stringify({
-                pagamento_url: dados.url
-            })
-        }
-    );
-
-    if (!respostaSalvarUrl.ok) {
-
-        const erroSalvar =
-            await respostaSalvarUrl.text();
-
-        console.error(
-            "Erro ao salvar pagamento_url:",
-            erroSalvar
-        );
-    }
-}
 
         return res.status(200).json(dados);
 
-
     } catch (erro) {
-
-        console.error(
-            "Erro ao criar pagamento:",
-            erro
-        );
-
+        console.error("Erro ao criar pagamento:", erro);
         return res.status(500).json({
             erro: "Erro ao criar pagamento"
         });
