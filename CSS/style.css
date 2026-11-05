@@ -3551,3 +3551,128 @@ html {
     height: auto !important;
     margin: 0 !important;
 }
+
+/* ==========================================
+   PÊLAMODA — TIPOGRAFIA E ESPAÇAMENTO
+   Página de produto
+========================================== */
+
+body.produto-page .product-details {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Título */
+body.produto-page .product-details h1 {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif !important;
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.7px;
+    margin-bottom: 10px;
+}
+
+/* Preço */
+body.produto-page .product-price {
+    font-family: system-ui, sans-serif;
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 13px;
+}
+
+/* Descrição */
+body.produto-page .product-description {
+    font-family: system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Cores e tamanhos */
+body.produto-page .product-option {
+    margin-bottom: 14px;
+}
+
+body.produto-page .product-option strong {
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+body.produto-page .option-buttons {
+    gap: 8px;
+}
+
+body.produto-page .size-option {
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+/* Quantidade */
+body.produto-page .quantity {
+    height: 46px;
+    border-radius: 9px;
+}
+
+body.produto-page .quantity button {
+    height: 46px;
+    width: 46px;
+    font-size: 18px;
+    font-family: system-ui, sans-serif;
+}
+
+body.produto-page .quantity span {
+    width: 52px;
+    font-family: system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Botões */
+body.produto-page .product-cart-button,
+body.produto-page .product-whatsapp-button {
+    display: block;
+    height: 50px;
+    margin: 0 0 8px;
+    border-radius: 9px;
+    font-family: system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 650;
+    letter-spacing: 0;
+}
+
+/* Parcelamento */
+body.produto-page .product-installment {
+    margin: 5px 0 0;
+    font-family: system-ui, sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Ajuda */
+body.produto-page .product-help {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-family: system-ui, sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+    body.produto-page .product-details h1 {
+        font-size: 30px;
+    }
+
+    body.produto-page .product-option {
+        margin-bottom: 13px;
+    }
+
+    body.produto-page .product-cart-button,
+    body.produto-page .product-whatsapp-button {
+        height: 48px;
+    }
+}
