@@ -1,3 +1,354 @@
+
+Carregando mensagens mais antigas…
+Ok
+Boa! Encontrei também o código completo do checkout.html. Não precisa reenviar os arquivos anteriores.
+
+Já identifiquei os três pontos da integração: carrinho, checkout e /api/criar-pedido. 
+Código colado(6).js
+ 
+Código colado(1).html
+ 
+Markdown colado(4).md
+
+Só falta um arquivo importante: api/pagamento.js. O checkout envia os produtos separadamente para essa API, usando os preços originais. Precisamos conferir como ela monta o link da InfinitePay para garantir que o cliente pague o valor com desconto, e não o preço cheio.
+
+Envie somente esse arquivo. Vou considerar os valores de R$ 99,90 para 2, R$ 150,00 para 3 e R$ 189,90 para 4 T-shirts, conforme a proposta.
+
+export default async function handler(req, res) {
+
+    if (req.method !== "POST") {
+        return res.status(405).json({
+            erro: "Método não permitido"
+        });
+    }
+
+    try {
+
+        const {
+            order_nsu,
+            customer,
+            address
+        } = req.body;
+
+        if (!order_nsu) {
+            return res.status(400).json({
+                erro: "Pedido inválido"
+            });
+        }
+
+
+        // ======================================================
+        // BUSCA O PEDIDO REAL NO SUPABASE
+        // ======================================================
+
+        const respostaPedido = await fetch(
+${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)}&select=order_nsu,itens,valor_produtos,valor_desconto,valor_frete,valor_total,cupom,status,            {
+                headers: {
+                    "apikey": process.env.SUPABASE_SECRET_KEY
+                }
+            }
+        );
+
+        const pedidos = await respostaPedido.json();
+
+        if (!respostaPedido.ok) {
+
+            console.error(
+                "Erro ao buscar pedido:",
+                pedidos
+            );
+
+            return res.status(500).json({
+                erro: "Erro ao consultar pedido"
+            });
+        }
+
+
+        if (
+            !Array.isArray(pedidos) ||
+            pedidos.length === 0
+        ) {
+            return res.status(404).json({
+                erro: "Pedido não encontrado"
+            });
+        }
+
+
+        const pedido = pedidos[0];
+
+
+        // ======================================================
+        // MONTA OS ITENS COM OS PREÇOS SALVOS NO BACKEND
+        // ======================================================
+
+        let itemsPagamento;
+
+const valorDesconto =
+    Number(pedido.valor_desconto || 0);
+
+if (valorDesconto > 0) {
+
+    const valorProdutosComDesconto =
+        Number(pedido.valor_produtos) -
+        valorDesconto;
+
+    itemsPagamento = [
+        {
+            quantity: 1,
+            price: valorProdutosComDesconto,
+            description:
+                Produtos - Cupom ${pedido.cupom}
+        }
+    ];
+
+} else {
+
+    itemsPagamento =
+        pedido.itens.map(item => ({
+            quantity: Number(item.quantidade),
+            price: Number(item.preco),
+            description:
+                ${item.nome} - ${item.cor} - ${item.tamanho}
+        }));
+}
+
+
+        // ======================================================
+        // ADICIONA FRETE SALVO NO PEDIDO
+        // ======================================================
+
+        const valorFrete =
+            Number(pedido.valor_frete || 0);
+
+        if (valorFrete > 0) {
+
+            itemsPagamento.push({
+                quantity: 1,
+                price: valorFrete,
+                description: "Frete"
+            });
+        }
+
+
+        // ======================================================
+        // CRIA CHECKOUT NA INFINITEPAY
+        // ======================================================
+
+        const resposta = await fetch(
+            "https://api.checkout.infinitepay.io/links",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    handle: "pedrofelipe236",
+
+                    order_nsu,
+
+                    redirect_url: "https://pelamoda.com.br/pagamento-concluido.html",
+
+                    webhook_url:
+                        "https://pelamoda.com.br/api/webhook-infinitepay",
+
+                    customer,
+
+                    address,
+
+                    items: itemsPagamento
+                })
+            }
+        );
+
+
+        const dados = await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            console.error(
+                "Erro InfinitePay:",
+                dados
+            );
+
+            return res.status(
+                resposta.status
+            ).json(dados);
+        }
+
+// SALVA O LINK DE PAGAMENTO NO PEDIDO
+if (dados.url) {
+
+    const respostaSalvarUrl = await fetch(
+        ${process.env.SUPABASE_URL}/rest/v1/pedidos?order_nsu=eq.${encodeURIComponent(order_nsu)},
+        {
+            method: "PATCH",
+
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": process.env.SUPABASE_SECRET_KEY,
+                "Prefer": "return=minimal"
+            },
+
+            body: JSON.stringify({
+                pagamento_url: dados.url
+            })
+        }
+    );
+
+    if (!respostaSalvarUrl.ok) {
+
+        const erroSalvar =
+            await respostaSalvarUrl.text();
+
+        console.error(
+            "Erro ao salvar pagamento_url:",
+            erroSalvar
+        );
+    }
+}
+
+        return res.status(200).json(dados);
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao criar pagamento:",
+            erro
+        );
+
+        return res.status(500).json({
+            erro: "Erro ao criar pagamento"
+        });
+    }
+}
+…
+Agora fechou! Esse arquivo confirmou um detalhe importante: a InfinitePay não usa os preços enviados pelo navegador. Ela consulta o pedido salvo no Supabase e monta a cobrança com os valores registrados lá.
+
+Isso é bom: podemos aplicar o desconto automático no api/criar-pedido e fazer o pagamento respeitar o mesmo total. Também vou ajustar a descrição da cobrança para aparecer como Black November, em vez de “Cupom null”.
+
+Pronto, meu fi! 🖤🧡 Preparei a integração da Black November com os quatro arquivos atualizados.
+
+Arquivos gerados e sintaxe validada
+Baixar pacote completo da PêlaModa (.zip)
+
+O pacote contém:
+
+Arquivo
+
+Caminho no projeto
+
+script.js
+
+JS/script.js
+
+checkout.html
+
+checkout.html
+
+criar-pedido.js
+
+api/criar-pedido.js
+
+pagamento.js
+
+api/pagamento.js
+
+O que ficou implementado:
+
+2 T-shirts por R$ 99,90.
+
+3 T-shirts por R$ 150,00.
+
+4 T-shirts por R$ 189,90.
+
+Estampas, cores e tamanhos diferentes podem formar os pacotes.
+
+Croppeds ficam de fora.
+
+A partir de 5 camisas, os pacotes de 4 se repetem e as unidades restantes mantêm o preço normal.
+
+Cupom não acumula com a promoção.
+
+O backend confere os preços e o desconto antes de criar o pedido.
+
+A InfinitePay recebe o valor final correto.
+
+A campanha está configurada até 27/11/2026 às 23h59, acompanhando o contador do site.
+
+Importante: faça backup dos quatro arquivos atuais antes de substituir. A sintaxe foi validada, mas ainda é necessário testar o fluxo real com Supabase e InfinitePay antes de abrir a promoção ao público.
+
+Vamos colocar essa Black November para vender! 🔥
+
+
+script.js
+Código
+
+checkout.html
+HTML
+
+criar-pedido.js
+Código
+
+pagamento.js
+Código
+Anexo do usuário
+você mudou o layout das coisas
+Você tem razão, meu fi. Desculpa! A ideia era implementar a promoção, não alterar a aparência da loja.
+
+Pelo print, os cards dos produtos estão com espaçamento e proporções diferentes. Vamos preservar o layout original da PêlaModa. Não quero que você tenha que sacrificar o visual do site para ter a promoção.
+
+Encontrei o erro: usei uma versão antiga do JavaScript, em vez da versão mais recente que já tinha os ajustes visuais dos cards.
+
+Pacote corrigido
+Baixar a versão corrigida da Black November (.zip)
+
+Também deixei o JavaScript corrigido separadamente:
+
+Baixar JS/script.js
+
+Agora o pacote parte da versão mais nova, preservando os recursos dos cards: cores disponíveis, selo MAIS VENDIDO, parcelamento e botão de compra estilizado.
+
+Minha orientação: substitua os arquivos pelos desta nova versão, mantendo os backups. Não precisa alterar o CSS nem o HTML da página inicial.
+
+
+script.js
+Código
+não estou conseguindo baixar o script
+Foi mal, meu fi! Tenta por este link direto, com o nome simplificado:
+
+Arquivo verificado
+Baixar script.js da PêlaModa
+
+O arquivo está disponível e tem aproximadamente 45 KB.
+
+
+script-pelamoda-black-november.js
+Código
+Isso também pode interessar a você.
+
+
+
+me manda em txt
+Claro, meu fi! Aqui está em formato .txt:
+
+Baixar script da PêlaModa (.txt)
+
+
+script-pelamoda-black-november.txt
+Documento
+Isso também pode interessar a você.
+
+
+
+
+
+
+
     // ======================================================
     // PÊLAMODA - SCRIPT PRINCIPAL
     // ======================================================
@@ -1378,6 +1729,42 @@ const produtosAtivos =
                     ]
                 );
 
+
+        function corParaCSS(nome) {
+            const nomeNormalizado = String(nome || "")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .trim();
+
+            const cores = {
+                "preto": "#111111",
+                "preta": "#111111",
+                "branco": "#ffffff",
+                "branca": "#ffffff",
+                "off white": "#f4f0e8",
+                "offwhite": "#f4f0e8",
+                "azul": "#4d82b8",
+                "azul marinho": "#18345a",
+                "azul claro": "#8db7d9",
+                "vermelho": "#c84b4b",
+                "verde": "#5f8b62",
+                "verde claro": "#9bbd8f",
+                "amarelo": "#e7c84a",
+                "rosa": "#d98aa8",
+                "roxo": "#8064a2",
+                "lilas": "#b7a0d0",
+                "laranja": "#dc8b45",
+                "marrom": "#795548",
+                "bege": "#d7c3a5",
+                "cinza": "#8d8d8d",
+                "cinza claro": "#c8c8c8",
+                "grafite": "#3d4146"
+            };
+
+            return cores[nomeNormalizado] || "#d8d2ca";
+        }
+
         function criarSecao(
             titulo,
             listaProdutos
@@ -1437,12 +1824,50 @@ const produtosAtivos =
     produto.preco_promocional &&
     produto.preco_promocional < produto.preco;
 
+                    const coresProduto =
+                        Array.isArray(produto.cores)
+                            ? produto.cores
+                            : [];
+
+                    const seloMaisVendido =
+                        produto.mais_vendido === true
+                            ? `
+                                <span class="product-bestseller">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M12 3l2.2 5.1 5.5.5-4.2 3.6 1.3 5.3L12 14.6 7.2 17.5l1.3-5.3-4.2-3.6 5.5-.5L12 3z"/>
+                                    </svg>
+                                    MAIS VENDIDO
+                                </span>
+                            `
+                            : "";
+
+                    const coresHTML =
+                        coresProduto.length > 0
+                            ? `
+                                <div class="product-colors" aria-label="Cores disponíveis">
+                                    ${coresProduto
+                                        .slice(0, 6)
+                                        .map(cor => `
+                                            <span
+                                                class="product-color"
+                                                title="${cor.nome || "Cor"}"
+                                                aria-label="${cor.nome || "Cor"}"
+                                                style="background:${corParaCSS(cor.nome)}"
+                                            ></span>
+                                        `)
+                                        .join("")}
+                                </div>
+                            `
+                            : "";
+
                     card.innerHTML = `
                         <a
                             href="produto.html?id=${id}"
                             class="product-link"
                         >
                             <div class="product-image">
+
+    ${seloMaisVendido}
 
     ${
         temPromocao
@@ -1455,7 +1880,6 @@ const produtosAtivos =
         alt="${produto.nome}"
     >
 </div>
-                                
 
                             <div class="product-info">
 
@@ -1471,35 +1895,53 @@ const produtosAtivos =
                                     }
                                 </p>
 
+                                ${coresHTML}
+
                                <div class="price">
 
     ${
         temPromocao
             ? `
                 <div class="linha-precos">
-                <span class="preco-antigo">
+                    <span class="preco-antigo">
+                        ${formatarPreco(produto.preco)}
+                    </span>
+
+                    <span class="preco-promocional">
+                        ${formatarPreco(produto.preco_promocional)}
+                    </span>
+                </div>
+              `
+            : `
+                <span class="preco-atual">
                     ${formatarPreco(produto.preco)}
                 </span>
-
-                <span class="preco-promocional">
-                    ${formatarPreco(produto.preco_promocional)}
-                </span>
-            </div>
-
-                    `
-        : formatarPreco(produto.preco)
-}
+              `
+    }
 </div>
+
+                                <span class="installment">
+                                    ou 2x de ${formatarPreco((temPromocao ? produto.preco_promocional : produto.preco) / 2)} sem juros
+                                </span>
 
                             </div>
                         </a>
 
-                        <button
-                            class="buy"
-                            onclick="window.location.href='produto.html?id=${id}'"
-                        >
-                            COMPRAR
-                        </button>
+                        <div class="product-actions">
+                            <button
+                                class="buy"
+                                type="button"
+                                aria-label="Comprar ${produto.nome}"
+                                onclick="window.location.href='produto.html?id=${id}'"
+                            >
+                                <svg class="buy-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <circle cx="9" cy="20" r="1"/>
+                                    <circle cx="18" cy="20" r="1"/>
+                                    <path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 1.9-1.5L21 8H6"/>
+                                </svg>
+                                <span>COMPRAR</span>
+                            </button>
+                        </div>
                     `;
 
                     grid.appendChild(
