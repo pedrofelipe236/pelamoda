@@ -40,6 +40,33 @@ async function carregarEstoqueAPI() {
             .replace(".", ",")}`;
     }
 
+
+    function blackNovemberEstaAtiva() {
+        const inicio = Date.parse("2026-11-01T00:00:00-03:00");
+        const fim = Date.parse("2026-11-27T23:59:59-03:00");
+        return Date.now() >= inicio && Date.now() <= fim;
+    }
+
+    function itemEhCropped(item) {
+        return String(item?.categoria || "").trim().toLowerCase() === "cropped";
+    }
+
+    function obterPrecoBaseProduto(produto) {
+        const precoNormal = Number(produto?.preco) || 0;
+        const precoPromocional = Number(produto?.preco_promocional) || 0;
+        return precoPromocional > 0 && precoPromocional < precoNormal
+            ? precoPromocional
+            : precoNormal;
+    }
+
+    function obterPrecoVendaProduto(produto) {
+        const precoBase = obterPrecoBaseProduto(produto);
+        if (blackNovemberEstaAtiva() && itemEhCropped(produto)) {
+            return Math.min(precoBase, 39.90);
+        }
+        return precoBase;
+    }
+
     function obterIdProdutoAtual() {
         const parametros =
             new URLSearchParams(window.location.search);
@@ -515,17 +542,15 @@ async function carregarEstoqueAPI() {
         paginaProduto.dataset.nome =
             produto.nome;
 
-       const temPromocao =
-    produto.preco_promocional &&
-    produto.preco_promocional < produto.preco;
+const precoBaseVenda = obterPrecoBaseProduto(produto);
+const precoVenda = obterPrecoVendaProduto(produto);
+const temPromocao = precoVenda < Number(produto.preco);
+const promocaoBlackCropped =
+    blackNovemberEstaAtiva() &&
+    itemEhCropped(produto) &&
+    precoVenda < precoBaseVenda;
 
-const precoVenda =
-    temPromocao
-        ? produto.preco_promocional
-        : produto.preco;
-
-paginaProduto.dataset.preco =
-    precoVenda;
+paginaProduto.dataset.preco = precoVenda;
 
         const titulo =
             document.querySelector(
@@ -625,12 +650,12 @@ metaDescricao.setAttribute(
         </span>
 
         <span class="preco-promocional">
-            ${formatarPreco(produto.preco_promocional)}
+            ${formatarPreco(precoVenda)}
         </span>
     </div>
 
     <span class="selo-promocao">
-        PROMOÇÃO
+        ${promocaoBlackCropped ? "BLACK NOVEMBER" : "PROMOÇÃO"}
     </span>
 `;
 
@@ -788,8 +813,8 @@ metaDescricao.setAttribute(
 
     // ======================================================
     // BLACK NOVEMBER - DESCONTO AUTOMÁTICO POR QUANTIDADE
-    // Pacotes de até 4 T-shirts: 2 por R$ 99,90; 3 por R$ 150;
-    // 4 por R$ 189,90. Croppeds não participam.
+    // Pacotes de até 4 T-shirts: 2 por R$ 99,90; 3 por R$ 144,90;
+    // 4 por R$ 189,90. Croppeds ficam por R$ 39,90.
     // Para mais de 4, formam-se novos pacotes de até 4.
     // ======================================================
     function calcularDescontoBlackNovember(itens) {
@@ -802,7 +827,7 @@ metaDescricao.setAttribute(
         const unidades = [];
 
         (itens || []).forEach(item => {
-            if (item.categoria === "cropped") return;
+            if (itemEhCropped(item)) return;
 
             const quantidade = Math.max(0, Math.floor(Number(item.quantidade) || 0));
             const precoCentavos = Math.max(0, Math.round(Number(item.preco) * 100));
@@ -814,7 +839,7 @@ metaDescricao.setAttribute(
 
         let descontoCentavos = 0;
         const quantidadeElegivel = unidades.length;
-        const precosPacote = { 2: 9990, 3: 15000, 4: 18990 };
+        const precosPacote = { 2: 9990, 3: 14490, 4: 18990 };
 
         for (let i = 0; i < unidades.length; i += 4) {
             const pacote = unidades.slice(i, i + 4);
@@ -841,8 +866,28 @@ metaDescricao.setAttribute(
 
             carrinho.forEach(item => {
                 const produto = porId.get(String(item.produtoId));
-                if (produto && produto.categoria && item.categoria !== produto.categoria) {
+                if (!produto) return;
+
+                if (produto.categoria && item.categoria !== produto.categoria) {
                     item.categoria = produto.categoria;
+                    alterou = true;
+                }
+
+                const produtoEmReais = {
+                    ...produto,
+                    preco: Number(produto.preco) / 100,
+                    preco_promocional: produto.preco_promocional
+                        ? Number(produto.preco_promocional) / 100
+                        : null
+                };
+                let precoAtual = obterPrecoBaseProduto(produtoEmReais);
+
+                if (blackNovemberEstaAtiva() && itemEhCropped(produto)) {
+                    precoAtual = Math.min(precoAtual, 39.90);
+                }
+
+                if (Math.abs(Number(item.preco) - precoAtual) > 0.001) {
+                    item.preco = precoAtual;
                     alterou = true;
                 }
             });
@@ -1469,9 +1514,13 @@ const produtosAtivos =
 
                     card.className =
                         "product";
-                        const temPromocao =
-    produto.preco_promocional &&
-    produto.preco_promocional < produto.preco;
+                        const precoBaseVenda = obterPrecoBaseProduto(produto);
+                        const precoExibido = obterPrecoVendaProduto(produto);
+                        const temPromocao = precoExibido < Number(produto.preco);
+                        const promocaoBlackCropped =
+                            blackNovemberEstaAtiva() &&
+                            itemEhCropped(produto) &&
+                            precoExibido < precoBaseVenda;
 
                     const coresProduto =
                         Array.isArray(produto.cores)
@@ -1520,7 +1569,7 @@ const produtosAtivos =
 
     ${
         temPromocao
-            ? `<span class="selo-promocao">PROMOÇÃO</span>`
+            ? `<span class="selo-promocao">${promocaoBlackCropped ? "BLACK NOVEMBER" : "PROMOÇÃO"}</span>`
             : ""
     }
 
@@ -1557,7 +1606,7 @@ const produtosAtivos =
                     </span>
 
                     <span class="preco-promocional">
-                        ${formatarPreco(produto.preco_promocional)}
+                        ${formatarPreco(precoExibido)}
                     </span>
                 </div>
               `
@@ -1570,7 +1619,7 @@ const produtosAtivos =
 </div>
 
                                 <span class="installment">
-                                    ou 2x de ${formatarPreco((temPromocao ? produto.preco_promocional : produto.preco) / 2)} sem juros
+                                    ou 2x de ${formatarPreco(precoExibido / 2)} sem juros
                                 </span>
 
                             </div>

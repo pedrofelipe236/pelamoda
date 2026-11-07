@@ -390,31 +390,39 @@ preencherDadosUsuario();
     const carrinhoCheckout =
         JSON.parse(localStorage.getItem("pelamodaCarrinho")) || [];
 
-    // Black November: os pacotes podem misturar estampas e cores,
-    // mas somente T-shirts entram na contagem. Croppeds ficam fora.
+    // Black November: T-shirts em pacotes e Croppeds por R$ 39,90.
+    function blackNovemberCheckoutAtiva() {
+        const inicio = Date.parse("2026-11-01T00:00:00-03:00");
+        const fim = Date.parse("2026-11-27T23:59:59-03:00");
+        return Date.now() >= inicio && Date.now() <= fim;
+    }
+
+    function checkoutEhCropped(item) {
+        return String(item?.categoria || "").trim().toLowerCase() === "cropped";
+    }
+
     function calcularDescontoBlackNovember(itens) {
-        const inicioCampanha = Date.parse("2026-11-01T00:00:00-03:00");
-        const fimCampanha = Date.parse("2026-11-27T23:59:59-03:00");
-        if (Date.now() < inicioCampanha || Date.now() > fimCampanha) {
-            return { quantidadeElegivel: 0, descontoCentavos: 0 };
+        if (!blackNovemberCheckoutAtiva()) {
+            return { quantidadeElegivel: 0, quantidadeCroppeds: 0, descontoCentavos: 0 };
         }
 
         const unidades = [];
+        let quantidadeCroppeds = 0;
 
         (itens || []).forEach(item => {
-            if (item.categoria === "cropped") return;
-
             const quantidade = Math.max(0, Math.floor(Number(item.quantidade) || 0));
-            const precoCentavos = Math.max(0, Math.round(Number(item.preco) * 100));
-
-            for (let i = 0; i < quantidade; i++) {
-                unidades.push(precoCentavos);
+            if (checkoutEhCropped(item)) {
+                quantidadeCroppeds += quantidade;
+                return;
             }
+
+            const precoCentavos = Math.max(0, Math.round(Number(item.preco) * 100));
+            for (let i = 0; i < quantidade; i++) unidades.push(precoCentavos);
         });
 
         let descontoCentavos = 0;
         const quantidadeElegivel = unidades.length;
-        const precosPacote = { 2: 9990, 3: 15000, 4: 18990 };
+        const precosPacote = { 2: 9990, 3: 14490, 4: 18990 };
 
         for (let i = 0; i < unidades.length; i += 4) {
             const pacote = unidades.slice(i, i + 4);
@@ -425,7 +433,24 @@ preencherDadosUsuario();
             descontoCentavos += Math.max(0, subtotalPacote - precoPacote);
         }
 
-        return { quantidadeElegivel, descontoCentavos };
+        return { quantidadeElegivel, quantidadeCroppeds, descontoCentavos };
+    }
+
+    // Atualiza carrinhos antigos para o preço promocional dos Croppeds.
+    if (blackNovemberCheckoutAtiva()) {
+        let carrinhoFoiAtualizado = false;
+        carrinhoCheckout.forEach(item => {
+            if (!checkoutEhCropped(item)) return;
+            const precoAtual = Number(item.preco) || 0;
+            const precoBlackNovember = Math.min(precoAtual, 39.90);
+            if (Math.abs(precoAtual - precoBlackNovember) > 0.001) {
+                item.preco = precoBlackNovember;
+                carrinhoFoiAtualizado = true;
+            }
+        });
+        if (carrinhoFoiAtualizado) {
+            localStorage.setItem("pelamodaCarrinho", JSON.stringify(carrinhoCheckout));
+        }
     }
 
     let descontoBlackNovember = 0;
@@ -917,7 +942,8 @@ async function calcularFreteSuperFrete() {
         const promo = calcularDescontoBlackNovember(carrinhoCheckout);
         descontoBlackNovember = promo.descontoCentavos / 100;
         quantidadeTshirtsBlackNovember = promo.quantidadeElegivel;
-        blackNovemberAtivo = descontoBlackNovember > 0;
+        blackNovemberAtivo =
+            descontoBlackNovember > 0 || promo.quantidadeCroppeds > 0;
 
         // Ao entrar no checkout, o desconto por quantidade já vem aplicado.
         if (!cupomAplicado) {
@@ -932,10 +958,20 @@ async function calcularFreteSuperFrete() {
             avisoBlackNovember.hidden = false;
             avisoBlackNovember.style.cssText =
                 "margin:14px 0;padding:13px 15px;border:1px solid #f4c7ad;border-radius:10px;background:#fff7f1;color:#8f350e;font-size:13px;line-height:1.5;";
+            const avisosPromocao = [];
+            if (descontoBlackNovember > 0) {
+                avisosPromocao.push(
+                    `Você ganhou ${formatarPreco(descontoBlackNovember)} de desconto em ${quantidadeTshirtsBlackNovember} T-shirt(s).`
+                );
+            }
+            if (promo.quantidadeCroppeds > 0) {
+                avisosPromocao.push(
+                    `${promo.quantidadeCroppeds} Cropped(s) por R$ 39,90 cada.`
+                );
+            }
             avisoBlackNovember.innerHTML =
                 `<strong>BLACK NOVEMBER ATIVADA!</strong><br>` +
-                `Você ganhou ${formatarPreco(descontoBlackNovember)} de desconto em ` +
-                `${quantidadeTshirtsBlackNovember} T-shirt(s). A oferta já está aplicada ao total.`;
+                `${avisosPromocao.join("<br>")} A oferta já está aplicada ao total.`;
             if (areaCupom) areaCupom.style.display = "none";
         } else {
             avisoBlackNovember.hidden = true;
@@ -1402,11 +1438,37 @@ try {
 
             const catalogo = await resposta.json();
             const porId = new Map(catalogo.map(produto => [String(produto.id), produto]));
+            let carrinhoFoiAtualizado = false;
 
             carrinhoCheckout.forEach(item => {
                 const produto = porId.get(String(item.produtoId));
-                if (produto?.categoria) item.categoria = produto.categoria;
+                if (!produto) return;
+
+                if (produto.categoria && item.categoria !== produto.categoria) {
+                    item.categoria = produto.categoria;
+                    carrinhoFoiAtualizado = true;
+                }
+
+                const precoNormal = Number(produto.preco) / 100;
+                const precoPromocional = produto.preco_promocional
+                    ? Number(produto.preco_promocional) / 100
+                    : 0;
+                const precoBase = precoPromocional > 0 && precoPromocional < precoNormal
+                    ? precoPromocional
+                    : precoNormal;
+                const precoAtual = blackNovemberCheckoutAtiva() && checkoutEhCropped(produto)
+                    ? Math.min(precoBase, 39.90)
+                    : precoBase;
+
+                if (Math.abs(Number(item.preco) - precoAtual) > 0.001) {
+                    item.preco = precoAtual;
+                    carrinhoFoiAtualizado = true;
+                }
             });
+
+            if (carrinhoFoiAtualizado) {
+                localStorage.setItem("pelamodaCarrinho", JSON.stringify(carrinhoCheckout));
+            }
         } catch (erro) {
             console.error("Erro ao carregar categorias do carrinho:", erro);
             // Mantém a categoria que já estiver salva no carrinho.

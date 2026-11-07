@@ -702,6 +702,11 @@ export default async function handler(req, res) {
 
 
 
+        const inicioBlackNovember = Date.parse("2026-11-01T00:00:00-03:00");
+        const fimBlackNovember = Date.parse("2026-11-27T23:59:59-03:00");
+        const campanhaBlackNovemberAtiva =
+            Date.now() >= inicioBlackNovember && Date.now() <= fimBlackNovember;
+
         let valorProdutosCalculado = 0;
 
 
@@ -758,18 +763,21 @@ const precoPromocional =
 
 
 
-const precoReal =
-
+const precoBase =
     precoPromocional &&
-
     precoPromocional > 0 &&
-
     precoPromocional < precoNormal
-
         ? precoPromocional
-
         : precoNormal;
 
+const categoriaProduto = String(produtoBanco.categoria || "tshirt")
+    .trim()
+    .toLowerCase();
+
+const precoReal =
+    campanhaBlackNovemberAtiva && categoriaProduto === "cropped"
+        ? Math.min(precoBase, 3990)
+        : precoBase;
 
 
                 const quantidade =
@@ -794,7 +802,7 @@ const precoReal =
 
                     nome: produtoBanco.nome,
                     preco: precoReal,
-                    categoria: produtoBanco.categoria || "tshirt"
+                    categoria: categoriaProduto
 
                 };
 
@@ -1038,14 +1046,8 @@ const precoReal =
 
 
 
-        // BLACK NOVEMBER: ativa de 01/11/2026 até 27/11/2026 às 23h59 (horário de Brasília).
-        // Pacotes de T-shirts: 2 por R$ 99,90 | 3 por R$ 150,00 | 4 por R$ 189,90.
-        // Croppeds não participam. Para 5+, formam-se novos pacotes.
-        const inicioBlackNovember = Date.parse("2026-11-01T00:00:00-03:00");
-        const fimBlackNovember = Date.parse("2026-11-27T23:59:59-03:00");
-        const campanhaBlackNovemberAtiva =
-            Date.now() >= inicioBlackNovember && Date.now() <= fimBlackNovember;
-
+        // Black November: 2 T-shirts por R$ 99,90 | 3 por R$ 144,90 | 4 por R$ 189,90.
+        // Croppeds custam R$ 39,90 cada durante a campanha.
         const unidadesTshirts = [];
 
         if (campanhaBlackNovemberAtiva) itensSeguros.forEach(item => {
@@ -1061,7 +1063,7 @@ const precoReal =
 
         const precosPacoteBlackNovember = {
             2: 9990,
-            3: 15000,
+            3: 14490,
             4: 18990
         };
 
@@ -1076,14 +1078,22 @@ const precoReal =
             descontoBlackNovemberCalculado += Math.max(0, subtotalPacote - precoPacote);
         }
 
+        const temCroppedBlackNovember = campanhaBlackNovemberAtiva &&
+            itensSeguros.some(item =>
+                String(item.categoria || "").trim().toLowerCase() === "cropped" &&
+                Number(item.quantidade) > 0
+            );
+        const temOfertaBlackNovember =
+            descontoBlackNovemberCalculado > 0 || temCroppedBlackNovember;
+
         let valorDescontoCalculado = descontoBlackNovemberCalculado;
-        let cupomAplicado = descontoBlackNovemberCalculado > 0
+        let cupomAplicado = temOfertaBlackNovember
             ? "BLACKNOVEMBER"
             : null;
 
         if (cupom && cupom.trim()) {
 
-            if (descontoBlackNovemberCalculado > 0) {
+            if (temOfertaBlackNovember) {
                 return res.status(400).json({
                     erro: "A oferta Black November não acumula com outros cupons."
                 });
