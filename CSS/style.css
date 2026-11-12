@@ -3676,3 +3676,72 @@ body.produto-page .product-help {
         height: 48px;
     }
 }
+
+/* PêlaModa — alternância dos banners principais */
+.hero.hero-carousel {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    aspect-ratio: 2.5 / 1;
+    overflow: hidden;
+    background: #090909;
+    isolation: isolate;
+}
+
+.hero-carousel .hero-slides {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    width: 100%;
+    height: 100%;
+}
+
+.hero-carousel .hero-banner-slide {
+    grid-area: 1 / 1;
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    animation-duration: 14s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+}
+
+.hero-carousel .hero-banner-slide--main {
+    animation-name: pelamodaHeroMain;
+}
+
+.hero-carousel .hero-banner-slide--black {
+    animation-name: pelamodaHeroBlack;
+}
+
+@keyframes pelamodaHeroMain {
+    0%, 45% { opacity: 1; }
+    50%, 95% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes pelamodaHeroBlack {
+    0%, 45% { opacity: 0; }
+    50%, 95% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-carousel .hero-banner-slide {
+        animation: none;
+    }
+
+    .hero-carousel .hero-banner-slide--main {
+        opacity: 1;
+    }
+
+    .hero-carousel .hero-banner-slide--black {
+        opacity: 0;
+    }
+}
