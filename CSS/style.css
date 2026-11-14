@@ -3009,7 +3009,8 @@ html {
 @media (max-width: 600px) {
     body.home-page header {
         padding: 10px 16px 12px;
-        background: #11110f;
+        /* Mantém no celular o mesmo marrom do cabeçalho desktop. */
+        background: rgba(66, 25, 15, .98);
     }
       body.home-page .nav {
         min-height: auto;
