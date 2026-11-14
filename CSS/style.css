@@ -4016,11 +4016,17 @@ body.produto-page .quantity {
     border-color: rgba(75, 29, 16, .28);
     border-radius: 10px;
 }
-body.produto-page .size-option.active,
-body.produto-page .color-option.active {
+body.produto-page .size-option.active {
     border-color: var(--marrom);
     background: #f1dfc6;
     color: var(--marrom);
+}
+
+/* A cor selecionada mantém a sua própria tonalidade. */
+body.produto-page .color-option.active {
+    border-color: var(--terracota);
+    color: transparent;
+    box-shadow: 0 0 0 3px #fff1de, 0 0 0 5px var(--terracota);
 }
 body.produto-page .product-cart-button { min-height: 50px; }
 body.produto-page .product-whatsapp-button {
@@ -4242,4 +4248,35 @@ body.produto-page .color-option::after {
     body.produto-page .product-option strong {
         margin-bottom: 11px;
     }
+}
+
+
+/* =========================================================
+   PÊLAMODA — AJUSTE FINAL DA PÁGINA DO PRODUTO
+   Corrige a cor do seletor ativo e uniformiza a tipografia.
+========================================================= */
+body.produto-page .quantity,
+body.produto-page .quantity button,
+body.produto-page .quantity span,
+body.produto-page .product-cart-button,
+body.produto-page .product-whatsapp-button,
+body.produto-page .product-installment,
+body.produto-page .product-help {
+    font-family: "DM Sans", sans-serif !important;
+}
+
+/* O nome da cor fica totalmente separado do título Tamanho. */
+body.produto-page .product-option:has(.color-option) .option-buttons {
+    padding-bottom: 8px;
+}
+
+body.produto-page .product-option strong {
+    font-family: "DM Sans", sans-serif !important;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+body.produto-page .color-option::after {
+    font-family: "DM Sans", sans-serif !important;
+    font-weight: 600;
 }
