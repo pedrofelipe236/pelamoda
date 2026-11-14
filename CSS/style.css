@@ -4104,7 +4104,7 @@ body.produto-page .product-info-section h2 { color: var(--marrom); }
 
 /* Barra promocional: mantém o destaque da campanha, usando a paleta da marca */
 .bf-countdown-bar {
-    background: #11110f;
+    background: #42190f;
     color: #fff3e3;
 }
 .bf-badge { background: #c35d35; color: #fff8ef; border-radius: 999px; }
@@ -4112,7 +4112,7 @@ body.produto-page .product-info-section h2 { color: var(--marrom); }
 
 /* Ajustes de telas menores */
 @media (max-width: 600px) {
-    .bf-countdown-bar { background: #11110f; }
+    .bf-countdown-bar { background: #42190f; }
     .product { padding: 7px; border-radius: 17px; }
     .product::after { inset: 5px; border-radius: 12px; }
     .product-info { padding: 12px 7px 10px; }
