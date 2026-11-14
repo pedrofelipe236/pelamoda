@@ -3745,3 +3745,414 @@ body.produto-page .product-help {
         opacity: 0;
     }
 }
+
+
+/* =========================================================
+   PÊLAMODA — IDENTIDADE VISUAL NORDESTINA
+   Paleta quente, tipografia expressiva e acabamento costurado.
+   Camada visual: não altera a lógica de produtos, carrinho ou checkout.
+========================================================= */
+:root {
+    --preto: #42190f;
+    --creme: #f4e4cf;
+    --creme-2: #f8eddd;
+    --terracota: #c35d35;
+    --terracota-escuro: #984326;
+    --marrom: #4b1d10;
+    --texto: #32180f;
+    --branco: #fff6e9;
+    --borda: rgba(75, 29, 16, .20);
+    --max: 1180px;
+}
+
+html { background: var(--creme); }
+body {
+    background: var(--creme);
+    color: var(--texto);
+    font-family: "DM Sans", sans-serif;
+}
+
+/* Cabeçalho e navegação */
+header {
+    background: rgba(66, 25, 15, .98);
+    border-bottom: 1px solid rgba(255, 246, 233, .16);
+    box-shadow: 0 4px 18px rgba(50, 24, 15, .10);
+}
+nav a { color: #fff3e3; }
+nav a::after { background: #dfa75d; }
+.icon-btn,
+.cart-header-btn {
+    border-color: rgba(255, 243, 227, .28);
+    color: #fff3e3;
+}
+.icon-btn:hover,
+.cart-header-btn:hover {
+    background: rgba(255, 243, 227, .10);
+    border-color: rgba(255, 243, 227, .55);
+}
+.menu-dropdown {
+    background: #4b1d10;
+    border: 1px solid rgba(255, 243, 227, .18);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(42, 16, 8, .22);
+}
+.menu-dropdown a:hover { background: rgba(255, 243, 227, .12); }
+
+/* Busca */
+.busca-site input {
+    border-color: rgba(75, 29, 16, .22);
+    background: #fff8ed;
+    color: var(--texto);
+}
+.busca-site input:focus {
+    border-color: var(--terracota);
+    box-shadow: 0 0 0 3px rgba(195, 93, 53, .12);
+}
+.busca-site button { color: var(--marrom); }
+
+/* Títulos e chamadas */
+.section-heading h2,
+.story-copy h2,
+.titulo-categoria,
+.checkout-header h1,
+.checkout-box h2,
+.product-details h1,
+.product-info-section h2 {
+    font-family: "Bowlby One SC", "DM Sans", sans-serif;
+    font-weight: 400;
+    color: var(--marrom);
+    letter-spacing: .1px;
+}
+.section-heading h2 {
+    font-size: clamp(31px, 4.1vw, 48px);
+    line-height: 1.08;
+}
+.section-heading p { color: #765d4d; }
+.titulo-categoria {
+    display: inline-block;
+    margin: 0 0 18px;
+    font-size: clamp(25px, 3vw, 35px);
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+.eyebrow { color: #e2a45c; }
+
+/* Botões principais com relevo */
+.btn,
+.btn-primary,
+.product .buy,
+.product-cart-button,
+.cart-checkout,
+.checkout-pay {
+    background: var(--marrom);
+    color: #fff4e5;
+    border: 1px solid var(--marrom);
+    border-bottom: 4px solid #2d1008;
+    border-radius: 999px;
+    box-shadow: 0 3px 0 rgba(45, 16, 8, .10);
+    font-family: "Bowlby One SC", "DM Sans", sans-serif;
+    font-weight: 400;
+    letter-spacing: .15px;
+    transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.btn:hover,
+.btn-primary:hover,
+.product .buy:hover,
+.product-cart-button:hover,
+.cart-checkout:hover,
+.checkout-pay:hover {
+    background: #622818;
+    color: #fff8ee;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 rgba(45, 16, 8, .18);
+}
+.btn:active,
+.btn-primary:active,
+.product .buy:active,
+.product-cart-button:active,
+.cart-checkout:active,
+.checkout-pay:active {
+    transform: translateY(2px);
+    border-bottom-width: 2px;
+    box-shadow: none;
+}
+.btn-outline {
+    border-color: rgba(255, 243, 227, .55);
+    border-radius: 999px;
+}
+
+/* Cards de produtos: fundo creme e costura interna */
+.product {
+    position: relative;
+    isolation: isolate;
+    padding: 9px;
+    overflow: hidden;
+    background: #fff1de;
+    border: 1px solid rgba(75, 29, 16, .62);
+    border-radius: 21px;
+    box-shadow: 0 5px 0 rgba(75, 29, 16, .20), 0 12px 24px rgba(70, 35, 18, .07);
+    transition: transform .22s ease, box-shadow .22s ease;
+}
+.product::after {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border: 1.5px dashed rgba(75, 29, 16, .68);
+    border-radius: 14px;
+    pointer-events: none;
+    z-index: 5;
+}
+.product:hover {
+    transform: translateY(-3px);
+    border-color: rgba(75, 29, 16, .78);
+    box-shadow: 0 7px 0 rgba(75, 29, 16, .19), 0 17px 28px rgba(70, 35, 18, .10);
+}
+.product-link,
+.product-actions { position: relative; z-index: 1; }
+.product-image {
+    border-radius: 12px;
+    background: #ead8c0;
+}
+.product-image img { border-radius: 12px; }
+.product-info { padding: 15px 10px 12px; }
+.product-info h3 {
+    min-height: 0;
+    margin-bottom: 4px;
+    color: var(--marrom);
+    font-family: "Bowlby One SC", "DM Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0;
+}
+.product-info p { color: #816957; }
+.product-info .preco-atual,
+.product-info .preco-promocional {
+    color: var(--marrom);
+    font-size: 23px;
+    font-weight: 800;
+}
+.product-info .preco-antigo { color: #9c8270; }
+.product-info .installment {
+    background: #f1dfc6;
+    color: #76523b;
+    border: 1px solid rgba(75, 29, 16, .10);
+    border-radius: 999px;
+}
+.product-actions { padding: 0 9px 10px; }
+.product .buy {
+    min-height: 45px;
+    margin: 0;
+    border-radius: 999px;
+    font-size: 12px;
+}
+.product .selo-promocao {
+    background: var(--terracota);
+    color: #fff8ef;
+    border-radius: 999px;
+    box-shadow: 0 3px 8px rgba(63, 26, 13, .18);
+}
+.product-bestseller {
+    background: #e4b35e;
+    color: #4b1d10;
+    border-radius: 999px;
+}
+.product-color { border-color: rgba(75, 29, 16, .3); }
+
+/* Benefícios, história e contato */
+.benefits {
+    background: #f7ead8;
+    border-top: 1px dashed rgba(75, 29, 16, .26);
+    border-bottom: 1px dashed rgba(75, 29, 16, .26);
+}
+.benefit { border-color: rgba(75, 29, 16, .24); }
+.benefit-icon { color: var(--terracota-escuro); }
+.benefit h3 { color: var(--marrom); font-family: "Bowlby One SC", sans-serif; font-weight: 400; }
+.benefit p { color: #765d4d; }
+.story { background: #42190f; color: #fff3e3; }
+.story-photo { background: #42190f; }
+.story-photo img { border-color: #dba45e; border-radius: 14px; }
+.story-copy h2 { color: #fff0db; }
+.story-copy p { color: #ead6c0; }
+.story-copy .btn-outline { color: #fff3e3; border-color: #d6a05b; }
+.contact-strip { background: #b95330; color: #fff5e8; }
+.contact-item strong { font-family: "Bowlby One SC", sans-serif; font-weight: 400; }
+footer { background: #321208; color: #e8d3bd; }
+
+/* Página de produto */
+body.produto-page { background: var(--creme); }
+body.produto-page .product-page { background: var(--creme); }
+body.produto-page .product-details {
+    padding: 25px;
+    border: 1px solid rgba(75, 29, 16, .60);
+    border-radius: 20px;
+    background: #fff1de;
+    box-shadow: 0 5px 0 rgba(75, 29, 16, .14);
+}
+body.produto-page .product-details h1 {
+    color: var(--marrom);
+    font-family: "Bowlby One SC", "DM Sans", sans-serif !important;
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 400;
+    letter-spacing: 0;
+}
+body.produto-page .product-category { color: var(--terracota); }
+body.produto-page .product-price,
+body.produto-page .product-price .preco-promocional { color: var(--marrom); }
+body.produto-page .product-description,
+body.produto-page .product-info-list li { color: #765d4d; }
+body.produto-page .product-main-image {
+    border: 1px solid rgba(75, 29, 16, .30);
+    border-radius: 20px;
+    background: #fff1de;
+    padding: 8px;
+}
+body.produto-page .product-main-image img { border-radius: 13px; }
+body.produto-page .size-option,
+body.produto-page .color-option,
+body.produto-page .quantity {
+    border-color: rgba(75, 29, 16, .28);
+    border-radius: 10px;
+}
+body.produto-page .size-option.active,
+body.produto-page .color-option.active {
+    border-color: var(--marrom);
+    background: #f1dfc6;
+    color: var(--marrom);
+}
+body.produto-page .product-cart-button { min-height: 50px; }
+body.produto-page .product-whatsapp-button {
+    border: 1px solid rgba(75, 29, 16, .30);
+    border-radius: 999px;
+    background: #fff8ed;
+    color: var(--marrom);
+}
+body.produto-page .product-help {
+    border-color: rgba(75, 29, 16, .18);
+    background: #f8ead7;
+    color: #765d4d;
+}
+body.produto-page .product-info-section { border-color: rgba(75, 29, 16, .20); }
+body.produto-page .product-info-section h2 { color: var(--marrom); }
+
+/* Carrinho lateral */
+.cart-drawer {
+    background: #fff4e5;
+    border: 1px solid rgba(75, 29, 16, .30);
+    border-radius: 20px 0 0 20px;
+}
+.cart-header {
+    background: #4b1d10;
+    color: #fff3e3;
+    border-bottom: 1px solid rgba(255, 243, 227, .15);
+}
+.cart-header h2 { color: #fff3e3; font-family: "Bowlby One SC", sans-serif; font-weight: 400; }
+.cart-header button { color: #fff3e3; }
+.cart-footer { background: #fff4e5; border-top-color: rgba(75, 29, 16, .16); }
+.cart-subtotal strong { color: var(--marrom); }
+.cart-checkout { min-height: 48px; }
+.cart-continue {
+    border: 1px solid rgba(75, 29, 16, .35);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--marrom);
+}
+.cart-continue:hover { background: #f2e0c8; }
+
+/* Checkout */
+.checkout-page { background: var(--creme); }
+.checkout-logo { color: var(--marrom); }
+.checkout-header h1 { color: var(--marrom); font-size: clamp(24px, 3vw, 34px); }
+.checkout-box {
+    background: #fff3e2;
+    border: 1px solid rgba(75, 29, 16, .55);
+    border-radius: 19px;
+    box-shadow: 0 5px 0 rgba(75, 29, 16, .13);
+}
+.checkout-box h2 { color: var(--marrom); }
+.checkout-box h3 { color: var(--terracota-escuro); }
+.checkout-field label { color: #68432f; }
+.checkout-field input {
+    border-color: rgba(75, 29, 16, .25);
+    border-radius: 10px;
+    background: #fffaf2;
+    color: var(--texto);
+}
+.checkout-field input:focus {
+    border-color: var(--terracota);
+    box-shadow: 0 0 0 3px rgba(195, 93, 53, .12);
+}
+.delivery-card,
+.pickup-card,
+.frete-opcao {
+    border-color: rgba(75, 29, 16, .22);
+    border-radius: 12px;
+    background: #fffaf2;
+}
+.delivery-card:has(input:checked),
+.pickup-card:has(input:checked),
+.frete-opcao:has(input:checked) {
+    border-color: var(--terracota);
+    background: #f7e7d2;
+    box-shadow: 0 0 0 1px var(--terracota);
+}
+.delivery-card input,
+.pickup-card input { accent-color: var(--terracota); }
+.delivery-card strong,
+.pickup-card strong { color: var(--marrom); }
+.checkout-pay { min-height: 54px; border-radius: 999px; }
+
+/* Barra promocional: mantém o destaque da campanha, usando a paleta da marca */
+.bf-countdown-bar {
+    background: #42190f;
+    color: #fff3e3;
+}
+.bf-badge { background: #c35d35; color: #fff8ef; border-radius: 999px; }
+.bf-unit strong { color: #e4b35e; }
+
+/* Ajustes de telas menores */
+@media (max-width: 600px) {
+    .product { padding: 7px; border-radius: 17px; }
+    .product::after { inset: 5px; border-radius: 12px; }
+    .product-info { padding: 12px 7px 10px; }
+    .product-info h3 { font-size: 13px; line-height: 1.2; }
+    .product-info .preco-atual,
+    .product-info .preco-promocional { font-size: 18px; }
+    .product-actions { padding: 0 7px 8px; }
+    .product .buy { min-height: 42px; font-size: 10px; }
+    body.produto-page .product-details { padding: 18px 15px; }
+    .checkout-box { border-radius: 15px; }
+}
+
+/* Botão dos cards inspirado no acabamento em relevo da referência */
+.product .buy {
+    background: #f1d3ad;
+    color: #4b1d10;
+    border: 1.5px solid #4b1d10;
+    border-bottom: 5px solid #4b1d10;
+    box-shadow: 0 3px 0 rgba(45, 16, 8, .10);
+}
+.product .buy:hover {
+    background: #e9c394;
+    color: #3e160b;
+    border-color: #4b1d10;
+}
+.product .buy:active {
+    background: #e4bb88;
+    border-bottom-width: 2px;
+}
+body.produto-page .product-cart-button {
+    background: #4b1d10;
+    color: #fff4e5;
+    border: 1px solid #4b1d10;
+    border-bottom: 4px solid #2d1008;
+    border-radius: 999px;
+    box-shadow: 0 3px 0 rgba(45, 16, 8, .10);
+    font-family: "Bowlby One SC", "DM Sans", sans-serif;
+    font-weight: 400;
+}
+body.produto-page .product-cart-button:hover {
+    background: #622818;
+    border-color: #4b1d10;
+    color: #fff8ee;
+}
