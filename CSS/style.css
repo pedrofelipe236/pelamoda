@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=DM+Sans:wght@400;500;600;700;800&display=swap");
   @font-face {
     font-family: 'Xilosa';
     src: url('../fontes/xilosa_.ttf') format('truetype');
@@ -4157,4 +4158,88 @@ body.produto-page .product-cart-button:hover {
     background: #622818;
     border-color: #4b1d10;
     color: #fff8ee;
+}
+
+/* =========================================================
+   PÊLAMODA — TIPOGRAFIA DA PÁGINA DO PRODUTO
+   Alinha as fontes à identidade da página inicial e melhora
+   o respiro entre as opções de cor e tamanho.
+========================================================= */
+body.produto-page .product-details {
+    font-family: "DM Sans", sans-serif !important;
+}
+
+body.produto-page .product-details h1 {
+    font-family: "Bowlby One SC", "DM Sans", sans-serif !important;
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: 0;
+}
+
+body.produto-page .product-category {
+    font-family: "DM Sans", sans-serif !important;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+body.produto-page .product-price,
+body.produto-page .product-price .preco-promocional {
+    font-family: "DM Sans", sans-serif !important;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+body.produto-page .product-description {
+    font-family: "DM Sans", sans-serif !important;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.65;
+}
+
+body.produto-page .product-option {
+    margin-bottom: 24px;
+}
+
+body.produto-page .product-option strong {
+    display: block;
+    margin: 0 0 10px;
+    font-family: "DM Sans", sans-serif !important;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0;
+}
+
+body.produto-page .option-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+body.produto-page .color-option,
+body.produto-page .size-option {
+    font-family: "DM Sans", sans-serif !important;
+    font-weight: 700;
+}
+
+body.produto-page .color-option::after {
+    font-family: "DM Sans", sans-serif !important;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    body.produto-page .product-details h1 {
+        font-size: 30px;
+        line-height: 1.08;
+    }
+
+    body.produto-page .product-option {
+        margin-bottom: 26px;
+    }
+
+    body.produto-page .product-option strong {
+        margin-bottom: 11px;
+    }
 }
