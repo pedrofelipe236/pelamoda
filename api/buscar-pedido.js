@@ -226,69 +226,60 @@ export default async function handler(req, res) {
 
 
             // ==================================================
-            // BUSCA NORMAL PELO order_nsu
+            // CONSULTA PÚBLICA - PEDIDO + WHATSAPP
             // ==================================================
 
-            const order_nsu =
-                req.query?.order_nsu;
+            const order_nsu = String(req.query?.order_nsu || "").trim();
+            const telefoneInformado = String(req.query?.telefone || "").replace(/\D/g, "");
 
-
-            if (!order_nsu) {
-
+            if (!order_nsu || !telefoneInformado) {
                 return res.status(400).json({
-                    erro: "Pedido não informado"
+                    erro: "Informe o número do pedido e o WhatsApp utilizado na compra"
                 });
             }
 
+            if (order_nsu.length > 100 || telefoneInformado.length < 10 || telefoneInformado.length > 13) {
+                return res.status(400).json({
+                    erro: "Dados de consulta inválidos"
+                });
+            }
 
             const url =
                 `${process.env.SUPABASE_URL}/rest/v1/pedidos` +
                 `?order_nsu=eq.${encodeURIComponent(order_nsu)}` +
-                `&select=numero_pedido,status,pagamento_url`;
+                `&select=numero_pedido,status,pagamento_url,telefone` +
+                `&limit=1`;
 
+            const resposta = await fetch(url, {
+                headers: {
+                    apikey: process.env.SUPABASE_SECRET_KEY,
+                    Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY}`
+                }
+            });
 
-            const resposta =
-                await fetch(url, {
-                    headers: {
-
-                        apikey:
-                            process.env.SUPABASE_SECRET_KEY,
-
-                        Authorization:
-                            `Bearer ${process.env.SUPABASE_SECRET_KEY}`
-                    }
-                });
-
-
-            const dados =
-                await resposta.json();
-
+            const dados = await resposta.json();
 
             if (!resposta.ok) {
-
+                console.error("Erro Supabase ao buscar pedido público:", dados);
                 return res.status(500).json({
                     erro: "Erro ao buscar pedido"
                 });
             }
 
+            // Compara somente os dígitos para aceitar números com ou sem
+            // parênteses, espaços e hífen. Não expõe o telefone na resposta.
+            const telefoneCadastrado = String(dados?.[0]?.telefone || "").replace(/\D/g, "");
 
-            if (!dados.length) {
-
+            if (!dados.length || !telefoneCadastrado || telefoneCadastrado !== telefoneInformado) {
                 return res.status(404).json({
-                    erro: "Pedido não encontrado"
+                    erro: "Pedido não encontrado ou dados de consulta incorretos"
                 });
             }
 
-
             return res.status(200).json({
-                numero_pedido:
-                    dados[0].numero_pedido,
-
-                status:
-                    dados[0].status,
-
-                pagamento_url:
-                    dados[0].pagamento_url || null
+                numero_pedido: dados[0].numero_pedido,
+                status: dados[0].status,
+                pagamento_url: dados[0].pagamento_url || null
             });
 
         } catch (erro) {

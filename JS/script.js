@@ -1676,47 +1676,24 @@ const produtosAtivos =
     // INICIALIZAÇÃO
     // ======================================================
 async function atualizarLinkMeusPedidos() {
-    const linkDesktop =
-        document.getElementById("linkMeusPedidos");
-
     const linkMobile =
         document.getElementById("linkMeusPedidosMobile");
 
-    if (!linkDesktop && !linkMobile) {
-        return;
-    }
+    if (!linkMobile) return;
 
     const {
         data: { user }
     } = await supabaseClient.auth.getUser();
 
-    const links = [
-        linkDesktop,
-        linkMobile
-    ];
+    linkMobile.textContent = "MEUS PEDIDOS";
 
-    links.forEach(link => {
-        if (!link) return;
+    if (user) {
+        linkMobile.href = "login.html";
+    } else {
+        linkMobile.href = "acompanhar-pedido.html";
+    }
 
-        link.href = "login.html";
-        link.textContent = "Meus pedidos";
-
-        if (!user) {
-            link.onclick = function (event) {
-                event.preventDefault();
-
-                const confirmar = confirm(
-                    "Para acompanhar seus pedidos, você precisa entrar com sua conta. Deseja ir para o login?"
-                );
-
-                if (confirmar) {
-                    window.location.href = "login.html";
-                }
-            };
-        } else {
-            link.onclick = null;
-        }
-    });
+    linkMobile.onclick = null;
 }
     document.addEventListener(
         "DOMContentLoaded",
@@ -1752,40 +1729,8 @@ if (botaoMenu && menuDropdown) {
             menuDropdown.classList.remove("ativo");
         }
     });
-    async function atualizarLinkMeusPedidos() {
 
-    const link =
-        document.getElementById("linkMeusPedidos");
-
-    if (!link) return;
-
-    const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
-
-    if (user) {
-
-        link.textContent =
-            "Meus pedidos";
-
-        link.href =
-            "login.html";
-
-        link.onclick = null;
-
-    } else {
-
-        link.textContent =
-            "Como comprar";
-
-        link.href =
-            "#como-comprar";
-
-        link.onclick = null;
-    }
 }
-}
-const campoBusca = document.getElementById("buscaProdutos");
 
 if (campoBusca) {
     campoBusca.addEventListener("change", function () {

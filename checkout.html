@@ -1362,10 +1362,42 @@ if (!respostaPedido.ok) {
     );
 }
 
-console.log(
-    "Pedido criado:",
-    pedidoCriado.numero_pedido
+// Salva os dados para permitir a consulta do pedido
+// sem exigir que o cliente tenha uma conta.
+
+const pedidoParaConsulta = {
+    order_nsu: pedidoCriado.order_nsu || orderNsu,
+    numero_pedido: pedidoCriado.numero_pedido || "",
+    telefone: whatsapp
+};
+
+let pedidosConsultaSalvos = [];
+
+try {
+    const salvos = JSON.parse(
+        localStorage.getItem("pelamodaPedidosConsulta") || "[]"
+    );
+
+    if (Array.isArray(salvos)) {
+        pedidosConsultaSalvos = salvos;
+    }
+} catch (erro) {
+    console.warn("Não foi possível ler os pedidos salvos.", erro);
+}
+
+pedidosConsultaSalvos = [
+    pedidoParaConsulta,
+    ...pedidosConsultaSalvos.filter(
+        pedido => pedido?.order_nsu !== pedidoParaConsulta.order_nsu
+    )
+].slice(0, 10);
+
+localStorage.setItem(
+    "pelamodaPedidosConsulta",
+    JSON.stringify(pedidosConsultaSalvos)
 );
+
+console.log("Pedido criado:", pedidoCriado.numero_pedido);
 const emailCliente =
     document.getElementById("email").value.trim();
 
