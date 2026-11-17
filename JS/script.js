@@ -1676,24 +1676,26 @@ const produtosAtivos =
     // INICIALIZAÇÃO
     // ======================================================
 async function atualizarLinkMeusPedidos() {
-    const linkMobile =
-        document.getElementById("linkMeusPedidosMobile");
+  const linkDesktop = document.getElementById("linkMeusPedidosDesktop");
+  const linkMobile = document.getElementById("linkMeusPedidosMobile");
 
-    if (!linkMobile) return;
+  if (!linkDesktop && !linkMobile) return;
 
-    const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
+  const { data: { user } } = await supabaseClient.auth.getUser();
 
+  const destino = user
+    ? "login.html"
+    : "acompanhar-pedido.html";
+
+  if (linkDesktop) {
+    linkDesktop.href = destino;
+    linkDesktop.textContent = "Meus pedidos";
+  }
+
+  if (linkMobile) {
+    linkMobile.href = destino;
     linkMobile.textContent = "MEUS PEDIDOS";
-
-    if (user) {
-        linkMobile.href = "login.html";
-    } else {
-        linkMobile.href = "acompanhar-pedido.html";
-    }
-
-    linkMobile.onclick = null;
+  }
 }
     document.addEventListener(
         "DOMContentLoaded",
