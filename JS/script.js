@@ -1731,8 +1731,9 @@ if (botaoMenu && menuDropdown) {
     });
 
 }
-
+const campoBusca = document.getElementById("buscaProdutos");
 if (campoBusca) {
+    
     campoBusca.addEventListener("change", function () {
         const btnBuscarProdutos = document.getElementById("btnBuscarProdutos");
 
