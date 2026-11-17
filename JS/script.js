@@ -1768,5 +1768,5 @@ if (btnBuscarProdutos && campoBusca) {
     
     });
 }
-console.log("CAMPO BUSCA:", document.getElementById("buscaProdutos"));
+
 
