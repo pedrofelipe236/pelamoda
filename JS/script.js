@@ -200,7 +200,7 @@ async function carregarEstoqueAPI() {
 
         const mensagem =
             encodeURIComponent(
-                `Oxe! Vim pelo site da PêlaModa e quero a camisa ${nomeProduto}.
+                `Vim pelo site da PêlaModa e quero a camisa ${nomeProduto}.
 
     Cor: ${corSelecionada}
     Tamanho: ${tamanhoSelecionado}
@@ -1300,7 +1300,7 @@ metaDescricao.setAttribute(
         }
 
         let mensagem =
-            "Oxe! Vim pelo site da PêlaModa e quero finalizar este pedido:\n\n";
+            "Vim pelo site da PêlaModa e quero finalizar este pedido:\n\n";
 
         let total = 0;
 
