@@ -111,7 +111,7 @@
                         <div>
                             <strong>Retirada grátis</strong>
                             <span>
-                                Retire seu pedido em um dos nossos pontos.
+                                Santo Amaro: segunda a sexta. Janga: segunda a sábado.
                             </span>
                         </div>
 
@@ -131,7 +131,7 @@
                         <div>
                             <strong>Entrega por motoboy parceiro</strong>
                             <span>
-                                R$ 1,50 por km, calculado pela rota de ida a partir de Santo Amaro.
+                                Entregas de segunda a sexta-feira.
                             </span>
                         </div>
 
@@ -233,7 +233,7 @@
 
                         <span>
                             <strong>Recife - Santo Amaro</strong>
-                            Rua Dom Vital, 106
+                            Rua Dom Vital, 106 — segunda a sexta-feira
                         </span>
                     </label>
 
@@ -247,7 +247,7 @@
 
                         <span>
                             <strong>Paulista - Janga</strong>
-                            Rua João Alfredo, 934
+                            Rua João Alfredo, 934 — segunda a sábado
                         </span>
                     </label>
 
@@ -817,9 +817,8 @@ preencherDadosUsuario();
                 checkoutFrete.textContent = formatarPreco(valorFrete);
                 resultadoFrete.innerHTML = `
                     <div class="frete-normal">
-                        <strong>FRETE POR MOTOBOY CALCULADO</strong>
-                        <span>Distância de ida: ${Number(resultado.distancia_km).toFixed(2).replace(".", ",")} km</span>
-                        <strong>${formatarPreco(valorFrete)}</strong>
+                        <strong>FRETE POR MOTOBOY</strong>
+                        <strong>Valor da entrega: ${formatarPreco(valorFrete)}</strong>
                     </div>
                 `;
                 atualizarTotalCheckout();
