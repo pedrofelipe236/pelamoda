@@ -118,7 +118,7 @@
                     </label>
 
 
-                    <!-- MOTO UBER -->
+                    <!-- MOTOBOY PARCEIRO -->
 
                     <label class="delivery-card">
 
@@ -129,9 +129,9 @@
                         >
 
                         <div>
-                            <strong>Entrega por Moto Uber</strong>
+                            <strong>Entrega por motoboy parceiro</strong>
                             <span>
-                                O valor da corrida é calculado no momento da entrega.
+                                R$ 1,50 por km, calculado pela rota de ida a partir de Santo Amaro.
                             </span>
                         </div>
 
@@ -477,10 +477,14 @@ preencherDadosUsuario();
     }
 
     let valorFrete = 0;
+    let freteMotoboyCalculadoPara = "";
+    let assinaturaMotoboyEmCalculo = "";
+    let promessaCalculoMotoboy = null;
+    let versaoCalculoMotoboy = 0;
 
 
     // ========================================
-    // ENTREGA / RETIRADA / MOTO UBER
+    // ENTREGA / RETIRADA / MOTOBOY PARCEIRO
     // ========================================
 
     const tiposEntrega = document.querySelectorAll(
@@ -498,6 +502,7 @@ preencherDadosUsuario();
         opcao.addEventListener("change", () => {
 
             const tipo = opcao.value;
+            invalidarFreteMotoboy();
 
             if (tipo === "retirada") {
 
@@ -515,7 +520,10 @@ preencherDadosUsuario();
                 areaEndereco.style.display = "block";
                 areaRetirada.style.display = "none";
 
+                valorFrete = 0;
                 checkoutFrete.textContent = "A calcular";
+                atualizarTotalCheckout();
+                verificarEntregaGratis();
             }
 
             if (tipo === "motouber") {
@@ -523,10 +531,7 @@ preencherDadosUsuario();
                 areaEndereco.style.display = "block";
                 areaRetirada.style.display = "none";
 
-                checkoutFrete.textContent = "A combinar";
-                valorFrete = 0;
-
-                atualizarTotalCheckout();
+                calcularFreteMotoboy();
             }
 
         });
@@ -552,6 +557,12 @@ preencherDadosUsuario();
 
     const estadoInput =
         document.getElementById("estado");
+
+    const numeroInput =
+        document.getElementById("numero");
+
+    const complementoInput =
+        document.getElementById("complemento");
 
     cepInput.addEventListener("blur", async () => {
 
@@ -611,33 +622,57 @@ preencherDadosUsuario();
 
     });
 
+    // Alterações no endereço invalidam qualquer cotação anterior do motoboy.
+    [
+        cepInput,
+        ruaInput,
+        numeroInput,
+        complementoInput,
+        bairroInput,
+        cidadeInput,
+        estadoInput
+    ].forEach(campo => {
+        campo.addEventListener("input", invalidarFreteMotoboy);
+    });
+
+    // Ao sair de um campo, tenta calcular novamente se o motoboy estiver selecionado.
+    [
+        ruaInput,
+        numeroInput,
+        complementoInput,
+        bairroInput,
+        cidadeInput,
+        estadoInput
+    ].forEach(campo => {
+        campo.addEventListener("blur", () => {
+            const tipoAtual = document.querySelector(
+                'input[name="tipo-entrega"]:checked'
+            )?.value;
+
+            if (tipoAtual === "motouber") {
+                calcularFreteMotoboy();
+            }
+        });
+    });
+
 
     // ========================================
     // ENTREGA GRÁTIS
     // ========================================
 
     const bairrosGratis = {
+    "paulista": [
+        "janga",
+        "pau amarelo"
+    ],
 
-        "paulista": [
-            "janga",
-            "pau amarelo"
-        ],
-
-        "olinda": [
-            "rio doce",
-            "casa caiada",
-            "jardim atlantico",
-            "bairro novo"
-        ],
-
-        "recife": [
-            "espinheiro",
-            "gracas",
-            "boa vista",
-            "santo amaro"
-        ]
-
-    };
+    "olinda": [
+        "rio doce",
+        "casa caiada",
+        "jardim atlantico",
+        "bairro novo"
+    ]
+};
 
 
     function normalizarTexto(texto) {
@@ -651,6 +686,174 @@ preencherDadosUsuario();
     }
 
 
+    function obterDadosEnderecoMotoboy() {
+        return {
+            rua: ruaInput.value.trim(),
+            numero: numeroInput.value.trim(),
+            complemento: complementoInput.value.trim(),
+            bairro: bairroInput.value.trim(),
+            cidade: cidadeInput.value.trim(),
+            estado: estadoInput.value.trim(),
+            cep: cepInput.value.replace(/\D/g, "")
+        };
+    }
+
+    function criarAssinaturaEnderecoMotoboy(dados) {
+        return [
+            dados.rua,
+            dados.numero,
+            dados.complemento,
+            dados.bairro,
+            dados.cidade,
+            dados.estado,
+            dados.cep
+        ].map(valor => String(valor || "").trim().toLowerCase()).join("|");
+    }
+
+    function invalidarFreteMotoboy() {
+        versaoCalculoMotoboy += 1;
+        freteMotoboyCalculadoPara = "";
+        assinaturaMotoboyEmCalculo = "";
+        promessaCalculoMotoboy = null;
+
+        const tipoAtual = document.querySelector(
+            'input[name="tipo-entrega"]:checked'
+        )?.value;
+
+        if (tipoAtual !== "motouber") return;
+
+        valorFrete = 0;
+        checkoutFrete.textContent = "A calcular";
+        resultadoFrete.innerHTML = `
+            <div class="frete-normal">
+                Endereço alterado. O frete será recalculado antes do pagamento.
+            </div>
+        `;
+        atualizarTotalCheckout();
+    }
+
+    async function calcularFreteMotoboy() {
+        const tipoAtual = document.querySelector(
+            'input[name="tipo-entrega"]:checked'
+        )?.value;
+
+        if (tipoAtual !== "motouber") return false;
+
+        const dadosEndereco = obterDadosEnderecoMotoboy();
+        const assinatura = criarAssinaturaEnderecoMotoboy(dadosEndereco);
+
+        if (
+            !dadosEndereco.rua ||
+            !dadosEndereco.numero ||
+            !dadosEndereco.bairro ||
+            !dadosEndereco.cidade ||
+            !dadosEndereco.estado ||
+            dadosEndereco.cep.length !== 8
+        ) {
+            valorFrete = 0;
+            checkoutFrete.textContent = "A calcular";
+            resultadoFrete.innerHTML = `
+                <div class="frete-normal">
+                    Preencha CEP, rua, número e bairro para calcular a entrega por motoboy.
+                </div>
+            `;
+            atualizarTotalCheckout();
+            return false;
+        }
+
+        if (freteMotoboyCalculadoPara === assinatura) {
+            return true;
+        }
+
+        if (
+            promessaCalculoMotoboy &&
+            assinaturaMotoboyEmCalculo === assinatura
+        ) {
+            return await promessaCalculoMotoboy;
+        }
+
+        const versaoAtual = ++versaoCalculoMotoboy;
+        assinaturaMotoboyEmCalculo = assinatura;
+        checkoutFrete.textContent = "Calculando...";
+        resultadoFrete.innerHTML = `
+            <div class="frete-normal">
+                Calculando a distância a partir de Santo Amaro...
+            </div>
+        `;
+
+        const promessa = (async () => {
+            try {
+                const resposta = await fetch("/api/frete", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        modo: "motoboy",
+                        ...dadosEndereco
+                    })
+                });
+
+                const resultado = await resposta.json().catch(() => ({}));
+
+                if (versaoAtual !== versaoCalculoMotoboy) {
+                    return false;
+                }
+
+                if (
+                    !resposta.ok ||
+                    resultado.sucesso !== true ||
+                    !Number.isSafeInteger(resultado.valor_frete_centavos) ||
+                    resultado.valor_frete_centavos <= 0 ||
+                    !Number.isFinite(Number(resultado.distancia_km))
+                ) {
+                    throw new Error(
+                        resultado.erro || "Não foi possível calcular o frete do motoboy."
+                    );
+                }
+
+                valorFrete = resultado.valor_frete_centavos / 100;
+                freteMotoboyCalculadoPara = assinatura;
+                checkoutFrete.textContent = formatarPreco(valorFrete);
+                resultadoFrete.innerHTML = `
+                    <div class="frete-normal">
+                        <strong>FRETE POR MOTOBOY CALCULADO</strong>
+                        <span>Distância de ida: ${Number(resultado.distancia_km).toFixed(2).replace(".", ",")} km</span>
+                        <strong>${formatarPreco(valorFrete)}</strong>
+                    </div>
+                `;
+                atualizarTotalCheckout();
+                return true;
+
+            } catch (erro) {
+                console.error("Erro ao calcular frete do motoboy:", erro);
+
+                if (versaoAtual === versaoCalculoMotoboy) {
+                    valorFrete = 0;
+                    freteMotoboyCalculadoPara = "";
+                    checkoutFrete.textContent = "Indisponível";
+                    resultadoFrete.innerHTML = `
+                        <div class="frete-normal">
+                            ${erro.message || "Não foi possível calcular o frete. Confira o endereço e tente novamente."}
+                        </div>
+                    `;
+                    atualizarTotalCheckout();
+                }
+
+                return false;
+
+            } finally {
+                if (versaoAtual === versaoCalculoMotoboy) {
+                    promessaCalculoMotoboy = null;
+                    assinaturaMotoboyEmCalculo = "";
+                }
+            }
+        })();
+
+        promessaCalculoMotoboy = promessa;
+        return await promessa;
+    }
+
     function verificarEntregaGratis() {
 const tipoEntrega =
     document.querySelector(
@@ -658,20 +861,7 @@ const tipoEntrega =
     )?.value;
 
 if (tipoEntrega === "motouber") {
-
-    valorFrete = 0;
-
-    checkoutFrete.textContent = "A combinar";
-
-    resultadoFrete.innerHTML = `
-        <div class="frete-normal">
-            Valor da entrega por Moto Uber será combinado
-            de acordo com o endereço.
-        </div>
-    `;
-
-    atualizarTotalCheckout();
-
+    calcularFreteMotoboy();
     return;
 }
         const cidade =
@@ -758,6 +948,17 @@ async function calcularFreteSuperFrete() {
         });
 
         const fretes = await resposta.json();
+
+        const tipoAtual = document.querySelector(
+            'input[name="tipo-entrega"]:checked'
+        )?.value;
+
+        if (
+            tipoAtual !== "endereco" ||
+            cepInput.value.replace(/\D/g, "") !== cepDestino
+        ) {
+            return;
+        }
 
         if (!resposta.ok) {
             throw new Error(
@@ -861,6 +1062,17 @@ async function calcularFreteSuperFrete() {
         });
 
     } catch (erro) {
+
+        const tipoAtual = document.querySelector(
+            'input[name="tipo-entrega"]:checked'
+        )?.value;
+
+        if (
+            tipoAtual !== "endereco" ||
+            cepInput.value.replace(/\D/g, "") !== cepDestino
+        ) {
+            return;
+        }
 
         console.error(
             "Erro ao calcular frete:",
@@ -1238,14 +1450,28 @@ btnPagamento.addEventListener("click", async () => {
         }
     }
 
-    // MOTO UBER
+    // MOTOBOY PARCEIRO
     if (tipoEntrega === "motouber") {
 
-        const cep = document.getElementById("cep").value.trim();
-        const numero = document.getElementById("numero").value.trim();
+        const dadosEndereco = obterDadosEnderecoMotoboy();
 
-        if (!cep || !numero) {
-            alert("Informe o endereço completo para o Moto Uber.");
+        if (
+            !dadosEndereco.cep ||
+            dadosEndereco.cep.length !== 8 ||
+            !dadosEndereco.rua ||
+            !dadosEndereco.numero ||
+            !dadosEndereco.bairro ||
+            !dadosEndereco.cidade ||
+            !dadosEndereco.estado
+        ) {
+            alert("Preencha o endereço completo para calcular a entrega por motoboy.");
+            return;
+        }
+
+        const freteCalculado = await calcularFreteMotoboy();
+
+        if (!freteCalculado) {
+            alert("Não foi possível calcular o frete do motoboy. Confira o endereço e tente novamente.");
             return;
         }
     }
@@ -1291,7 +1517,7 @@ const dadosPedido = {
         document.getElementById("cep")?.value.trim() || "",
 
     endereco:
-        document.getElementById("endereco")?.value.trim() || "",
+        document.getElementById("rua")?.value.trim() || "",
 
     numero:
         document.getElementById("numero")?.value.trim() || "",

@@ -17,50 +17,18 @@ function normalizarTexto(texto = "") {
 
 
 const bairrosGratis = {
-
-
-
-    paulista: [
-
+    "paulista": [
         "janga",
-
         "pau amarelo"
-
     ],
 
-
-
-    olinda: [
-
+    "olinda": [
         "rio doce",
-
         "casa caiada",
-
         "jardim atlantico",
-
         "bairro novo"
-
-    ],
-
-
-
-    recife: [
-
-        "espinheiro",
-
-        "gracas",
-
-        "boa vista",
-
-        "santo amaro"
-
     ]
-
-
-
 };
-
-
 
 
 
@@ -263,6 +231,131 @@ async function calcularFretesReais(cepDestino) {
         );
 
 }
+
+async function buscarCoordenadasMotoboy(endereco, apiKey) {
+
+    const url = new URL("https://api.heigit.org/pelias/v1/search");
+
+    url.searchParams.set("text", endereco);
+    url.searchParams.set("size", "1");
+    url.searchParams.set("boundary.country", "BR");
+
+    const resposta = await fetch(url, {
+        headers: {
+            Authorization: apiKey,
+            Accept: "application/json"
+        }
+    });
+
+    const dados = await resposta.json().catch(() => ({}));
+
+    if (!resposta.ok) {
+        console.error("Erro ao localizar endereço do motoboy:", dados);
+        throw new Error("Não foi possível localizar o endereço para calcular o motoboy.");
+    }
+
+    const coordenadas = dados.features?.[0]?.geometry?.coordinates;
+
+    if (
+        !Array.isArray(coordenadas) ||
+        coordenadas.length !== 2 ||
+        !coordenadas.every(Number.isFinite)
+    ) {
+        throw new Error(`Não encontramos o endereço: ${endereco}`);
+    }
+
+    return coordenadas;
+}
+
+
+async function calcularFreteMotoboyBackend(dadosEndereco) {
+
+    const apiKey = process.env.OPENROUTESERVICE_API_KEY;
+
+    if (!apiKey) {
+        throw new Error("Chave de cálculo de rota não configurada.");
+    }
+
+    const {
+        endereco,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        estado,
+        cep
+    } = dadosEndereco;
+
+    const cepLimpo = String(cep || "").replace(/\D/g, "");
+
+    if (
+        !String(endereco || "").trim() ||
+        !String(numero || "").trim() ||
+        !String(bairro || "").trim() ||
+        !String(cidade || "").trim() ||
+        !String(estado || "").trim() ||
+        cepLimpo.length !== 8
+    ) {
+        throw new Error("Informe o endereço completo do cliente.");
+    }
+
+    const origemTexto =
+        "Rua Dom Vital, 106, Santo Amaro, Recife, Pernambuco, Brasil";
+
+    const destinoTexto = [
+        endereco,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        estado,
+        cepLimpo,
+        "Brasil"
+    ].filter(Boolean).join(", ");
+
+    const [origem, destino] = await Promise.all([
+        buscarCoordenadasMotoboy(origemTexto, apiKey),
+        buscarCoordenadasMotoboy(destinoTexto, apiKey)
+    ]);
+
+    const respostaRota = await fetch(
+        "https://api.heigit.org/openrouteservice/v2/directions/driving-car",
+        {
+            method: "POST",
+            headers: {
+                Authorization: apiKey,
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify({
+                coordinates: [origem, destino],
+                instructions: false
+            })
+        }
+    );
+
+    const dadosRota = await respostaRota.json().catch(() => ({}));
+
+    if (!respostaRota.ok) {
+        console.error("Erro ao calcular rota do motoboy:", dadosRota);
+        throw new Error("Não foi possível calcular a rota do motoboy.");
+    }
+
+    const distanciaMetros = dadosRota.routes?.[0]?.summary?.distance;
+
+    if (!Number.isFinite(distanciaMetros) || distanciaMetros <= 0) {
+        throw new Error("Não foi possível obter a distância da rota do motoboy.");
+    }
+
+    // R$ 1,50 por km, somente ida. O valor é armazenado em centavos.
+    const valorFreteCentavos = Math.round(distanciaMetros * 0.15);
+
+    return {
+        distancia_km: Number((distanciaMetros / 1000).toFixed(2)),
+        valor_frete_centavos: valorFreteCentavos
+    };
+}
+
 
 export default async function handler(req, res) {
 
@@ -856,21 +949,46 @@ const precoReal =
 
 
 
-        /* MOTO UBER */
-
-
+        /* MOTOBOY PARCEIRO - RECÁLCULO E VALIDAÇÃO NO SERVIDOR */
 
         else if (
-
             tipoEntregaNormalizado === "motouber"
-
         ) {
 
+            let freteMotoboy;
 
+            try {
+                freteMotoboy = await calcularFreteMotoboyBackend({
+                    endereco,
+                    numero,
+                    complemento,
+                    bairro,
+                    cidade,
+                    estado,
+                    cep
+                });
+            } catch (erroFreteMotoboy) {
+                console.error("Falha ao validar frete do motoboy:", erroFreteMotoboy);
 
-            valorFreteCalculado = 0;
+                return res.status(502).json({
+                    erro: "Não foi possível calcular o frete do motoboy agora. Confira o endereço e tente novamente."
+                });
+            }
 
+            const freteEnviado = Number(valor_frete);
 
+            if (
+                !Number.isSafeInteger(freteEnviado) ||
+                freteEnviado !== freteMotoboy.valor_frete_centavos
+            ) {
+                return res.status(409).json({
+                    erro: "O valor do motoboy foi atualizado. Recalcule o frete antes de finalizar o pedido.",
+                    distancia_km: freteMotoboy.distancia_km,
+                    valor_frete_centavos: freteMotoboy.valor_frete_centavos
+                });
+            }
+
+            valorFreteCalculado = freteMotoboy.valor_frete_centavos;
 
         }
 
